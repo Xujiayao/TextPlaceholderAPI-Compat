@@ -241,11 +241,19 @@ public class GeneralUtils {
 
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
 		} else if (input.getContent() instanceof ScoreTextContent content) {
+			//#if MC > 12101
 			list.add(new ScoreNode(content.name(), content.objective()));
+			//#else
+			//$$ list.add(new ScoreNode(content.getName(), content.getObjective()));
+			//#endif
 		} else if (input.getContent() instanceof KeybindTextContent content) {
 			list.add(new KeybindNode(content.getKey()));
 		} else if (input.getContent() instanceof SelectorTextContent content) {
+			//#if MC > 12101
 			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
+			//#else
+			//$$ list.add(new SelectorNode(content.getPattern(), content.getSeparator().map(GeneralUtils::convertToNodes)));
+			//#endif
 		} else if (input.getContent() instanceof NbtTextContent content) {
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
 		}

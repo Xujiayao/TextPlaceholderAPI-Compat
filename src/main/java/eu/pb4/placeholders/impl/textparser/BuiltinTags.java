@@ -36,7 +36,9 @@ import net.minecraft.text.BlockNbtDataSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.EntityNbtDataSource;
 import net.minecraft.text.MutableText;
+//#if MC > 12101
 import net.minecraft.text.ParsedSelector;
+//#endif
 import net.minecraft.text.StorageNbtDataSource;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -364,11 +366,15 @@ public final class BuiltinTags {
 				var sel = data.getNext("pattern", "@p");
 				var arg = data.getNext("separator");
 
+				//#if MC > 12101
 				Optional<ParsedSelector> selector = ParsedSelector.parse(sel).result();
 				if (selector.isEmpty()) {
 					return TextNode.empty();
 				}
 				return new SelectorNode(selector.get(), arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
+				//#else
+				//$$ return new SelectorNode(sel, arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
+				//#endif
 			}));
 		}
 

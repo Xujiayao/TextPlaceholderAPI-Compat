@@ -36,7 +36,9 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.EntityNbtDataSource;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
+//#if MC > 12101
 import net.minecraft.text.ParsedSelector;
+//#endif
 import net.minecraft.text.StorageNbtDataSource;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -383,6 +385,7 @@ public final class TextTagsV1 {
 			TextParserV1.registerDefault(TextParserV1.TextTag.of("selector", "special", false, (tag, data, input, handlers, endAt) -> {
 				String[] lines = data.split(":");
 				String pattern = restoreOriginalEscaping(cleanArgument(lines[0]));
+				//#if MC > 12101
 				Optional<ParsedSelector> optional = ParsedSelector.parse(pattern).result();
 				if (optional.isEmpty()) {
 					return TextParserV1.TagNodeValue.EMPTY;
@@ -392,6 +395,13 @@ public final class TextTagsV1 {
 				} else if (lines.length == 1) {
 					return new TextParserV1.TagNodeValue(new SelectorNode(optional.get(), Optional.empty()), 0);
 				}
+				//#else
+				//$$ if (lines.length == 2) {
+				//$$ 	return new TextParserV1.TagNodeValue(new SelectorNode(pattern, Optional.of(TextNode.asSingle(recursiveParsing(restoreOriginalEscaping(cleanArgument(lines[1])), handlers, null).nodes()))), 0);
+				//$$ } else if (lines.length == 1) {
+				//$$ 	return new TextParserV1.TagNodeValue(new SelectorNode(pattern, Optional.empty()), 0);
+				//$$ }
+				//#endif
 				return TextParserV1.TagNodeValue.EMPTY;
 			}));
 		}

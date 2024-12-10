@@ -72,7 +72,11 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 			return of(player, view);
 		} else {
 			var world = (ServerWorld) entity.getWorld();
+			//#if MC > 12101
 			return new PlaceholderContext(entity.getServer(), () -> entity.getCommandSource(world), world, null, entity, null, view);
+			//#else
+			//$$ return new PlaceholderContext(entity.getServer(), () -> entity.getCommandSource(), world, null, entity, null, view);
+			//#endif
 		}
 	}
 
