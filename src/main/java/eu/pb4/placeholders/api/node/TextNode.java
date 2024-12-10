@@ -9,61 +9,61 @@ import net.minecraft.text.Text;
 import java.util.List;
 
 public interface TextNode {
-    Text toText(ParserContext context, boolean removeBackslashes);
+	static TextNode convert(Text input) {
+		return GeneralUtils.convertToNodes(input);
+	}
 
-    default Text toText(ParserContext context) {
-        return toText(context, true);
-    }
+	static TextNode of(String input) {
+		return new LiteralNode(input);
+	}
 
-    default Text toText(PlaceholderContext context) {
-        return toText(context.asParserContext(), true);
-    }
+	static TextNode wrap(TextNode... nodes) {
+		return new ParentNode(nodes);
+	}
 
-    default Text toText() {
-        return toText(ParserContext.of(), true);
-    }
+	static TextNode wrap(List<TextNode> nodes) {
+		return new ParentNode(nodes.toArray(GeneralUtils.CASTER));
+	}
 
-    default boolean isDynamic() {
-        return false;
-    }
+	static TextNode asSingle(TextNode... nodes) {
+		return switch (nodes.length) {
+			case 0 -> EmptyNode.INSTANCE;
+			case 1 -> nodes[0];
+			default -> wrap(nodes);
+		};
+	}
 
-    static TextNode convert(Text input) {
-        return GeneralUtils.convertToNodes(input);
-    }
+	static TextNode asSingle(List<TextNode> nodes) {
+		return switch (nodes.size()) {
+			case 0 -> EmptyNode.INSTANCE;
+			case 1 -> nodes.get(0);
+			default -> wrap(nodes);
+		};
+	}
 
-    static TextNode of(String input) {
-        return new LiteralNode(input);
-    }
+	static TextNode[] array(TextNode... nodes) {
+		return nodes;
+	}
 
-    static TextNode wrap(TextNode... nodes) {
-        return new ParentNode(nodes);
-    }
+	static TextNode empty() {
+		return EmptyNode.INSTANCE;
+	}
 
-    static TextNode wrap(List<TextNode> nodes) {
-        return new ParentNode(nodes.toArray(GeneralUtils.CASTER));
-    }
+	Text toText(ParserContext context, boolean removeBackslashes);
 
-    static TextNode asSingle(TextNode... nodes) {
-        return switch (nodes.length) {
-            case 0 -> EmptyNode.INSTANCE;
-            case 1 -> nodes[0];
-            default -> wrap(nodes);
-        };
-    }
+	default Text toText(ParserContext context) {
+		return toText(context, true);
+	}
 
-    static TextNode asSingle(List<TextNode> nodes) {
-        return switch (nodes.size()) {
-            case 0 -> EmptyNode.INSTANCE;
-            case 1 -> nodes.get(0);
-            default -> wrap(nodes);
-        };
-    }
+	default Text toText(PlaceholderContext context) {
+		return toText(context.asParserContext(), true);
+	}
 
-    static TextNode[] array(TextNode... nodes) {
-        return nodes;
-    }
+	default Text toText() {
+		return toText(ParserContext.of(), true);
+	}
 
-    static TextNode empty() {
-        return EmptyNode.INSTANCE;
-    }
+	default boolean isDynamic() {
+		return false;
+	}
 }

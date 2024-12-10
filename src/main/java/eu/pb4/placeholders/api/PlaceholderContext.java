@@ -26,117 +26,115 @@ public record PlaceholderContext(MinecraftServer server,
                                  ViewObject view
 ) {
 
-    public PlaceholderContext(MinecraftServer server,
-                              ServerCommandSource source,
-                              @Nullable ServerWorld world,
-                              @Nullable ServerPlayerEntity player,
-                              @Nullable Entity entity,
-                              @Nullable GameProfile gameProfile,
-                              ViewObject view
-    ) {
-        this(server, () -> source, world, player, entity, gameProfile, view);
-    }
+	public static ParserContext.Key<PlaceholderContext> KEY = new ParserContext.Key<>("placeholder_context", PlaceholderContext.class);
 
-    public ServerCommandSource source() {
-        return this.lazySource.get();
-    }
+	public PlaceholderContext(MinecraftServer server,
+	                          ServerCommandSource source,
+	                          @Nullable ServerWorld world,
+	                          @Nullable ServerPlayerEntity player,
+	                          @Nullable Entity entity,
+	                          @Nullable GameProfile gameProfile,
+	                          ViewObject view
+	) {
+		this(server, () -> source, world, player, entity, gameProfile, view);
+	}
 
-    public PlaceholderContext(MinecraftServer server,
-                              ServerCommandSource source,
-                              @Nullable ServerWorld world,
-                              @Nullable ServerPlayerEntity player,
-                              @Nullable Entity entity,
-                              @Nullable GameProfile gameProfile) {
-        this(server, source, world, player, entity, gameProfile, ViewObject.DEFAULT);
-    }
+	public PlaceholderContext(MinecraftServer server,
+	                          ServerCommandSource source,
+	                          @Nullable ServerWorld world,
+	                          @Nullable ServerPlayerEntity player,
+	                          @Nullable Entity entity,
+	                          @Nullable GameProfile gameProfile) {
+		this(server, source, world, player, entity, gameProfile, ViewObject.DEFAULT);
+	}
 
+	public static PlaceholderContext of(MinecraftServer server) {
+		return of(server, ViewObject.DEFAULT);
+	}
 
-    public static ParserContext.Key<PlaceholderContext> KEY = new ParserContext.Key<>("placeholder_context", PlaceholderContext.class);
+	public static PlaceholderContext of(MinecraftServer server, ViewObject view) {
+		return new PlaceholderContext(server, server::getCommandSource, null, null, null, null, view);
+	}
 
-    public boolean hasWorld() {
-        return this.world != null;
-    }
+	public static PlaceholderContext of(GameProfile profile, MinecraftServer server) {
+		return of(profile, server, ViewObject.DEFAULT);
+	}
 
-    public boolean hasPlayer() {
-        return this.player != null;
-    }
+	public static PlaceholderContext of(GameProfile profile, MinecraftServer server, ViewObject view) {
+		var name = profile.getName() != null ? profile.getName() : profile.getId().toString();
+		return new PlaceholderContext(server, () -> new ServerCommandSource(CommandOutput.DUMMY, Vec3d.ZERO, Vec2f.ZERO, server.getOverworld(), server.getPermissionLevel(profile), name, Text.literal(name), server, null), null, null, null, profile, view);
+	}
 
-    public boolean hasGameProfile() {
-        return this.gameProfile != null;
-    }
+	public static PlaceholderContext of(ServerPlayerEntity player) {
+		return of(player, ViewObject.DEFAULT);
+	}
 
-    public boolean hasEntity() {
-        return this.entity != null;
-    }
+	public static PlaceholderContext of(ServerPlayerEntity player, ViewObject view) {
+		return new PlaceholderContext(player.getServer(), player::getCommandSource, player.getServerWorld(), player, player, player.getGameProfile(), view);
+	}
 
-    public ParserContext asParserContext() {
-        return ParserContext.of(KEY, this).with(ParserContext.Key.WRAPPER_LOOKUP, this.server.getRegistryManager());
-    }
+	public static PlaceholderContext of(ServerCommandSource source) {
+		return of(source, ViewObject.DEFAULT);
+	}
 
-    public PlaceholderContext withView(ViewObject view) {
-        return new PlaceholderContext(this.server, this.lazySource, this.world, this.player, this.entity, this.gameProfile, view);
-    }
+	public static PlaceholderContext of(ServerCommandSource source, ViewObject view) {
+		return new PlaceholderContext(source.getServer(), source, source.getWorld(), source.getPlayer(), source.getEntity(), source.getPlayer() != null ? source.getPlayer().getGameProfile() : null, view);
+	}
 
-    public void addToContext(ParserContext context) {
-        context.with(KEY, this);
-        context.with(ParserContext.Key.WRAPPER_LOOKUP, this.server.getRegistryManager());
-    }
+	public static PlaceholderContext of(Entity entity) {
+		return of(entity, ViewObject.DEFAULT);
+	}
 
+	public static PlaceholderContext of(Entity entity, ViewObject view) {
+		if (entity instanceof ServerPlayerEntity player) {
+			return of(player, view);
+		} else {
+			var world = (ServerWorld) entity.getWorld();
+			return new PlaceholderContext(entity.getServer(), () -> entity.getCommandSource(world), world, null, entity, null, view);
+		}
+	}
 
-    public static PlaceholderContext of(MinecraftServer server) {
-        return of(server, ViewObject.DEFAULT);
-    }
+	public ServerCommandSource source() {
+		return this.lazySource.get();
+	}
 
-    public static PlaceholderContext of(MinecraftServer server, ViewObject view) {
-        return new PlaceholderContext(server, server::getCommandSource, null, null, null, null, view);
-    }
+	public boolean hasWorld() {
+		return this.world != null;
+	}
 
-    public static PlaceholderContext of(GameProfile profile, MinecraftServer server) {
-        return of(profile, server, ViewObject.DEFAULT);
-    }
+	public boolean hasPlayer() {
+		return this.player != null;
+	}
 
-    public static PlaceholderContext of(GameProfile profile, MinecraftServer server, ViewObject view) {
-        var name = profile.getName() != null ? profile.getName() : profile.getId().toString();
-        return new PlaceholderContext(server, () -> new ServerCommandSource(CommandOutput.DUMMY, Vec3d.ZERO, Vec2f.ZERO, server.getOverworld(), server.getPermissionLevel(profile), name, Text.literal(name), server, null), null, null, null, profile, view);
-    }
+	public boolean hasGameProfile() {
+		return this.gameProfile != null;
+	}
 
-    public static PlaceholderContext of(ServerPlayerEntity player) {
-        return of(player, ViewObject.DEFAULT);
-    }
+	public boolean hasEntity() {
+		return this.entity != null;
+	}
 
-    public static PlaceholderContext of(ServerPlayerEntity player, ViewObject view) {
-        return new PlaceholderContext(player.getServer(), player::getCommandSource, player.getServerWorld(), player, player, player.getGameProfile(), view);
-    }
+	public ParserContext asParserContext() {
+		return ParserContext.of(KEY, this).with(ParserContext.Key.WRAPPER_LOOKUP, this.server.getRegistryManager());
+	}
 
-    public static PlaceholderContext of(ServerCommandSource source) {
-        return of(source, ViewObject.DEFAULT);
-    }
+	public PlaceholderContext withView(ViewObject view) {
+		return new PlaceholderContext(this.server, this.lazySource, this.world, this.player, this.entity, this.gameProfile, view);
+	}
 
-    public static PlaceholderContext of(ServerCommandSource source, ViewObject view) {
-        return new PlaceholderContext(source.getServer(), source, source.getWorld(), source.getPlayer(), source.getEntity(), source.getPlayer() != null ? source.getPlayer().getGameProfile() : null, view);
-    }
-
-    public static PlaceholderContext of(Entity entity) {
-        return of(entity, ViewObject.DEFAULT);
-    }
-
-    public static PlaceholderContext of(Entity entity, ViewObject view) {
-        if (entity instanceof ServerPlayerEntity player) {
-            return of(player, view);
-        } else {
-            var world = (ServerWorld) entity.getWorld();
-            return new PlaceholderContext(entity.getServer(), () -> entity.getCommandSource(world), world, null, entity, null, view);
-        }
-    }
+	public void addToContext(ParserContext context) {
+		context.with(KEY, this);
+		context.with(ParserContext.Key.WRAPPER_LOOKUP, this.server.getRegistryManager());
+	}
 
 
-    public interface ViewObject {
-        ViewObject DEFAULT = of(Identifier.of("placeholder_api", "default"));
+	public interface ViewObject {
+		ViewObject DEFAULT = of(Identifier.of("placeholder_api", "default"));
 
-        static ViewObject of(Identifier identifier) {
-            return new ViewObjectImpl(identifier);
-        }
+		static ViewObject of(Identifier identifier) {
+			return new ViewObjectImpl(identifier);
+		}
 
-        Identifier identifier();
-    }
+		Identifier identifier();
+	}
 }

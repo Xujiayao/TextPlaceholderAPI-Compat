@@ -8,28 +8,28 @@ import net.minecraft.util.Identifier;
 import java.util.Arrays;
 
 public final class FontNode extends SimpleStylingNode {
-    private final Identifier font;
+	private final Identifier font;
 
-    public FontNode(TextNode[] children, Identifier font) {
-        super(children);
-        this.font = font;
-    }
+	public FontNode(TextNode[] children, Identifier font) {
+		super(children);
+		this.font = font;
+	}
 
-    @Override
-    protected Style style(ParserContext context) {
-        return Style.EMPTY.withFont(font);
-    }
+	@Override
+	protected Style style(ParserContext context) {
+		return Style.EMPTY.withFont(font);
+	}
 
-    @Override
-    public ParentTextNode copyWith(TextNode[] children) {
-        return new FontNode(children, this.font);
-    }
+	@Override
+	public ParentTextNode copyWith(TextNode[] children) {
+		return new FontNode(children, this.font);
+	}
 
-    @Override
-    public String toString() {
-        return "FontNode{" +
-                "font=" + font +
-                ", children=" + Arrays.toString(children) +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "FontNode{" +
+				"font=" + font +
+				", children=" + Arrays.toString(children) +
+				'}';
+	}
 }

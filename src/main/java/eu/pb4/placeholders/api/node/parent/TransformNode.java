@@ -11,32 +11,32 @@ import java.util.Arrays;
 import java.util.function.Function;
 
 public final class TransformNode extends ParentNode {
-    private final Function<MutableText, Text> transform;
+	private final Function<MutableText, Text> transform;
 
-    public TransformNode(TextNode[] nodes, Function<MutableText, Text> transform) {
-        super(nodes);
-        this.transform = transform;
-    }
+	public TransformNode(TextNode[] nodes, Function<MutableText, Text> transform) {
+		super(nodes);
+		this.transform = transform;
+	}
 
-    public static TransformNode deepStyle(Function<Style, Style> styleFunction, TextNode... nodes) {
-        return new TransformNode(nodes, new GeneralUtils.MutableTransformer(styleFunction));
-    }
+	public static TransformNode deepStyle(Function<Style, Style> styleFunction, TextNode... nodes) {
+		return new TransformNode(nodes, new GeneralUtils.MutableTransformer(styleFunction));
+	}
 
-    @Override
-    protected Text applyFormatting(MutableText out, ParserContext context) {
-        return this.transform.apply(out);
-    }
+	@Override
+	protected Text applyFormatting(MutableText out, ParserContext context) {
+		return this.transform.apply(out);
+	}
 
-    @Override
-    public ParentTextNode copyWith(TextNode[] children) {
-        return new TransformNode(children, this.transform);
-    }
+	@Override
+	public ParentTextNode copyWith(TextNode[] children) {
+		return new TransformNode(children, this.transform);
+	}
 
-    @Override
-    public String toString() {
-        return "TransformNode{" +
-                "transform=" + transform +
-                ", children=" + Arrays.toString(children) +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "TransformNode{" +
+				"transform=" + transform +
+				", children=" + Arrays.toString(children) +
+				'}';
+	}
 }
