@@ -31,7 +31,6 @@ remapJar {
 	outputs.upToDateWhen { false }
 
 	dependsOn {
-		shadowJar
 		fabric_subprojects.collect {
 			it.tasks.remapJar
 		}
