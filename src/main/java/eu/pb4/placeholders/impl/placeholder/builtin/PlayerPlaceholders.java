@@ -280,6 +280,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
+		//#if MC > 12004
 		Placeholders.register(Identifier.of("player", "facing"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(ctx.player().getFacing().asString());
@@ -296,6 +297,7 @@ public class PlayerPlaceholders {
 				return PlaceholderResult.invalid("No player!");
 			}
 		});
+		//#endif
 
 		Placeholders.register(Identifier.of("player", "horizontal_facing"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {

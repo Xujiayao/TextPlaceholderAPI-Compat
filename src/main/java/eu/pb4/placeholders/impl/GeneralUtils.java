@@ -14,7 +14,9 @@ import eu.pb4.placeholders.api.node.parent.ParentNode;
 import eu.pb4.placeholders.api.node.parent.ParentTextNode;
 import eu.pb4.placeholders.api.node.parent.StyledNode;
 import net.fabricmc.loader.api.FabricLoader;
+//#if MC > 12004
 import net.minecraft.component.DataComponentTypes;
+//#endif
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.KeybindTextContent;
@@ -205,12 +207,20 @@ public class GeneralUtils {
 	public static Text getItemText(ItemStack stack, boolean rarity) {
 		if (!stack.isEmpty()) {
 			MutableText mutableText = Text.empty().append(stack.getName());
+			//#if MC > 12004
 			if (stack.contains(DataComponentTypes.CUSTOM_NAME)) {
+			//#else
+			//$$ if (stack.hasCustomName()) {
+			//#endif
 				mutableText.formatted(Formatting.ITALIC);
 			}
 
 			if (rarity) {
+				//#if MC > 12004
 				mutableText.formatted(stack.getRarity().getFormatting());
+				//#else
+				//$$ mutableText.formatted(stack.getRarity().formatting);
+				//#endif
 			}
 			mutableText.styled((style) -> {
 				return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(stack)));

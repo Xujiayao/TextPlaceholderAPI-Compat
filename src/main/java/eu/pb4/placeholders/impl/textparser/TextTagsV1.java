@@ -234,7 +234,11 @@ public final class TextTagsV1 {
 							}
 						} else if (action == HoverEvent.Action.SHOW_ITEM) {
 							try {
+								//#if MC > 12004
 								return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.ITEM_STACK, new HoverEvent.ItemStackContent(ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(restoreOriginalEscaping(cleanArgument(lines[1])))))));
+								//#else
+								//$$ return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.ITEM_STACK, new HoverEvent.ItemStackContent(ItemStack.fromNbt(StringNbtReader.parse(restoreOriginalEscaping(cleanArgument(lines[1])))))));
+								//#endif
 							} catch (Throwable e) {
 								lines = lines[1].split(":", 2);
 								if (lines.length > 0) {
@@ -368,7 +372,11 @@ public final class TextTagsV1 {
 		}
 
 		{
+			//#if MC > 12004
 			TextParserV1.registerDefault(TextParserV1.TextTag.of("raw_style", "special", false, (tag, data, input, handlers, endAt) -> new TextParserV1.TagNodeValue(new DirectTextNode(Text.Serialization.fromLenientJson(restoreOriginalEscaping(cleanArgument(data)), DynamicRegistryManager.EMPTY)), 0)));
+			//#else
+			//$$ TextParserV1.registerDefault(TextParserV1.TextTag.of("raw_style", "special", false, (tag, data, input, handlers, endAt) -> new TextParserV1.TagNodeValue(new DirectTextNode(Text.Serialization.fromLenientJson(restoreOriginalEscaping(cleanArgument(data)))), 0)));
+			//#endif
 		}
 
 		{

@@ -228,7 +228,11 @@ public final class BuiltinTags {
 							var value = data.getNext("value", "");
 							try {
 								var nbt = StringNbtReader.parse(value);
+								//#if MC > 12006
 								var id = Identifier.of(nbt.getString("id"));
+								//#else
+								//$$ var id = Identifier.tryParse(nbt.getString("id"));
+								//#endif
 								var count = nbt.contains("count") ? nbt.getInt("count") : 1;
 
 								var comps = nbt.getCompound("components");
@@ -236,7 +240,11 @@ public final class BuiltinTags {
 							} catch (Throwable ignored) {
 							}
 							try {
+								//#if MC > 12006
 								var item = Identifier.of(data.get("item", value));
+								//#else
+								//$$ var item = Identifier.tryParse(data.get("item", value));
+								//#endif
 								var count = 1;
 								var countTxt = data.getNext("count");
 								if (countTxt != null) {

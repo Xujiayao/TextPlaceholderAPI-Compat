@@ -5,7 +5,9 @@ import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
+//#if MC > 12004
 import net.minecraft.component.ComponentChanges;
+//#endif
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
@@ -105,7 +107,11 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 		public HoverEvent.ItemStackContent toVanilla(RegistryWrapper.WrapperLookup lookup) {
 			var stack = new ItemStack(lookup.getOrThrow(RegistryKeys.ITEM).getOrThrow(RegistryKey.of(RegistryKeys.ITEM, identifier)));
 			stack.setCount(count);
+			//#if MC > 12004
 			stack.applyChanges(ComponentChanges.CODEC.decode(lookup.getOps(ops), componentMap).getOrThrow().getFirst());
+			//#else
+			//$$ System.out.println("TODO Fix: stack.applyChanges()"); // TODO
+			//#endif
 			return new HoverEvent.ItemStackContent(stack);
 		}
 	}
