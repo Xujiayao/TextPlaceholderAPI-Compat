@@ -302,7 +302,8 @@ public class GeneralUtils {
 	public record Pair<L, R>(L left, R right) {
 	}
 
-	public record MutableTransformer(Function<Style, Style> textMutableTextFunction) implements Function<MutableText, Text> {
+	public record MutableTransformer(
+			Function<Style, Style> textMutableTextFunction) implements Function<MutableText, Text> {
 		public static final MutableTransformer CLEAR = new MutableTransformer(x -> Style.EMPTY);
 
 		@Override
