@@ -59,7 +59,11 @@ public class PlayerPlaceholders {
 
 		Placeholders.register(Identifier.of("player", "ping"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
+				//#if MC > 12001
 				return PlaceholderResult.value(String.valueOf(ctx.player().networkHandler.getLatency()));
+				//#else
+				//$$ return PlaceholderResult.value(String.valueOf(ctx.player().pingMilliseconds));
+				//#endif
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
@@ -67,7 +71,11 @@ public class PlayerPlaceholders {
 
 		Placeholders.register(Identifier.of("player", "ping_colored"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
+				//#if MC > 12001
 				int x = ctx.player().networkHandler.getLatency();
+				//#else
+				//$$ int x = ctx.player().pingMilliseconds;
+				//#endif
 				return PlaceholderResult.value(Text.literal(String.valueOf(x)).formatted(x < 100 ? Formatting.GREEN : x < 200 ? Formatting.GOLD : Formatting.RED));
 			} else {
 				return PlaceholderResult.invalid("No player!");
