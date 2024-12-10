@@ -1,0 +1,90 @@
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
+
+apply plugin: "fabric-loom"
+
+java {
+	sourceCompatibility = JavaVersion.VERSION_21
+	targetCompatibility = JavaVersion.VERSION_21
+}
+
+version = mod_version
+group = maven_group
+
+base {
+	archivesName = archives_base_name
+}
+
+dependencies {
+	minecraft("com.mojang:minecraft:${minecraft_version}")
+	mappings("net.fabricmc:yarn:${yarn_mappings}:v2")
+
+	modImplementation("net.fabricmc:fabric-loader:${loader_version}")
+	modApi("net.fabricmc.fabric-api:fabric-api:${fabric_version}")
+}
+
+def fabric_subprojects = parent.subprojects.findAll({
+	it.name != "wrapper"
+})
+
+remapJar {
+	outputs.upToDateWhen { false }
+
+	dependsOn {
+		shadowJar
+		fabric_subprojects.collect {
+			it.tasks.remapJar
+		}
+	}
+
+	doFirst {
+		delete fileTree("build/tmp/versions/META-INF/jars")
+		copy {
+			from {
+				fabric_subprojects.collect {
+					it.tasks.remapJar.outputs.files
+				}
+			}
+			into("build/tmp/versions/META-INF/jars")
+		}
+	}
+
+	from("../LICENSE") {
+		rename { "${it}_${archives_base_name}" }
+	}
+	from("build/tmp/versions")
+
+	doLast {
+		copy {
+			from "build/libs"
+			into "../build"
+			exclude "*wrapper*"
+		}
+	}
+}
+
+processResources {
+	filesMatching("fabric.mod.json") {
+		expand "version": mod_version
+	}
+
+	doLast {
+		ArrayList<?> minecraft_dependency = []
+		ArrayList<?> jars = []
+
+		fabric_subprojects.each({
+			minecraft_dependency.addAll("${it.minecraft_dependency}".split(","))
+			jars.add(["file": "META-INF/jars/Placeholder-API-Compat-${it.minecraft_version}-${mod_version}.jar"])
+		})
+
+		File file = file("build/resources/main/fabric.mod.json")
+		JsonSlurper slurper = new JsonSlurper()
+		JsonBuilder builder = new JsonBuilder(slurper.parse(file))
+		builder.content.depends.minecraft = minecraft_dependency
+		builder.content.jars = jars
+		BufferedWriter writer = file.newWriter()
+		writer.append(builder.toPrettyString())
+		writer.flush()
+		writer.close()
+	}
+}

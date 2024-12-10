@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "placeholder-api-compat-${mc_version}",
+	"id": "placeholder-api-compat",
 	"version": "${version}",
 	"name": "Placeholder API Compat",
 	"description": "Simple api for mods allowing for user friendly formatting and universal placeholders!",
