@@ -24,7 +24,12 @@ public final class DynamicColorNode extends SimpleStylingNode {
 	@Override
 	protected Style style(ParserContext context) {
 		var c = TextColor.parse(color.toText(context).getString());
+		//#if MC > 12002
 		return c.result().map(Style.EMPTY::withColor).orElse(Style.EMPTY);
+		//#else
+		//$$ if (c == null) return Style.EMPTY;
+		//$$ return Style.EMPTY.withColor(c);
+		//#endif
 	}
 
 	@Override

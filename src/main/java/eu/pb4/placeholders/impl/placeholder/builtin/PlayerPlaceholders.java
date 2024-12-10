@@ -5,9 +5,16 @@ import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.impl.GeneralUtils;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.registry.Registries;
+//#if MC > 12002
 import net.minecraft.scoreboard.ReadableScoreboardScore;
+//#else
+//$$ import net.minecraft.scoreboard.ScoreboardPlayerScore;
+//#endif
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
+//#if MC <= 12002
+//$$ import net.minecraft.scoreboard.Team;
+//#endif
 import net.minecraft.stat.StatType;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
@@ -269,7 +276,11 @@ public class PlayerPlaceholders {
 					if (scoreboardObjective == null) {
 						return PlaceholderResult.invalid("Invalid objective!");
 					}
+					//#if MC > 12002
 					ReadableScoreboardScore score = scoreboard.getScore(ctx.player(), scoreboardObjective);
+					//#else
+					//$$ ScoreboardPlayerScore score = scoreboard.getPlayerScore(ctx.player().getEntityName(), scoreboardObjective);
+ 					//#endif
 					return PlaceholderResult.value(String.valueOf(score.getScore()));
 				} catch (Exception e) {
 					/* Into the void you go! */
@@ -429,7 +440,11 @@ public class PlayerPlaceholders {
 
 		Placeholders.register(Identifier.of("player", "team_displayname"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
+				//#if MC > 12002
 				var team = ctx.player().getScoreboardTeam();
+				//#else
+				//$$ var team = (Team) ctx.player().getScoreboardTeam();
+				//#endif
 				return PlaceholderResult.value(team == null ? Text.empty() : team.getDisplayName());
 			} else {
 				return PlaceholderResult.invalid("No player!");
@@ -438,7 +453,11 @@ public class PlayerPlaceholders {
 
 		Placeholders.register(Identifier.of("player", "team_displayname_formatted"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
+				//#if MC > 12002
 				var team = ctx.player().getScoreboardTeam();
+				//#else
+				//$$ var team = (Team) ctx.player().getScoreboardTeam();
+				//#endif
 				return PlaceholderResult.value(team == null ? Text.empty() : team.getFormattedName());
 			} else {
 				return PlaceholderResult.invalid("No player!");

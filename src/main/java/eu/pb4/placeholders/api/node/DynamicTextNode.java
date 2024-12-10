@@ -24,9 +24,17 @@ public record DynamicTextNode(String id, ParserContext.Key<Function<String, Text
 			if (t != null) {
 				return t;
 			}
+			//#if MC > 12002
 			return Text.literal("[INVALID KEY " + this.key.key() + " | " + this.id + "]").formatted(Formatting.ITALIC).withColor(0xFF0000);
+			//#else
+			//$$ return Text.literal("[INVALID KEY " + this.key.key() + " | " + this.id + "]").formatted(Formatting.ITALIC, Formatting.RED);
+			//#endif
 		}
+		//#if MC > 12002
 		return Text.literal("[MISSING CONTEXT FOR " + this.key.key() + " | " + this.id + "]").formatted(Formatting.ITALIC).withColor(0xFF0000);
+		//#else
+		//$$ return Text.literal("[MISSING CONTEXT FOR " + this.key.key() + " | " + this.id + "]").formatted(Formatting.ITALIC, Formatting.RED);
+		//#endif
 	}
 
 	@Override

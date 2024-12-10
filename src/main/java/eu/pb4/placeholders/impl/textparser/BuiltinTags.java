@@ -153,7 +153,11 @@ public final class BuiltinTags {
 					var type = data.getNext("type");
 					var value = data.getNext("value", "");
 					for (ClickEvent.Action action : ClickEvent.Action.values()) {
+						//#if MC > 12002
 						if (action.asString().equals(type)) {
+						//#else
+						//$$ if (action.getName().equals(type)) {
+						//#endif
 							return new ClickActionNode(nodes, action, parser.parseNode(value));
 						}
 					}
@@ -310,7 +314,12 @@ public final class BuiltinTags {
 						break;
 					}
 
+					//#if MC > 12002
 					TextColor.parse(part).result().ifPresent(textColors::add);
+					//#else
+					//$$ var c = TextColor.parse(part);
+					//$$ if (c != null) textColors.add(c);
+					//#endif
 				}
 				return new GradientNode(nodes, switch (type) {
 					case "oklab" -> GradientNode.GradientProvider.colorsOkLab(textColors);
@@ -333,7 +342,12 @@ public final class BuiltinTags {
 						break;
 					}
 
+					//#if MC > 12002
 					TextColor.parse(part).result().ifPresent(textColors::add);
+					//#else
+					//$$ var c = TextColor.parse(part);
+					//$$ if (c != null) textColors.add(c);
+					//#endif
 				}
 				// We cannot have an empty list!
 				if (textColors.isEmpty()) {
@@ -353,7 +367,11 @@ public final class BuiltinTags {
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("rawstyle", "special", false, (nodes, data, parser) -> {
+				//#if MC > 12002
 				var x = Style.Codecs.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
+				//#else
+				//$$ var x = Style.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
+				//#endif
 				if (x.error().isPresent()) {
 					System.out.println(x.error().get().message());
 					return TextNode.asSingle(nodes);

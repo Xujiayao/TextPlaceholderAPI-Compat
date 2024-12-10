@@ -30,7 +30,11 @@ import java.util.concurrent.TimeUnit;
 public class ServerPlaceholders {
 	public static void register() {
 		Placeholders.register(Identifier.of("server", "tps"), (ctx, arg) -> {
+			//#if MC > 12002
 			double tps = TimeUnit.SECONDS.toMillis(1) / Math.max(ctx.server().getAverageTickTime(), ctx.server().getTickManager().getMillisPerTick());
+			//#else
+			//$$ double tps = 1000f / Math.max(ctx.server().getTickTime(), 50);
+			//#endif
 			String format = "%.1f";
 
 			if (arg != null) {
@@ -46,7 +50,11 @@ public class ServerPlaceholders {
 		});
 
 		Placeholders.register(Identifier.of("server", "tps_colored"), (ctx, arg) -> {
+			//#if MC > 12002
 			double tps = TimeUnit.SECONDS.toMillis(1) / Math.max(ctx.server().getAverageTickTime(), ctx.server().getTickManager().getMillisPerTick());
+			//#else
+			//$$ double tps = 1000f / Math.max(ctx.server().getTickTime(), 50);
+			//#endif
 			String format = "%.1f";
 
 			if (arg != null) {
@@ -60,10 +68,18 @@ public class ServerPlaceholders {
 			return PlaceholderResult.value(Text.literal(String.format(format, tps)).formatted(tps > 19 ? Formatting.GREEN : tps > 16 ? Formatting.GOLD : Formatting.RED));
 		});
 
+		//#if MC > 12002
 		Placeholders.register(Identifier.of("server", "mspt"), (ctx, arg) -> PlaceholderResult.value(String.format("%.0f", ctx.server().getAverageTickTime())));
+		//#else
+		//$$ Placeholders.register(Identifier.of("server", "mspt"), (ctx, arg) -> PlaceholderResult.value(String.format("%.0f", ctx.server().getTickTime())));
+		//#endif
 
 		Placeholders.register(Identifier.of("server", "mspt_colored"), (ctx, arg) -> {
+			//#if MC > 12002
 			float x = ctx.server().getAverageTickTime();
+			//#else
+			//$$ float x = ctx.server().getTickTime();
+			//#endif
 			return PlaceholderResult.value(Text.literal(String.format("%.0f", x)).formatted(x < 45 ? Formatting.GREEN : x < 51 ? Formatting.GOLD : Formatting.RED));
 		});
 

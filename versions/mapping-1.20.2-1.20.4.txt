@@ -1,0 +1,4 @@
+net.minecraft.text.TextContent net.minecraft.text.PlainTextContent
+net.minecraft.scoreboard.ScoreboardPlayerScore net.minecraft.scoreboard.ScoreboardEntry
+net.minecraft.scoreboard.ScoreboardPlayerScore getPlayerName() name()
+net.minecraft.scoreboard.ScoreboardPlayerScore getScore() value()
