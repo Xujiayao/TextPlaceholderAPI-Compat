@@ -4,7 +4,11 @@ import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
 import eu.pb4.placeholders.impl.GeneralUtils;
 import net.minecraft.entity.EquipmentSlot;
+//#if MC > 11902
 import net.minecraft.registry.Registries;
+//#else
+//$$ import net.minecraft.util.registry.Registry;
+//#endif
 //#if MC > 12002
 import net.minecraft.scoreboard.ReadableScoreboardScore;
 //#else
@@ -205,6 +209,7 @@ public class PlayerPlaceholders {
 		Placeholders.register(Identifier.of("player", "statistic"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
+					//#if MC > 11902
 					var args = arg.split(" ");
 
 					if (args.length == 1) {
@@ -230,6 +235,13 @@ public class PlayerPlaceholders {
 							}
 						}
 					}
+					//#else
+					//$$ Identifier identifier = Identifier.tryParse(arg);
+					//$$ if (identifier != null) {
+					//$$    int x = ctx.player().getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Registry.CUSTOM_STAT.get(identifier)));
+					//$$    return PlaceholderResult.value(String.valueOf(x));
+					//$$ }
+					//#endif
 				} catch (Exception e) {
 					/* Into the void you go! */
 				}
@@ -242,6 +254,7 @@ public class PlayerPlaceholders {
 		Placeholders.register(Identifier.of("player", "statistic_raw"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
+					//#if MC > 11902
 					var args = arg.split(" ");
 
 					if (args.length == 1) {
@@ -267,6 +280,13 @@ public class PlayerPlaceholders {
 							}
 						}
 					}
+					//#else
+					//$$ Identifier identifier = Identifier.tryParse(arg);
+					//$$ if (identifier != null) {
+					//$$    int x = ctx.player().getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Registry.CUSTOM_STAT.get(identifier)));
+					//$$    return PlaceholderResult.value(String.valueOf(x));
+					//$$ }
+					//#endif
 				} catch (Exception e) {
 					/* Into the void you go! */
 				}

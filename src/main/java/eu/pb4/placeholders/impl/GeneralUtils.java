@@ -268,7 +268,11 @@ public class GeneralUtils {
 				}
 			}
 
+			//#if MC > 11903
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
+			//#else
+			//$$ list.add(TranslatedNode.of(content.getKey(), args.toArray()));
+			//#endif
 		} else if (input.getContent() instanceof ScoreTextContent content) {
 			list.add(new ScoreNode(content.name(), content.objective()));
 		} else if (input.getContent() instanceof KeybindTextContent content) {

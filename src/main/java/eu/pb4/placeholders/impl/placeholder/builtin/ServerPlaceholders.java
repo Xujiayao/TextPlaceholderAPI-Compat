@@ -120,7 +120,11 @@ public class ServerPlaceholders {
 				return PlaceholderResult.invalid("Server metadata missing!");
 			}
 
+			//#if MC > 11903
 			return PlaceholderResult.value(metadata.description());
+			//#else
+			//$$ return PlaceholderResult.value(metadata.getDescription());
+			//#endif
 		});
 
 		Placeholders.register(Identifier.of("server", "mod_version"), (ctx, arg) -> {

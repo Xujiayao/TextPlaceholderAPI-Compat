@@ -30,7 +30,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.DynamicRegistryManager;
+//#if MC > 11902
 import net.minecraft.registry.Registries;
+//#else
+//$$ import net.minecraft.util.registry.Registry;
+//#endif
 import net.minecraft.text.BlockNbtDataSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.EntityNbtDataSource;
@@ -254,7 +258,11 @@ public final class TextTagsV1 {
 							} catch (Throwable e) {
 								lines = lines[1].split(":", 2);
 								if (lines.length > 0) {
+									//#if MC > 11902
 									var stack = Registries.ITEM.get(Identifier.tryParse(lines[0])).getDefaultStack();
+									//#else
+									//$$ var stack = Registry.ITEM.get(Identifier.tryParse(lines[0])).getDefaultStack();
+									//#endif
 
 									if (lines.length > 1) {
 										stack.setCount(Integer.parseInt(lines[1]));
