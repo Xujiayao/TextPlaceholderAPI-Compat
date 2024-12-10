@@ -2,8 +2,6 @@ package eu.pb4.placeholders.api.node;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-import eu.pb4.placeholders.api.parsers.TagLikeParser;
-import eu.pb4.placeholders.impl.GeneralUtils;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 

@@ -3,8 +3,8 @@ package eu.pb4.placeholders.api.parsers;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.tag.TagRegistry;
 import eu.pb4.placeholders.api.parsers.tag.TextTag;
-import eu.pb4.placeholders.impl.textparser.providers.LegacyProvider;
 import eu.pb4.placeholders.impl.textparser.SingleTagLikeParser;
+import eu.pb4.placeholders.impl.textparser.providers.LegacyProvider;
 import eu.pb4.placeholders.impl.textparser.providers.LenientProvider;
 import eu.pb4.placeholders.impl.textparser.providers.ModernProvider;
 

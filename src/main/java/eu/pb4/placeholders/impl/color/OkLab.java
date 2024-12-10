@@ -1,7 +1,6 @@
 package eu.pb4.placeholders.impl.color;
 
 import eu.pb4.placeholders.impl.GeneralUtils;
-
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 

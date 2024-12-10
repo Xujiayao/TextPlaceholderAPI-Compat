@@ -1,7 +1,6 @@
 package eu.pb4.placeholders.api.node;
 
 import eu.pb4.placeholders.api.ParserContext;
-import eu.pb4.placeholders.impl.textparser.TextParserImpl;
 import net.minecraft.text.Text;
 
 public record LiteralNode(String value) implements TextNode {

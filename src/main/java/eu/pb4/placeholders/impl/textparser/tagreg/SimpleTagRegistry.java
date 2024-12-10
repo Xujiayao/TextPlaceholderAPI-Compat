@@ -5,7 +5,11 @@ import eu.pb4.placeholders.api.parsers.tag.TextTag;
 import eu.pb4.placeholders.impl.textparser.BuiltinTags;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public final class SimpleTagRegistry implements TagRegistry {
     public static final TagRegistry DEFAULT = new SimpleTagRegistry(true);

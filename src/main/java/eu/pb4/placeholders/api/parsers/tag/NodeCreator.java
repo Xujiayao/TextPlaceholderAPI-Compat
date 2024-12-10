@@ -1,7 +1,7 @@
 package eu.pb4.placeholders.api.parsers.tag;
 
-import eu.pb4.placeholders.api.arguments.StringArgs;
 import eu.pb4.placeholders.api.arguments.SimpleArguments;
+import eu.pb4.placeholders.api.arguments.StringArgs;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
 
