@@ -95,7 +95,6 @@ public record PatternPlaceholderParser(Pattern pattern,
 			return out.toArray(new TextNode[0]);
 		}
 
-
 		if (text instanceof ParentTextNode parentNode) {
 			var out = new ArrayList<TextNode>();
 

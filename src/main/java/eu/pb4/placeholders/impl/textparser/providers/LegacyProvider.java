@@ -11,10 +11,7 @@ public record LegacyProvider(TagRegistry registry) implements TagLikeParser.Prov
 	@Override
 	public boolean isValidTag(String tag, TagLikeParser.Context context) {
 		var peek = context.peekId();
-		return tag.equals("r") || tag.equals("reset")
-				|| tag.startsWith("#")
-				|| registry.getTag(tag) != null
-				|| tag.equals("/") || (peek != null && tag.equals("/" + peek));
+		return tag.equals("r") || tag.equals("reset") || tag.startsWith("#") || registry.getTag(tag) != null || tag.equals("/") || (peek != null && tag.equals("/" + peek));
 	}
 
 	@Override
@@ -36,7 +33,6 @@ public record LegacyProvider(TagRegistry registry) implements TagLikeParser.Prov
 			}
 			return;
 		}
-
 
 		var tag = registry.getTag(id);
 

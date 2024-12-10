@@ -9,22 +9,10 @@ import java.util.Collection;
 
 public final class SimpleTags {
 	public static TextTag color(String name, Collection<String> aliases, Formatting formatting) {
-		return TextTag.enclosing(
-				name,
-				aliases,
-				"color",
-				true,
-				(nodes, arg, parser) -> new FormattingNode(nodes, formatting)
-		);
+		return TextTag.enclosing(name, aliases, "color", true, (nodes, arg, parser) -> new FormattingNode(nodes, formatting));
 	}
 
 	public static TextTag color(String name, Collection<String> aliases, int rgb) {
-		return TextTag.enclosing(
-				name,
-				aliases,
-				"color",
-				true,
-				(nodes, arg, parser) -> new ColorNode(nodes, TextColor.fromRgb(rgb))
-		);
+		return TextTag.enclosing(name, aliases, "color", true, (nodes, arg, parser) -> new ColorNode(nodes, TextColor.fromRgb(rgb)));
 	}
 }

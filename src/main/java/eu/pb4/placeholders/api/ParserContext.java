@@ -41,7 +41,6 @@ public final class ParserContext {
 		return this.map.containsKey(key);
 	}
 
-
 	public record Key<T>(String key, @Nullable Class<T> type) {
 		public static final Key<Boolean> COMPACT_TEXT = new Key<>("compact_text", Boolean.class);
 		public static final Key<RegistryWrapper.WrapperLookup> WRAPPER_LOOKUP = new Key<>("wrapper_lookup", RegistryWrapper.WrapperLookup.class);
@@ -50,7 +49,6 @@ public final class ParserContext {
 			//noinspection unchecked
 			return new Key<T>(key, (Class<T>) type.getClass());
 		}
-
 
 		public static <T> Key<T> of(String key) {
 			//noinspection unchecked

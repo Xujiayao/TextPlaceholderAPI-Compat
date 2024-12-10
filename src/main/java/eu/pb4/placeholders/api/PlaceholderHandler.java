@@ -1,6 +1,5 @@
 package eu.pb4.placeholders.api;
 
-
 import org.jetbrains.annotations.Nullable;
 
 @FunctionalInterface

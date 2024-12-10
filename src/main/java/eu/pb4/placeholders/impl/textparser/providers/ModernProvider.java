@@ -10,13 +10,7 @@ import net.minecraft.text.TextColor;
 public record ModernProvider(TagRegistry registry) implements TagLikeParser.Provider {
 	@Override
 	public boolean isValidTag(String tag, TagLikeParser.Context context) {
-		return tag.equals("/*")
-				|| tag.startsWith("#")
-				|| registry.getTag(tag) != null
-				|| tag.equals("/")
-				|| (tag.length() > 1 && tag.charAt(0) == '/' && context.contains(tag.substring(1)))
-				|| (tag.length() > 1 && tag.charAt(0) == ';' && context.contains(tag.substring(1)))
-				;
+		return tag.equals("/*") || tag.startsWith("#") || registry.getTag(tag) != null || tag.equals("/") || (tag.length() > 1 && tag.charAt(0) == '/' && context.contains(tag.substring(1))) || (tag.length() > 1 && tag.charAt(0) == ';' && context.contains(tag.substring(1)));
 	}
 
 	@Override

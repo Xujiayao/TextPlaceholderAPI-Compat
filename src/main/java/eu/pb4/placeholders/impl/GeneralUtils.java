@@ -61,10 +61,7 @@ public class GeneralUtils {
 	}
 
 	public static boolean isEmpty(Text text) {
-		return (
-				text.getContent() == PlainTextContent.EMPTY
-						|| (text.getContent() instanceof PlainTextContent.Literal l && l.string().isEmpty())
-		) && text.getSiblings().isEmpty();
+		return (text.getContent() == PlainTextContent.EMPTY || (text.getContent() instanceof PlainTextContent.Literal l && l.string().isEmpty())) && text.getSiblings().isEmpty();
 	}
 
 	public static MutableText toGradient(Text base, GradientNode.GradientProvider posToColor) {
@@ -72,9 +69,7 @@ public class GeneralUtils {
 	}
 
 	private static int getGradientLength(Text base) {
-		int length = base.getContent() instanceof PlainTextContent.Literal l
-				? l.string().codePointCount(0, l.string().length())
-				: base.getContent() == PlainTextContent.EMPTY ? 0 : 1;
+		int length = base.getContent() instanceof PlainTextContent.Literal l ? l.string().codePointCount(0, l.string().length()) : base.getContent() == PlainTextContent.EMPTY ? 0 : 1;
 
 		for (var text : base.getSiblings()) {
 			length += getGradientLength(text);
@@ -244,7 +239,6 @@ public class GeneralUtils {
 				}
 			}
 
-
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
 		} else if (input.getContent() instanceof ScoreTextContent content) {
 			list.add(new ScoreNode(content.name(), content.objective()));
@@ -256,7 +250,6 @@ public class GeneralUtils {
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
 		}
 
-
 		for (var child : input.getSiblings()) {
 			list.add(convertToNodes(child));
 		}
@@ -265,8 +258,7 @@ public class GeneralUtils {
 			return new ParentNode(list);
 		} else {
 			var style = input.getStyle();
-			var hoverValue = style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT
-					? convertToNodes(style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT)) : null;
+			var hoverValue = style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT ? convertToNodes(style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT)) : null;
 
 			var clickValue = style.getClickEvent() != null ? new LiteralNode(style.getClickEvent().getValue()) : null;
 			var insertion = style.getInsertion() != null ? new LiteralNode(style.getInsertion()) : null;

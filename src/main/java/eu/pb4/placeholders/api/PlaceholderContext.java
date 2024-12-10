@@ -16,35 +16,17 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-
-public record PlaceholderContext(MinecraftServer server,
-                                 Supplier<ServerCommandSource> lazySource,
-                                 @Nullable ServerWorld world,
-                                 @Nullable ServerPlayerEntity player,
-                                 @Nullable Entity entity,
-                                 @Nullable GameProfile gameProfile,
-                                 ViewObject view
-) {
+public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandSource> lazySource,
+                                 @Nullable ServerWorld world, @Nullable ServerPlayerEntity player,
+                                 @Nullable Entity entity, @Nullable GameProfile gameProfile, ViewObject view) {
 
 	public static ParserContext.Key<PlaceholderContext> KEY = new ParserContext.Key<>("placeholder_context", PlaceholderContext.class);
 
-	public PlaceholderContext(MinecraftServer server,
-	                          ServerCommandSource source,
-	                          @Nullable ServerWorld world,
-	                          @Nullable ServerPlayerEntity player,
-	                          @Nullable Entity entity,
-	                          @Nullable GameProfile gameProfile,
-	                          ViewObject view
-	) {
+	public PlaceholderContext(MinecraftServer server, ServerCommandSource source, @Nullable ServerWorld world, @Nullable ServerPlayerEntity player, @Nullable Entity entity, @Nullable GameProfile gameProfile, ViewObject view) {
 		this(server, () -> source, world, player, entity, gameProfile, view);
 	}
 
-	public PlaceholderContext(MinecraftServer server,
-	                          ServerCommandSource source,
-	                          @Nullable ServerWorld world,
-	                          @Nullable ServerPlayerEntity player,
-	                          @Nullable Entity entity,
-	                          @Nullable GameProfile gameProfile) {
+	public PlaceholderContext(MinecraftServer server, ServerCommandSource source, @Nullable ServerWorld world, @Nullable ServerPlayerEntity player, @Nullable Entity entity, @Nullable GameProfile gameProfile) {
 		this(server, source, world, player, entity, gameProfile, ViewObject.DEFAULT);
 	}
 
@@ -126,7 +108,6 @@ public record PlaceholderContext(MinecraftServer server,
 		context.with(KEY, this);
 		context.with(ParserContext.Key.WRAPPER_LOOKUP, this.server.getRegistryManager());
 	}
-
 
 	public interface ViewObject {
 		ViewObject DEFAULT = of(Identifier.of("placeholder_api", "default"));

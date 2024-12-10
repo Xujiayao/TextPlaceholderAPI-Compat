@@ -78,7 +78,6 @@ public final class TagParser implements NodeParser, TagLikeWrapper {
 		return new TagParser(this.format, this.registry.copy(), this.providerCreator);
 	}
 
-
 	public TagRegistry tagRegistry() {
 		return registry;
 	}

@@ -27,9 +27,6 @@ public final class FontNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "FontNode{" +
-				"font=" + font +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "FontNode{" + "font=" + font + ", children=" + Arrays.toString(children) + '}';
 	}
 }

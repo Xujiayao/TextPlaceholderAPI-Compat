@@ -107,10 +107,7 @@ public class LegacyFormattingParser implements NodeParser {
 						var base = TextNode.asSingle(parseLiteral(new LiteralNode(reader.getRemaining()), list));
 						list.add(0, base);
 
-						return new TextNode[]{
-								new LiteralNode(builder.toString()),
-								new ColorNode(list.toArray(TextParserImpl.CASTER), TextColor.fromRgb(rgb))
-						};
+						return new TextNode[]{new LiteralNode(builder.toString()), new ColorNode(list.toArray(TextParserImpl.CASTER), TextColor.fromRgb(rgb))};
 					} catch (Throwable e) {
 						//noop
 					}
@@ -129,10 +126,7 @@ public class LegacyFormattingParser implements NodeParser {
 
 					list.add(0, base);
 
-					return new TextNode[]{
-							new LiteralNode(builder.toString()),
-							new FormattingNode(list.toArray(TextParserImpl.CASTER), x)
-					};
+					return new TextNode[]{new LiteralNode(builder.toString()), new FormattingNode(list.toArray(TextParserImpl.CASTER), x)};
 				} else {
 					builder.append('&');
 				}

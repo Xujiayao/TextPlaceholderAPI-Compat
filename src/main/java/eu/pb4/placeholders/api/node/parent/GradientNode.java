@@ -79,10 +79,7 @@ public final class GradientNode extends ParentNode {
 
 	@Override
 	public String toString() {
-		return "GradientNode{" +
-				"gradientProvider=" + gradientProvider +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "GradientNode{" + "gradientProvider=" + gradientProvider + ", children=" + Arrays.toString(children) + '}';
 	}
 
 	@FunctionalInterface
@@ -158,10 +155,7 @@ public final class GradientNode extends ParentNode {
 				float sat = MathHelper.clamp(colorB.s() * progress + colorA.s() * (1 - progress), 0, 1);
 				float value = MathHelper.clamp(colorB.v() * progress + colorA.v() * (1 - progress), 0, 1);
 
-				return TextColor.fromRgb(HSV.toRgb(
-						MathHelper.clamp(hue, 0, 1),
-						sat,
-						value));
+				return TextColor.fromRgb(HSV.toRgb(MathHelper.clamp(hue, 0, 1), sat, value));
 			};
 		}
 
@@ -186,17 +180,13 @@ public final class GradientNode extends ParentNode {
 		static GradientProvider rainbowHvs(float saturation, float value, float frequency, float offset, int gradientLength) {
 			final float finalFreqLength = (frequency < 0 ? -frequency : 0);
 
-			return (pos, length) ->
-					TextColor.fromRgb(HSV.toRgb((((pos * frequency) + (finalFreqLength * length)) / (gradientLength + 1) + offset) % 1,
-							saturation,
-							value));
+			return (pos, length) -> TextColor.fromRgb(HSV.toRgb((((pos * frequency) + (finalFreqLength * length)) / (gradientLength + 1) + offset) % 1, saturation, value));
 		}
 
 		static GradientProvider rainbowOkLch(float saturation, float value, float frequency, float offset, int gradientLength) {
 			final float finalFreqLength = (frequency < 0 ? -frequency : 0);
 
-			return (pos, length) ->
-					TextColor.fromRgb(OkLch.toRgb(value, saturation / 2, (((pos * frequency * MathHelper.TAU) + (finalFreqLength * length)) / (gradientLength + 1) + offset) % 1));
+			return (pos, length) -> TextColor.fromRgb(OkLch.toRgb(value, saturation / 2, (((pos * frequency * MathHelper.TAU) + (finalFreqLength * length)) / (gradientLength + 1) + offset) % 1));
 		}
 
 		static GradientProvider rainbow(float saturation, float value, float frequency, float offset) {
@@ -206,15 +196,13 @@ public final class GradientNode extends ParentNode {
 		static GradientProvider rainbowHvs(float saturation, float value, float frequency, float offset) {
 			final float finalFreqLength = (frequency < 0 ? -frequency : 0);
 
-			return (pos, length) -> TextColor.fromRgb(HSV.toRgb((((pos * frequency) + (finalFreqLength * length)) / (length + 1) + offset),
-					saturation, value));
+			return (pos, length) -> TextColor.fromRgb(HSV.toRgb((((pos * frequency) + (finalFreqLength * length)) / (length + 1) + offset), saturation, value));
 		}
 
 		static GradientProvider rainbowOkLch(float saturation, float value, float frequency, float offset) {
 			final float finalFreqLength = (frequency < 0 ? -frequency : 0);
 
-			return (pos, length) ->
-					TextColor.fromRgb(OkLch.toRgb(value, saturation / 2, (((pos * frequency * MathHelper.TAU) + (finalFreqLength * length)) / (length) + offset)));
+			return (pos, length) -> TextColor.fromRgb(OkLch.toRgb(value, saturation / 2, (((pos * frequency * MathHelper.TAU) + (finalFreqLength * length)) / (length) + offset)));
 		}
 
 		TextColor getColorAt(int index, int length);

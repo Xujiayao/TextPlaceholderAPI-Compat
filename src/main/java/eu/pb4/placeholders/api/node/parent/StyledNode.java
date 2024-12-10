@@ -40,7 +40,6 @@ public final class StyledNode extends SimpleStylingNode {
 		return style;
 	}
 
-
 	public Style rawStyle() {
 		return this.style;
 	}
@@ -67,25 +66,16 @@ public final class StyledNode extends SimpleStylingNode {
 
 	@Override
 	public ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
-		return new StyledNode(children, this.style,
-				this.hoverValue != null ? new ParentNode(parser.parseNodes(this.hoverValue)) : null,
-				this.clickValue != null ? TextNode.asSingle(parser.parseNodes(this.clickValue)) : null,
-				this.insertion != null ? TextNode.asSingle(parser.parseNodes(this.insertion)) : null);
+		return new StyledNode(children, this.style, this.hoverValue != null ? new ParentNode(parser.parseNodes(this.hoverValue)) : null, this.clickValue != null ? TextNode.asSingle(parser.parseNodes(this.clickValue)) : null, this.insertion != null ? TextNode.asSingle(parser.parseNodes(this.insertion)) : null);
 	}
 
 	@Override
 	public boolean isDynamicNoChildren() {
-		return (this.clickValue != null && this.clickValue.isDynamic()) || (this.hoverValue != null && this.hoverValue.isDynamic())
-				|| (this.insertion != null && this.insertion.isDynamic());
+		return (this.clickValue != null && this.clickValue.isDynamic()) || (this.hoverValue != null && this.hoverValue.isDynamic()) || (this.insertion != null && this.insertion.isDynamic());
 	}
 
 	@Override
 	public String toString() {
-		return "StyledNode{" +
-				"style=" + style +
-				", hoverValue=" + hoverValue +
-				", clickValue=" + clickValue +
-				", insertion=" + insertion +
-				'}';
+		return "StyledNode{" + "style=" + style + ", hoverValue=" + hoverValue + ", clickValue=" + clickValue + ", insertion=" + insertion + '}';
 	}
 }

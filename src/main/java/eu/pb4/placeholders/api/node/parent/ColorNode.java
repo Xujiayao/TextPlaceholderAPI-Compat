@@ -27,9 +27,6 @@ public final class ColorNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ColorNode{" +
-				"color=" + color +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "ColorNode{" + "color=" + color + ", children=" + Arrays.toString(children) + '}';
 	}
 }

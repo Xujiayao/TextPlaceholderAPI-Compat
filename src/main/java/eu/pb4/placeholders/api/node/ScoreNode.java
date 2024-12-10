@@ -8,8 +8,7 @@ import net.minecraft.text.Text;
 public record ScoreNode(Either<ParsedSelector, String> name, String objective) implements TextNode {
 
 	public ScoreNode(String name, String objective) {
-		this(ParsedSelector.parse(name).result()
-				.map(Either::<ParsedSelector, String>left).orElse(Either.right(name)), objective);
+		this(ParsedSelector.parse(name).result().map(Either::<ParsedSelector, String>left).orElse(Either.right(name)), objective);
 	}
 
 	@Override

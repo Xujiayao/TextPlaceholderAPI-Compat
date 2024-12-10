@@ -28,9 +28,6 @@ public final class StrikethroughNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "StrikethroughNode{" +
-				"children=" + Arrays.toString(children) +
-				", value=" + value +
-				'}';
+		return "StrikethroughNode{" + "children=" + Arrays.toString(children) + ", value=" + value + '}';
 	}
 }

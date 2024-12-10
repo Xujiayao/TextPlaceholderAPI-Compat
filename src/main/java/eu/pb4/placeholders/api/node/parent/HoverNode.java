@@ -79,10 +79,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "HoverNode{" +
-				"value=" + value +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "HoverNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
 	}
 
 	@Override

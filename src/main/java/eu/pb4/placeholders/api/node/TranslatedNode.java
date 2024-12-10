@@ -32,7 +32,6 @@ public record TranslatedNode(String key, @Nullable String fallback, Object[] arg
 			args[i] = this.args[i] instanceof TextNode textNode ? textNode.toText(context, removeBackslashes) : this.args[i];
 		}
 
-
 		return Text.translatableWithFallback(this.key(), this.fallback, args);
 	}
 

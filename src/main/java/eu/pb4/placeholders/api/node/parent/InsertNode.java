@@ -36,10 +36,7 @@ public final class InsertNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "InsertNode{" +
-				"value=" + value +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "InsertNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
 	}
 
 	@Override

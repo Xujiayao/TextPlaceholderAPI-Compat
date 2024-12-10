@@ -7,25 +7,18 @@ import net.minecraft.util.math.MathHelper;
 // https://bottosson.github.io/posts/oklab/
 public record OkLab(float l, float a, float b) {
 	public static OkLab fromRgb(int rgb) {
-		return fromLinearSRGB(ColorHelper.getRed(rgb) / 255f, ColorHelper.getGreen(rgb) / 255f,
-				ColorHelper.getBlue(rgb) / 255f);
+		return fromLinearSRGB(ColorHelper.getRed(rgb) / 255f, ColorHelper.getGreen(rgb) / 255f, ColorHelper.getBlue(rgb) / 255f);
 	}
 
-
 	static float f(float x) {
-		if (x >= 0.0031308)
-			return (float) ((1.055) * Math.pow(x, (1.0 / 2.4)) - 0.055);
-		else
-			return (float) (12.92 * x);
+		if (x >= 0.0031308) return (float) ((1.055) * Math.pow(x, (1.0 / 2.4)) - 0.055);
+		else return (float) (12.92 * x);
 	}
 
 	static float f_inv(float x) {
-		if (x >= 0.04045)
-			return (float) Math.pow((x + 0.055) / (1 + 0.055), 2.4);
-		else
-			return x / 12.92f;
+		if (x >= 0.04045) return (float) Math.pow((x + 0.055) / (1 + 0.055), 2.4);
+		else return x / 12.92f;
 	}
-
 
 	private static OkLab fromLinearSRGB(float r, float g, float b) {
 		float l = 0.4122214708f * r + 0.5363325363f * g + 0.0514459929f * b;
@@ -36,11 +29,7 @@ public record OkLab(float l, float a, float b) {
 		float m_ = (float) Math.cbrt(m);
 		float s_ = (float) Math.cbrt(s);
 
-		return new OkLab(
-				0.2104542553f * l_ + 0.7936177850f * m_ - 0.0040720468f * s_,
-				1.9779984951f * l_ - 2.4285922050f * m_ + 0.4505937099f * s_,
-				0.0259040371f * l_ + 0.7827717662f * m_ - 0.8086757660f * s_
-		);
+		return new OkLab(0.2104542553f * l_ + 0.7936177850f * m_ - 0.0040720468f * s_, 1.9779984951f * l_ - 2.4285922050f * m_ + 0.4505937099f * s_, 0.0259040371f * l_ + 0.7827717662f * m_ - 0.8086757660f * s_);
 	}
 
 	public static int toRgb(float cL, float ca, float cb) {
@@ -62,11 +51,7 @@ public record OkLab(float l, float a, float b) {
 		if (max > 1 || min < 0) {
 			//mult = 1 / (max + min);
 		}
-		return GeneralUtils.rgbToInt(
-				MathHelper.clamp(r * mult, 0, 1),
-				MathHelper.clamp(g * mult, 0, 1),
-				MathHelper.clamp(b * mult, 0, 1)
-		);
+		return GeneralUtils.rgbToInt(MathHelper.clamp(r * mult, 0, 1), MathHelper.clamp(g * mult, 0, 1), MathHelper.clamp(b * mult, 0, 1));
 	}
 
 	public int toRgb() {

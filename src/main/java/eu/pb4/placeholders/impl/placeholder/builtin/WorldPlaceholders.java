@@ -88,7 +88,6 @@ public class WorldPlaceholders {
 			return PlaceholderResult.value(String.join(" ", parts));
 		});
 
-
 		Placeholders.register(Identifier.of("world", "player_count"), (ctx, arg) -> {
 			ServerWorld world;
 			if (ctx.player() != null) {

@@ -190,8 +190,7 @@ public class TextParserV1 implements NodeParser {
 
 	@FunctionalInterface
 	public interface TagParserGetter {
-		@Nullable
-		TagNodeBuilder getTagParser(String name);
+		@Nullable TagNodeBuilder getTagParser(String name);
 	}
 
 	public record TextTag(String name, String[] aliases, String type, boolean userSafe, TagNodeBuilder parser) {
@@ -207,11 +206,8 @@ public class TextParserV1 implements NodeParser {
 			return new TextTag(name, aliases.toArray(new String[0]), type, userSafe, parser);
 		}
 
-
 		public static TextTag from(eu.pb4.placeholders.api.parsers.tag.TextTag tag) {
-			return new TextTag(tag.name(), tag.aliases(), tag.type(), tag.userSafe(), tag.selfContained()
-					? TagNodeBuilder.selfClosing((a, b) -> tag.nodeCreator().createTextNode(GeneralUtils.CASTER, StringArgs.ordered(a, ':'), b))
-					: TagNodeBuilder.wrapping((a, b, c) -> tag.nodeCreator().createTextNode(a, StringArgs.ordered(b, ':'), c)));
+			return new TextTag(tag.name(), tag.aliases(), tag.type(), tag.userSafe(), tag.selfContained() ? TagNodeBuilder.selfClosing((a, b) -> tag.nodeCreator().createTextNode(GeneralUtils.CASTER, StringArgs.ordered(a, ':'), b)) : TagNodeBuilder.wrapping((a, b, c) -> tag.nodeCreator().createTextNode(a, StringArgs.ordered(b, ':'), c)));
 		}
 	}
 

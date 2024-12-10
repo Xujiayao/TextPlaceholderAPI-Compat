@@ -27,12 +27,8 @@ public final class ItalicNode extends SimpleStylingNode {
 		return new ItalicNode(children, this.value);
 	}
 
-
 	@Override
 	public String toString() {
-		return "ItalicNode{" +
-				"value=" + value +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "ItalicNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
 	}
 }

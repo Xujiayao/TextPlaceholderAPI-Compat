@@ -143,20 +143,14 @@ public class ParserBuilder {
 	/**
 	 * Enables Markdown with limited formatting.
 	 */
-	public ParserBuilder markdown(Function<TextNode[], TextNode> spoilerFormatting,
-	                              Function<TextNode[], TextNode> quoteFormatting,
-	                              BiFunction<TextNode[], TextNode, TextNode> urlFormatting,
-	                              MarkdownLiteParserV1.MarkdownFormat... formatting) {
+	public ParserBuilder markdown(Function<TextNode[], TextNode> spoilerFormatting, Function<TextNode[], TextNode> quoteFormatting, BiFunction<TextNode[], TextNode, TextNode> urlFormatting, MarkdownLiteParserV1.MarkdownFormat... formatting) {
 		return add(new MarkdownLiteParserV1(spoilerFormatting, quoteFormatting, urlFormatting, formatting));
 	}
 
 	/**
 	 * Enables Markdown with limited formatting.
 	 */
-	public ParserBuilder markdown(Function<TextNode[], TextNode> spoilerFormatting,
-	                              Function<TextNode[], TextNode> quoteFormatting,
-	                              BiFunction<TextNode[], TextNode, TextNode> urlFormatting,
-	                              Collection<MarkdownLiteParserV1.MarkdownFormat> formatting) {
+	public ParserBuilder markdown(Function<TextNode[], TextNode> spoilerFormatting, Function<TextNode[], TextNode> quoteFormatting, BiFunction<TextNode[], TextNode, TextNode> urlFormatting, Collection<MarkdownLiteParserV1.MarkdownFormat> formatting) {
 		return add(new MarkdownLiteParserV1(spoilerFormatting, quoteFormatting, urlFormatting, formatting.toArray(new MarkdownLiteParserV1.MarkdownFormat[0])));
 	}
 

@@ -36,7 +36,6 @@ public class SimpleArguments {
 				builder.append(chr);
 			}
 
-
 			return builder.toString();
 		}
 		return string;

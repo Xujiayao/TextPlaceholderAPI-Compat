@@ -35,20 +35,11 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 		this(MarkdownLiteParserV1::defaultSpoilerFormatting, MarkdownLiteParserV1::defaultQuoteFormatting, formatting);
 	}
 
-	public MarkdownLiteParserV1(
-			Function<TextNode[], TextNode> spoilerFormatting,
-			Function<TextNode[], TextNode> quoteFormatting,
-			MarkdownFormat... formatting
-	) {
+	public MarkdownLiteParserV1(Function<TextNode[], TextNode> spoilerFormatting, Function<TextNode[], TextNode> quoteFormatting, MarkdownFormat... formatting) {
 		this(spoilerFormatting, quoteFormatting, MarkdownLiteParserV1::defaultUrlFormatting, formatting);
 	}
 
-	public MarkdownLiteParserV1(
-			Function<TextNode[], TextNode> spoilerFormatting,
-			Function<TextNode[], TextNode> quoteFormatting,
-			BiFunction<TextNode[], TextNode, TextNode> urlFormatting,
-			MarkdownFormat... formatting
-	) {
+	public MarkdownLiteParserV1(Function<TextNode[], TextNode> spoilerFormatting, Function<TextNode[], TextNode> quoteFormatting, BiFunction<TextNode[], TextNode, TextNode> urlFormatting, MarkdownFormat... formatting) {
 		Collections.addAll(this.allowedFormatting, formatting);
 		this.spoilerFormatting = spoilerFormatting;
 		this.backtickFormatting = quoteFormatting;
@@ -56,12 +47,7 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 	}
 
 	public static TextNode defaultSpoilerFormatting(TextNode[] textNodes) {
-		return new HoverNode<>(TextNode.array(
-				new FormattingNode(
-						TextNode.array(TextNode.of("["), TranslatedNode.of("options.hidden"), TextNode.of("]")),
-						Formatting.GRAY, Formatting.ITALIC
-				)
-		), HoverNode.Action.TEXT, TextNode.asSingle(textNodes));
+		return new HoverNode<>(TextNode.array(new FormattingNode(TextNode.array(TextNode.of("["), TranslatedNode.of("options.hidden"), TextNode.of("]")), Formatting.GRAY, Formatting.ITALIC)), HoverNode.Action.TEXT, TextNode.asSingle(textNodes));
 	}
 
 	public static TextNode defaultQuoteFormatting(TextNode[] textNodes) {
@@ -150,7 +136,6 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 				builder.append(i);
 			}
 		}
-
 
 		if (!builder.isEmpty()) {
 			consumer.accept(new SubNode<>(SubNodeType.STRING, builder.toString()));
@@ -257,9 +242,7 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 			} else if (next.type == SubNodeType.STAR || next.type == SubNodeType.FLOOR) {
 				boolean two = false;
 				if (nodes.hasNext()) {
-					if ((next.type == SubNodeType.STAR && this.allowedFormatting.contains(MarkdownFormat.BOLD))
-							|| (next.type == SubNodeType.FLOOR && this.allowedFormatting.contains(MarkdownFormat.UNDERLINE))
-					) {
+					if ((next.type == SubNodeType.STAR && this.allowedFormatting.contains(MarkdownFormat.BOLD)) || (next.type == SubNodeType.FLOOR && this.allowedFormatting.contains(MarkdownFormat.UNDERLINE))) {
 						var nexter = nodes.next();
 						if (nexter.type == next.type) {
 							two = true;
@@ -346,13 +329,7 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 	}
 
 	public enum MarkdownFormat {
-		BOLD,
-		ITALIC,
-		UNDERLINE,
-		STRIKETHROUGH,
-		QUOTE,
-		SPOILER,
-		URL
+		BOLD, ITALIC, UNDERLINE, STRIKETHROUGH, QUOTE, SPOILER, URL
 	}
 
 	private record SubNodeType<T>(T selfValue) {

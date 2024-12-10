@@ -18,7 +18,6 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.util.Locale;
 
-
 public class PlayerPlaceholders {
 	public static void register() {
 		Placeholders.register(Identifier.of("player", "name"), (ctx, arg) -> {
@@ -182,10 +181,7 @@ public class PlayerPlaceholders {
 		Placeholders.register(Identifier.of("player", "playtime"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				int x = ctx.player().getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAY_TIME));
-				return PlaceholderResult.value(arg != null
-						? DurationFormatUtils.formatDuration((long) x * 50, arg, true)
-						: GeneralUtils.durationToString((long) x / 20)
-				);
+				return PlaceholderResult.value(arg != null ? DurationFormatUtils.formatDuration((long) x * 50, arg, true) : GeneralUtils.durationToString((long) x / 20));
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
@@ -295,8 +291,7 @@ public class PlayerPlaceholders {
 		Placeholders.register(Identifier.of("player", "facing_axis"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				var facing = ctx.player().getFacing();
-				return PlaceholderResult.value(
-						(facing.getDirection() == Direction.AxisDirection.NEGATIVE ? "-" : "+") + facing.getAxis().asString().toUpperCase(Locale.ROOT));
+				return PlaceholderResult.value((facing.getDirection() == Direction.AxisDirection.NEGATIVE ? "-" : "+") + facing.getAxis().asString().toUpperCase(Locale.ROOT));
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
@@ -313,8 +308,7 @@ public class PlayerPlaceholders {
 		Placeholders.register(Identifier.of("player", "horizontal_facing_axis"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				var facing = ctx.player().getHorizontalFacing();
-				return PlaceholderResult.value(
-						(facing.getDirection() == Direction.AxisDirection.NEGATIVE ? "-" : "+") + facing.getAxis().asString().toUpperCase(Locale.ROOT));
+				return PlaceholderResult.value((facing.getDirection() == Direction.AxisDirection.NEGATIVE ? "-" : "+") + facing.getAxis().asString().toUpperCase(Locale.ROOT));
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}

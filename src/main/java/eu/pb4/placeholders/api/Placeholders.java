@@ -232,8 +232,7 @@ public final class Placeholders {
 	}
 
 	public interface PlaceholderGetter {
-		@Nullable
-		PlaceholderHandler getPlaceholder(String placeholder);
+		@Nullable PlaceholderHandler getPlaceholder(String placeholder);
 
 		@Nullable
 		default PlaceholderHandler getPlaceholder(String placeholder, ParserContext context) {

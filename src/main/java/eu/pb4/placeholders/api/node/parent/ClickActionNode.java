@@ -46,9 +46,6 @@ public final class ClickActionNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ClickActionNode{" +
-				"action=" + action +
-				", value=" + value +
-				'}';
+		return "ClickActionNode{" + "action=" + action + ", value=" + value + '}';
 	}
 }

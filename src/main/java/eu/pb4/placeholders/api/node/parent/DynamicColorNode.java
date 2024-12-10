@@ -39,9 +39,6 @@ public final class DynamicColorNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ColorNode{" +
-				"color=" + color +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "ColorNode{" + "color=" + color + ", children=" + Arrays.toString(children) + '}';
 	}
 }

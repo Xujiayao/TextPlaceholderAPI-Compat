@@ -134,8 +134,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 
 				@Override
 				public void handleTag(String id, String argument, Context context) {
-					context.addNode(new PlaceholderNode(contextKey, id, placeholders,
-							placeholders.isContextOptional(), argument != null && !argument.isEmpty() ? argument : null));
+					context.addNode(new PlaceholderNode(contextKey, id, placeholders, placeholders.isContextOptional(), argument != null && !argument.isEmpty() ? argument : null));
 				}
 			};
 		}

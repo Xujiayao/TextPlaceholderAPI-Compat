@@ -34,9 +34,6 @@ public final class TransformNode extends ParentNode {
 
 	@Override
 	public String toString() {
-		return "TransformNode{" +
-				"transform=" + transform +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "TransformNode{" + "transform=" + transform + ", children=" + Arrays.toString(children) + '}';
 	}
 }

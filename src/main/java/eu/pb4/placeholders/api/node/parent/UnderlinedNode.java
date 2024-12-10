@@ -28,9 +28,6 @@ public final class UnderlinedNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "UnderlinedNode{" +
-				"children=" + Arrays.toString(children) +
-				", value=" + value +
-				'}';
+		return "UnderlinedNode{" + "children=" + Arrays.toString(children) + ", value=" + value + '}';
 	}
 }

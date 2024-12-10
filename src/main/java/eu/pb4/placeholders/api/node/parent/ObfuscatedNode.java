@@ -28,9 +28,6 @@ public final class ObfuscatedNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ObfuscatedNode{" +
-				"value=" + value +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "ObfuscatedNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
 	}
 }

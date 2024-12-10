@@ -82,14 +82,7 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 	@Override
 	public DataResult<Stream<Pair<Either<String, StringArgs>, Either<String, StringArgs>>>> getMapValues(Either<String, StringArgs> input) {
 		try {
-			return DataResult.success(
-					Stream.concat(
-							input.right().get().unsafeKeyed().entrySet().stream()
-									.map((e) -> new Pair<>(Either.left(e.getKey()), Either.left(e.getValue()))),
-							input.right().get().unsafeKeyedMap().entrySet().stream()
-									.map((e) -> new Pair<>(Either.left(e.getKey()), Either.right(e.getValue())))
-					)
-			);
+			return DataResult.success(Stream.concat(input.right().get().unsafeKeyed().entrySet().stream().map((e) -> new Pair<>(Either.left(e.getKey()), Either.left(e.getValue()))), input.right().get().unsafeKeyedMap().entrySet().stream().map((e) -> new Pair<>(Either.left(e.getKey()), Either.right(e.getValue())))));
 		} catch (Throwable e) {
 			return DataResult.error(() -> input + " is not a map!");
 		}
@@ -98,30 +91,19 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 	@Override
 	public Either<String, StringArgs> createMap(Stream<Pair<Either<String, StringArgs>, Either<String, StringArgs>>> map) {
 		var arg = StringArgs.emptyNew();
-		map.forEach(x -> x.getSecond()
-				.ifLeft(y -> arg.unsafeKeyed().put(x.getFirst().left().orElse(""), y))
-				.ifRight(y -> arg.unsafeKeyedMap().put(x.getFirst().left().orElse(""), y)));
+		map.forEach(x -> x.getSecond().ifLeft(y -> arg.unsafeKeyed().put(x.getFirst().left().orElse(""), y)).ifRight(y -> arg.unsafeKeyedMap().put(x.getFirst().left().orElse(""), y)));
 		return Either.right(arg);
 	}
 
 	@Override
 	public DataResult<Stream<Either<String, StringArgs>>> getStream(Either<String, StringArgs> input) {
-		return DataResult.success(input.left().isPresent() ? Stream.of(input) : Stream.concat(Stream.concat(
-						input.right().get().unsafeKeyed().values().stream()
-								.map(Either::left),
-						input.right().get().unsafeOrdered().stream()
-								.map(Either::left)),
-				input.right().get().unsafeKeyedMap().values().stream()
-						.map(Either::right)
-		));
+		return DataResult.success(input.left().isPresent() ? Stream.of(input) : Stream.concat(Stream.concat(input.right().get().unsafeKeyed().values().stream().map(Either::left), input.right().get().unsafeOrdered().stream().map(Either::left)), input.right().get().unsafeKeyedMap().values().stream().map(Either::right)));
 	}
 
 	@Override
 	public Either<String, StringArgs> createList(Stream<Either<String, StringArgs>> input) {
 		var arg = StringArgs.emptyNew();
-		input.forEach(x -> x.ifLeft(arg.unsafeOrdered()::add)
-				.ifRight(y -> arg.unsafeKeyedMap().put("" + arg.unsafeKeyedMap().size(), y))
-		);
+		input.forEach(x -> x.ifLeft(arg.unsafeOrdered()::add).ifRight(y -> arg.unsafeKeyedMap().put("" + arg.unsafeKeyedMap().size(), y)));
 		return Either.right(arg);
 	}
 

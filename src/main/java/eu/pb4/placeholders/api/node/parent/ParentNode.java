@@ -85,8 +85,6 @@ public class ParentNode implements ParentTextNode {
 
 	@Override
 	public String toString() {
-		return "ParentNode{" +
-				"children=" + Arrays.toString(children) +
-				'}';
+		return "ParentNode{" + "children=" + Arrays.toString(children) + '}';
 	}
 }

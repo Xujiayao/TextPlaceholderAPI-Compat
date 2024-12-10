@@ -67,7 +67,6 @@ public class ServerPlaceholders {
 			return PlaceholderResult.value(Text.literal(String.format("%.0f", x)).formatted(x < 45 ? Formatting.GREEN : x < 51 ? Formatting.GOLD : Formatting.RED));
 		});
 
-
 		Placeholders.register(Identifier.of("server", "time"), (ctx, arg) -> {
 			SimpleDateFormat format = new SimpleDateFormat(arg != null ? arg : "HH:mm:ss");
 			return PlaceholderResult.value(format.format(new Date(System.currentTimeMillis())));
@@ -92,10 +91,7 @@ public class ServerPlaceholders {
 					ref.ms = System.currentTimeMillis() - ctx.server().getTicks() * 50L;
 				}
 
-				return PlaceholderResult.value(arg != null
-						? DurationFormatUtils.formatDuration((System.currentTimeMillis() - ref.ms), arg, true)
-						: GeneralUtils.durationToString((System.currentTimeMillis() - ref.ms) / 1000)
-				);
+				return PlaceholderResult.value(arg != null ? DurationFormatUtils.formatDuration((System.currentTimeMillis() - ref.ms), arg, true) : GeneralUtils.durationToString((System.currentTimeMillis() - ref.ms) / 1000));
 			});
 		}
 
@@ -158,18 +154,14 @@ public class ServerPlaceholders {
 			MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 			MemoryUsage heapUsage = memoryMXBean.getHeapMemoryUsage();
 
-			return PlaceholderResult.value(Objects.equals(arg, "gb")
-					? String.format("%.1f", (float) heapUsage.getUsed() / 1073741824)
-					: String.format("%d", heapUsage.getUsed() / 1048576));
+			return PlaceholderResult.value(Objects.equals(arg, "gb") ? String.format("%.1f", (float) heapUsage.getUsed() / 1073741824) : String.format("%d", heapUsage.getUsed() / 1048576));
 		});
 
 		Placeholders.register(Identifier.of("server", "max_ram"), (ctx, arg) -> {
 			MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 			MemoryUsage heapUsage = memoryMXBean.getHeapMemoryUsage();
 
-			return PlaceholderResult.value(Objects.equals(arg, "gb")
-					? String.format("%.1f", (float) heapUsage.getMax() / 1073741824)
-					: String.format("%d", heapUsage.getMax() / 1048576));
+			return PlaceholderResult.value(Objects.equals(arg, "gb") ? String.format("%.1f", (float) heapUsage.getMax() / 1073741824) : String.format("%d", heapUsage.getMax() / 1048576));
 		});
 
 		Placeholders.register(Identifier.of("server", "online"), (ctx, arg) -> PlaceholderResult.value(String.valueOf(ctx.server().getPlayerManager().getCurrentPlayerCount())));

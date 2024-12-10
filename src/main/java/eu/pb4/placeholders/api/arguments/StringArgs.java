@@ -79,16 +79,15 @@ public final class StringArgs {
 				var ordered = new ArrayList<String>();
 				var keyed = new HashMap<String, String>();
 				var keyedMaps = new HashMap<String, StringArgs>();
-				var ti = keyDecomposition(input, i + 1, separator, map, isWrap, true,
-						chr == '{' ? '}' : ']', (keyx, valuex) -> {
-							if (keyx != null) {
-								keyed.put(keyx, valuex != null ? SimpleArguments.unwrap(valuex, isWrap) : "");
+				var ti = keyDecomposition(input, i + 1, separator, map, isWrap, true, chr == '{' ? '}' : ']', (keyx, valuex) -> {
+					if (keyx != null) {
+						keyed.put(keyx, valuex != null ? SimpleArguments.unwrap(valuex, isWrap) : "");
 
-								if (valuex == null) {
-									ordered.add(SimpleArguments.unwrap(keyx, isWrap));
-								}
-							}
-						}, keyedMaps::put);
+						if (valuex == null) {
+							ordered.add(SimpleArguments.unwrap(keyx, isWrap));
+						}
+					}
+				}, keyedMaps::put);
 				if (ti == input.length()) {
 					b.append(chr);
 				} else {
@@ -236,7 +235,6 @@ public final class StringArgs {
 		return this.keyed;
 	}
 
-
 	@ApiStatus.Internal
 	public Map<String, StringArgs> unsafeKeyedMap() {
 		return this.keyedMaps;
@@ -244,10 +242,6 @@ public final class StringArgs {
 
 	@Override
 	public String toString() {
-		return "StringArgs{" +
-				"ordered=" + ordered +
-				", keyed=" + keyed +
-				", keyedMaps=" + keyedMaps +
-				'}';
+		return "StringArgs{" + "ordered=" + ordered + ", keyed=" + keyed + ", keyedMaps=" + keyedMaps + '}';
 	}
 }

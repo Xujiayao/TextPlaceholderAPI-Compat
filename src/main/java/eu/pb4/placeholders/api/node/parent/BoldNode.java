@@ -23,10 +23,7 @@ public final class BoldNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "BoldNode{" +
-				"value=" + value +
-				", children=" + Arrays.toString(children) +
-				'}';
+		return "BoldNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
 	}
 
 	@Override
