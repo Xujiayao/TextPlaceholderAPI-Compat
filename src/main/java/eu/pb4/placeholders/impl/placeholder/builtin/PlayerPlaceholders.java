@@ -238,8 +238,9 @@ public class PlayerPlaceholders {
 					//#else
 					//$$ Identifier identifier = Identifier.tryParse(arg);
 					//$$ if (identifier != null) {
-					//$$    int x = ctx.player().getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Registry.CUSTOM_STAT.get(identifier)));
-					//$$    return PlaceholderResult.value(String.valueOf(x));
+					//$$    var stat = Stats.CUSTOM.getOrCreateStat(Registry.CUSTOM_STAT.get(identifier));
+					//$$    int x = ctx.player().getStatHandler().getStat(stat);
+					//$$    return PlaceholderResult.value(stat.format(x));
 					//$$ }
 					//#endif
 				} catch (Exception e) {
@@ -283,7 +284,8 @@ public class PlayerPlaceholders {
 					//#else
 					//$$ Identifier identifier = Identifier.tryParse(arg);
 					//$$ if (identifier != null) {
-					//$$    int x = ctx.player().getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Registry.CUSTOM_STAT.get(identifier)));
+					//$$    var stat = Stats.CUSTOM.getOrCreateStat(Registry.CUSTOM_STAT.get(identifier));
+					//$$    int x = ctx.player().getStatHandler().getStat(stat);
 					//$$    return PlaceholderResult.value(String.valueOf(x));
 					//$$ }
 					//#endif
