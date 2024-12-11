@@ -31,7 +31,11 @@ public class LegacyFormattingParser implements NodeParser {
 	public LegacyFormattingParser(boolean allowRgb, Formatting... allowedFormatting) {
 		this.allowRgb = allowRgb;
 		for (var formatting : allowedFormatting) {
+			//#if MC > 11605
 			this.map.put(formatting.getCode(), formatting);
+			//#else
+			//$$ this.map.put(formatting.toString().charAt(1), formatting);
+			//#endif
 		}
 	}
 

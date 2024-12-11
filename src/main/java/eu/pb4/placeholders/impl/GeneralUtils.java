@@ -302,7 +302,11 @@ public class GeneralUtils {
 		} else if (getContent(input) instanceof KeybindTextContent content) {
 			list.add(new KeybindNode(content.getKey()));
 		} else if (getContent(input) instanceof SelectorTextContent content) {
+			//#if MC > 11605
 			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
+			//#else
+			//$$ list.add(new SelectorNode(content.getPattern(), null));
+			//#endif
 		} else if (getContent(input) instanceof NbtTextContent content) {
 			//#if MC > 11802
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));

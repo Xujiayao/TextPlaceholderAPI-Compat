@@ -24,8 +24,10 @@ public class WorldPlaceholders {
 	private static ServerWorld getPlayerWorld(PlaceholderContext ctx) {
 		//#if MC > 11904
 		return ctx.player().getServerWorld();
-		//#else
+		//#elseif MC > 11701
 		//$$ return ctx.player().getWorld();
+		//#else
+		//$$ return ctx.player().getServerWorld();
 		//#endif
 	}
 

@@ -7,8 +7,13 @@ import net.minecraft.text.Style;
 import java.util.Arrays;
 
 public final class StrikethroughNode extends SimpleStylingNode {
+	//#if MC > 11605
 	private static final Style TRUE = Style.EMPTY.withStrikethrough(true);
 	private static final Style FALSE = Style.EMPTY.withStrikethrough(false);
+	//#else
+	//$$ private static final Style TRUE = Style.EMPTY.withFormatting(net.minecraft.util.Formatting.STRIKETHROUGH);
+	//$$ private static final Style FALSE = Style.EMPTY;
+	//#endif
 	private final boolean value;
 
 	public StrikethroughNode(TextNode[] nodes, boolean value) {

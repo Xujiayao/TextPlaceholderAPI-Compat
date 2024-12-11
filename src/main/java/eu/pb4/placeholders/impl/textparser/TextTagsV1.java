@@ -496,7 +496,11 @@ public final class TextTagsV1 {
 				case "bold" -> x -> x.withBold(null);
 				case "italic" -> x -> x.withItalic(null);
 				case "underline" -> x -> x.withUnderline(null);
+				//#if MC > 11605
 				case "strikethrough" -> x -> x.withStrikethrough(null);
+				//#else
+				//$$ case "strikethrough" -> x -> x.withFormatting(net.minecraft.util.Formatting.STRIKETHROUGH);
+				//#endif
 				case "all" -> x -> Style.EMPTY;
 				default -> x -> x;
 			});

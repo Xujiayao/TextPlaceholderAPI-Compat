@@ -23,8 +23,10 @@ public record SelectorNode(ParsedSelector selector, Optional<TextNode> separator
 		return Text.selector(selector, separator.map(x -> x.toText(context, removeBackslashes)));
 		//#elseif MC > 11802
 		//$$ return Text.selector(pattern, separator.map(x -> x.toText(context, removeBackslashes)));
-		//#else
+		//#elseif MC > 11605
 		//$$ return new SelectorText(pattern, separator.map(x -> x.toText(context, removeBackslashes)));
+		//#else
+		//$$ return new SelectorText(pattern);
 		//#endif
 	}
 

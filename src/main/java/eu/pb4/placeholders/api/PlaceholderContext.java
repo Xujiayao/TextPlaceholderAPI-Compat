@@ -95,7 +95,11 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 		if (entity instanceof ServerPlayerEntity player) {
 			return of(player, view);
 		} else {
+			//#if MC > 11701
 			var world = (ServerWorld) entity.getWorld();
+			//#else
+			//$$ var world = (ServerWorld) entity.world;
+			//#endif
 			//#if MC > 12101
 			return new PlaceholderContext(entity.getServer(), () -> entity.getCommandSource(world), world, null, entity, null, view);
 			//#else

@@ -146,7 +146,11 @@ public class PlayerPlaceholders {
 				try {
 					int slot = Integer.parseInt(arg);
 
+					//#if MC > 11605
 					var inventory = ctx.player().getInventory();
+					//#else
+					//$$ var inventory = ctx.player().inventory;
+					//#endif
 
 					if (slot >= 0 && slot < inventory.size()) {
 						var stack = inventory.getStack(slot);
@@ -168,7 +172,11 @@ public class PlayerPlaceholders {
 				try {
 					int slot = Integer.parseInt(arg);
 
+					//#if MC > 11605
 					var inventory = ctx.player().getInventory();
+					//#else
+					//$$ var inventory = ctx.player().inventory;
+					//#endif
 
 					if (slot >= 0 && slot < inventory.size()) {
 						var stack = inventory.getStack(slot);

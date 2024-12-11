@@ -1,0 +1,2 @@
+org.apache.logging.log4j.Logger org.slf4j.Logger
+org.apache.logging.log4j.LogManager org.slf4j.LoggerFactory

@@ -71,7 +71,11 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		var list = new ArrayList<>(formatsAndProviders.size());
 
 		for (var entry : formatsAndProviders.entrySet()) {
+			//#if MC > 11701
 			list.add(Pair.of(entry));
+			//#else
+			//$$ list.add(Pair.of(entry.getKey(), entry.getValue()));
+			//#endif
 		}
 		return new MultiTagLikeParser(list.toArray(new Pair[0]));
 	}
