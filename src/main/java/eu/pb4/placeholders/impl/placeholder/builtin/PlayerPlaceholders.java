@@ -319,10 +319,13 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		//#if MC > 12004
 		Placeholders.register(Identifier.of("player", "facing"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
+				//#if MC > 12004
 				return PlaceholderResult.value(ctx.player().getFacing().asString());
+				//#else
+				//$$ return PlaceholderResult.invalid("TODO: Not implemented in 1.20.4 and above!");
+				//#endif
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
@@ -330,13 +333,16 @@ public class PlayerPlaceholders {
 
 		Placeholders.register(Identifier.of("player", "facing_axis"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
+				//#if MC > 12004
 				var facing = ctx.player().getFacing();
 				return PlaceholderResult.value((facing.getDirection() == Direction.AxisDirection.NEGATIVE ? "-" : "+") + facing.getAxis().asString().toUpperCase(Locale.ROOT));
+				//#else
+				//$$ return PlaceholderResult.invalid("TODO: Not implemented in 1.20.4 and above!");
+				//#endif
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
 		});
-		//#endif
 
 		Placeholders.register(Identifier.of("player", "horizontal_facing"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
