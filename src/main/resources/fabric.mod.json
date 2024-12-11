@@ -1,9 +1,9 @@
 {
 	"schemaVersion": 1,
-	"id": "placeholder-api-compat-${mc_version}",
+	"id": "placeholder-api-compat-${mc_version_replaced}",
 	"version": "${version}",
-	"name": "Placeholder API Compat",
-	"description": "Simple api for mods allowing for user friendly formatting and universal placeholders!",
+	"name": "Placeholder API Compat for ${mc_version}",
+	"description": "Latest release of Patbox's Text Placeholder API, but compatible with all Fabric Minecraft versions 1.14.4+",
 	"authors": [
 		"Patbox",
 		"Xujiayao"
@@ -22,6 +22,7 @@
 	},
 	"custom": {
 		"modmenu": {
+			"parent": "placeholder-api-compat",
 			"badges": [
 				"library"
 			]
