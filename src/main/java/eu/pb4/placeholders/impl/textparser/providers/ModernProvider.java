@@ -33,15 +33,9 @@ public record ModernProvider(TagRegistry registry) implements TagLikeParser.Prov
 
 		if (id.startsWith("#")) {
 			var text = TextColor.parse(id);
-			//#if MC > 12002
 			if (text.result().isPresent()) {
 				context.push(id, x -> new ColorNode(x, text.result().get()));
 			}
-			//#else
-			//$$ if (text != null) {
-			//$$    context.push(id, x -> new ColorNode(x, text));
-			//$$ }
-			//#endif
 			return;
 		}
 

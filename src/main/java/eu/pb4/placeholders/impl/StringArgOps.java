@@ -31,7 +31,7 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 			return DataResult.success(Boolean.parseBoolean(input.orThrow()) ? 1 : 0);
 		}
 
-		return getError(input + " is not a number!");
+		return DataResult.error(() -> input + " is not a number!");
 	}
 
 	@Override
@@ -41,7 +41,7 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 
 	@Override
 	public DataResult<String> getStringValue(Either<String, StringArgs> input) {
-		return input.left().isPresent() ? DataResult.success(input.left().get()) : getError(input + " is not a string!");
+		return input.left().isPresent() ? DataResult.success(input.left().get()) : DataResult.error(() -> input + " is not a string!");
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 
 			return DataResult.success(list);
 		} catch (Throwable e) {
-			return getError(list + " is not a list!");
+			return DataResult.error(() -> list + " is not a list!");
 		}
 	}
 
@@ -75,7 +75,7 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 
 			return DataResult.success(map);
 		} catch (Throwable e) {
-			return getError(key + " is not a correct key!");
+			return DataResult.error(() -> key + " is not a correct key!");
 		}
 	}
 
@@ -84,7 +84,7 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 		try {
 			return DataResult.success(Stream.concat(input.right().get().unsafeKeyed().entrySet().stream().map((e) -> new Pair<>(Either.left(e.getKey()), Either.left(e.getValue()))), input.right().get().unsafeKeyedMap().entrySet().stream().map((e) -> new Pair<>(Either.left(e.getKey()), Either.right(e.getValue())))));
 		} catch (Throwable e) {
-			return getError(input + " is not a map!");
+			return DataResult.error(() -> input + " is not a map!");
 		}
 	}
 
@@ -115,13 +115,5 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 		});
 
 		return input;
-	}
-
-	private <R> DataResult<R> getError(String str) {
-		//#if MC > 11903
-		return DataResult.error(() -> str);
-		//#else
-		//$$ return DataResult.error(str);
-		//#endif
 	}
 }

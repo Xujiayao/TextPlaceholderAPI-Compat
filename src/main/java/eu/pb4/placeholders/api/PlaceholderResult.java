@@ -1,10 +1,6 @@
 package eu.pb4.placeholders.api;
 
 import eu.pb4.placeholders.api.parsers.TextParserV1;
-//#if MC <= 11802
-//$$ import net.minecraft.text.LiteralText;
-//#endif
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -14,20 +10,12 @@ public final class PlaceholderResult {
 	private final boolean valid;
 	private String string;
 
-	private static MutableText createText(String s) {
-		//#if MC > 11802
-		return Text.literal(s);
-		//#else
-		//$$ return new LiteralText(s);
-		//#endif
-	}
-
 	private PlaceholderResult(Text text, String reason) {
 		if (text != null) {
 			this.text = text;
 			this.valid = true;
 		} else {
-			this.text = createText("[" + (reason != null ? reason : "Invalid placeholder!") + "]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true));
+			this.text = Text.literal("[" + (reason != null ? reason : "Invalid placeholder!") + "]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true));
 			this.valid = false;
 		}
 	}

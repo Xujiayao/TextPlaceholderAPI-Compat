@@ -37,7 +37,7 @@ public class ParentNode implements ParentTextNode {
 		var compact = context != null && context.get(ParserContext.Key.COMPACT_TEXT) != Boolean.FALSE;
 
 		if (this.children.length == 0) {
-			return Text.of("");
+			return Text.empty();
 		} else if ((this.children.length == 1 && this.children[0] != null) && compact) {
 			var out = this.children[0].toText(context, true);
 			if (GeneralUtils.isEmpty(out)) {
@@ -46,7 +46,7 @@ public class ParentNode implements ParentTextNode {
 
 			return this.applyFormatting(out.copy(), context);
 		} else {
-			MutableText base = compact ? null : Text.of("").copy();
+			MutableText base = compact ? null : Text.empty();
 
 			for (int i = 0; i < this.children.length; i++) {
 				if (this.children[i] != null) {
@@ -57,7 +57,7 @@ public class ParentNode implements ParentTextNode {
 							if (child.getStyle().isEmpty()) {
 								base = child.copy();
 							} else {
-								base = Text.of("").copy();
+								base = Text.empty();
 								base.append(child);
 							}
 						} else {
@@ -68,7 +68,7 @@ public class ParentNode implements ParentTextNode {
 			}
 
 			if (base == null || GeneralUtils.isEmpty(base)) {
-				return Text.of("");
+				return Text.empty();
 			}
 
 			return this.applyFormatting(base, context);

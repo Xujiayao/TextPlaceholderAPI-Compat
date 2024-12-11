@@ -10,11 +10,7 @@ public record NbtNode(String rawPath, boolean interpret, Optional<TextNode> sepa
                       NbtDataSource dataSource) implements TextNode {
 	@Override
 	public Text toText(ParserContext context, boolean removeBackslashes) {
-		//#if MC > 11802
 		return Text.nbt(rawPath, interpret, separator.map(x -> x.toText(context, removeBackslashes)), dataSource);
-		//#else
-		//$$ return Text.of("");
-		//#endif
 	}
 
 	@Override

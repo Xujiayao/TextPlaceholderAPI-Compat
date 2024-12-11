@@ -14,15 +14,10 @@ import eu.pb4.placeholders.api.node.parent.ParentNode;
 import eu.pb4.placeholders.api.node.parent.ParentTextNode;
 import eu.pb4.placeholders.api.node.parent.StyledNode;
 import net.fabricmc.loader.api.FabricLoader;
-//#if MC > 12004
 import net.minecraft.component.DataComponentTypes;
-//#endif
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.KeybindTextContent;
-//#if MC <= 12002
-//$$ import net.minecraft.text.LiteralTextContent;
-//#endif
 import net.minecraft.text.MutableText;
 import net.minecraft.text.NbtTextContent;
 import net.minecraft.text.PlainTextContent;
@@ -31,7 +26,6 @@ import net.minecraft.text.SelectorTextContent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
-import net.minecraft.text.TextContent;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.ApiStatus;
@@ -67,11 +61,7 @@ public class GeneralUtils {
 	}
 
 	public static boolean isEmpty(Text text) {
-		//#if MC > 12002
-		return (getContent(text) == PlainTextContent.EMPTY || (getContent(text) instanceof PlainTextContent.Literal l && l.string().isEmpty())) && text.getSiblings().isEmpty();
-		//#else
-		//$$ return (getContent(text) == TextContent.EMPTY || (getContent(text) instanceof LiteralTextContent l && l.string().isEmpty())) && text.getSiblings().isEmpty();
-		//#endif
+		return (text.getContent() == PlainTextContent.EMPTY || (text.getContent() instanceof PlainTextContent.Literal l && l.string().isEmpty())) && text.getSiblings().isEmpty();
 	}
 
 	public static MutableText toGradient(Text base, GradientNode.GradientProvider posToColor) {
@@ -79,11 +69,7 @@ public class GeneralUtils {
 	}
 
 	private static int getGradientLength(Text base) {
-		//#if MC > 12002
-		int length = getContent(base) instanceof PlainTextContent.Literal l ? l.string().codePointCount(0, l.string().length()) : getContent(base) == PlainTextContent.EMPTY ? 0 : 1;
-		//#else
-		//$$ int length = getContent(base) instanceof LiteralTextContent l ? l.string().codePointCount(0, l.string().length()) : getContent(base) == TextContent.EMPTY ? 0 : 1;
-		//#endif
+		int length = base.getContent() instanceof PlainTextContent.Literal l ? l.string().codePointCount(0, l.string().length()) : base.getContent() == PlainTextContent.EMPTY ? 0 : 1;
 
 		for (var text : base.getSiblings()) {
 			length += getGradientLength(text);
@@ -94,16 +80,8 @@ public class GeneralUtils {
 
 	private static TextLengthPair recursiveGradient(Text base, GradientNode.GradientProvider posToColor, int pos, int totalLength) {
 		if (base.getStyle().getColor() == null) {
-			//#if MC > 11802
 			MutableText out = Text.empty().setStyle(base.getStyle());
-			//#else
-			//$$ MutableText out = new LiteralText("").setStyle(base.getStyle());
-			//#endif
-			//#if MC > 12002
-			if (getContent(base) instanceof PlainTextContent.Literal literalTextContent) {
-			//#else
-			//$$ if (getContent(base) instanceof LiteralTextContent literalTextContent) {
-			//#endif
+			if (base.getContent() instanceof PlainTextContent.Literal literalTextContent) {
 				var l = literalTextContent.string().length();
 				for (var i = 0; i < l; i++) {
 					var character = literalTextContent.string().charAt(i);
@@ -119,11 +97,8 @@ public class GeneralUtils {
 						value = character;
 					}
 
-					//#if MC > 11802
 					out.append(Text.literal(Character.toString(value)).setStyle(Style.EMPTY.withColor(posToColor.getColorAt(pos++, totalLength))));
-					//#else
-					//$$ out.append(new LiteralText(Character.toString(value)).setStyle(Style.EMPTY.withColor(posToColor.getColorAt(pos++, totalLength))));
-					//#endif
+
 				}
 			} else {
 				out.append(base.copyContentOnly().setStyle(Style.EMPTY.withColor(posToColor.getColorAt(pos++, totalLength))));
@@ -160,7 +135,7 @@ public class GeneralUtils {
 			input.setStyle(input.getStyle().withHoverEvent(null).withClickEvent(null));
 		}
 
-		if (getContent(input) instanceof TranslatableTextContent text) {
+		if (input.getContent() instanceof TranslatableTextContent text) {
 			for (int i = 0; i < text.getArgs().length; i++) {
 				var arg = text.getArgs()[i];
 				if (arg instanceof MutableText argText) {
@@ -177,7 +152,7 @@ public class GeneralUtils {
 
 	public static MutableText cloneText(Text input) {
 		MutableText baseText;
-		if (getContent(input) instanceof TranslatableTextContent translatable) {
+		if (input.getContent() instanceof TranslatableTextContent translatable) {
 			var obj = new ArrayList<>();
 
 			for (var arg : translatable.getArgs()) {
@@ -188,11 +163,7 @@ public class GeneralUtils {
 				}
 			}
 
-			//#if MC > 11802
 			baseText = Text.translatable(translatable.getKey(), obj.toArray());
-			//#else
-			//$$ baseText = new TranslatableText(translatable.getKey(), obj.toArray());
-			//#endif
 		} else {
 			baseText = input.copyContentOnly();
 		}
@@ -207,7 +178,7 @@ public class GeneralUtils {
 
 	public static MutableText cloneTransformText(Text input, Function<MutableText, MutableText> transform) {
 		MutableText baseText;
-		if (getContent(input) instanceof TranslatableTextContent translatable) {
+		if (input.getContent() instanceof TranslatableTextContent translatable) {
 			var obj = new ArrayList<>();
 
 			for (var arg : translatable.getArgs()) {
@@ -218,11 +189,7 @@ public class GeneralUtils {
 				}
 			}
 
-			//#if MC > 11802
 			baseText = Text.translatable(translatable.getKey(), obj.toArray());
-			//#else
-			//$$ baseText = new TranslatableText(translatable.getKey(), obj.toArray());
-			//#endif
 		} else {
 			baseText = input.copyContentOnly();
 		}
@@ -237,25 +204,13 @@ public class GeneralUtils {
 
 	public static Text getItemText(ItemStack stack, boolean rarity) {
 		if (!stack.isEmpty()) {
-			//#if MC > 11802
 			MutableText mutableText = Text.empty().append(stack.getName());
-			//#else
-			//$$ MutableText mutableText = new LiteralText("").append(stack.getName());
-			//#endif
-			//#if MC > 12004
 			if (stack.contains(DataComponentTypes.CUSTOM_NAME)) {
-			//#else
-			//$$ if (stack.hasCustomName()) {
-			//#endif
 				mutableText.formatted(Formatting.ITALIC);
 			}
 
 			if (rarity) {
-				//#if MC > 12004
 				mutableText.formatted(stack.getRarity().getFormatting());
-				//#else
-				//$$ mutableText.formatted(stack.getRarity().formatting);
-				//#endif
 			}
 			mutableText.styled((style) -> {
 				return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(stack)));
@@ -264,23 +219,15 @@ public class GeneralUtils {
 			return mutableText;
 		}
 
-		//#if MC > 11802
 		return Text.empty().append(ItemStack.EMPTY.getName());
-		//#else
-		//$$ return new LiteralText("").append(ItemStack.EMPTY.getName());
-		//#endif
 	}
 
 	public static ParentNode convertToNodes(Text input) {
 		var list = new ArrayList<TextNode>();
 
-		//#if MC > 12002
-		if (getContent(input) instanceof PlainTextContent.Literal content) {
-		//#else
-		//$$ if (getContent(input) instanceof LiteralTextContent content) {
-		//#endif
+		if (input.getContent() instanceof PlainTextContent.Literal content) {
 			list.add(new LiteralNode(content.string()));
-		} else if (getContent(input) instanceof TranslatableTextContent content) {
+		} else if (input.getContent() instanceof TranslatableTextContent content) {
 			var args = new ArrayList<>();
 			for (var arg : content.getArgs()) {
 				if (arg instanceof Text text) {
@@ -292,25 +239,15 @@ public class GeneralUtils {
 				}
 			}
 
-			//#if MC > 11903
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
-			//#else
-			//$$ list.add(TranslatedNode.of(content.getKey(), args.toArray()));
-			//#endif
-		} else if (getContent(input) instanceof ScoreTextContent content) {
+		} else if (input.getContent() instanceof ScoreTextContent content) {
 			list.add(new ScoreNode(content.name(), content.objective()));
-		} else if (getContent(input) instanceof KeybindTextContent content) {
+		} else if (input.getContent() instanceof KeybindTextContent content) {
 			list.add(new KeybindNode(content.getKey()));
-		} else if (getContent(input) instanceof SelectorTextContent content) {
-			//#if MC > 11605
+		} else if (input.getContent() instanceof SelectorTextContent content) {
 			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
-			//#else
-			//$$ list.add(new SelectorNode(content.getPattern(), null));
-			//#endif
-		} else if (getContent(input) instanceof NbtTextContent content) {
-			//#if MC > 11802
+		} else if (input.getContent() instanceof NbtTextContent content) {
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
-			//#endif
 		}
 
 		for (var child : input.getSiblings()) {
@@ -370,14 +307,4 @@ public class GeneralUtils {
 			return mutableText.setStyle(textMutableTextFunction.apply(mutableText.getStyle()));
 		}
 	}
-
-	//#if MC > 11802
-	private static TextContent getContent(Text text) {
-		return text.getContent();
-	}
-	//#else
-	//$$ private static Text getContent(Text text) {
-	//$$ 	return text;
-	//$$ }
-	//#endif
 }

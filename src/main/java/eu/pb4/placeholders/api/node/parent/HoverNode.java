@@ -5,16 +5,12 @@ import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-//#if MC > 12004
 import net.minecraft.component.ComponentChanges;
-//#endif
 import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-//#if MC > 11902
 import net.minecraft.registry.RegistryWrapper;
-//#endif
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -41,11 +37,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 		} else if (this.action == Action.ENTITY) {
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((EntityNodeContent) this.value).toVanilla(context)));
 		} else if (this.action == Action.LAZY_ITEM_STACK) {
-			//#if MC > 11902
 			RegistryWrapper.WrapperLookup wrapper;
-			//#else
-			//$$ Object wrapper;
-			//#endif
 			if (context.contains(ParserContext.Key.WRAPPER_LOOKUP)) {
 				wrapper = context.getOrThrow(ParserContext.Key.WRAPPER_LOOKUP);
 			} else if (context.contains(PlaceholderContext.KEY)) {
@@ -110,21 +102,11 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 	}
 
 	public record LazyItemStackNodeContent<T>(Identifier identifier, int count, DynamicOps<T> ops, T componentMap) {
-		//#if MC > 11902
 		public HoverEvent.ItemStackContent toVanilla(RegistryWrapper.WrapperLookup lookup) {
 			var stack = new ItemStack(lookup.getOrThrow(RegistryKeys.ITEM).getOrThrow(RegistryKey.of(RegistryKeys.ITEM, identifier)));
 			stack.setCount(count);
-			//#if MC > 12004
 			stack.applyChanges(ComponentChanges.CODEC.decode(lookup.getOps(ops), componentMap).getOrThrow().getFirst());
-			//#else
-			//$$ System.out.println("TODO Fix 1.20.4: stack.applyChanges()"); // TODO
-			//#endif
 			return new HoverEvent.ItemStackContent(stack);
 		}
-		//#else
-		//$$ public HoverEvent.ItemStackContent toVanilla(Object lookup) {
-		//$$ 	return new HoverEvent.ItemStackContent(ItemStack.EMPTY);
-		//$$ }
-		//#endif
 	}
 }

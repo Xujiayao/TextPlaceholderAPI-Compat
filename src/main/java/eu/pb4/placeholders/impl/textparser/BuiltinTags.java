@@ -32,16 +32,14 @@ import eu.pb4.placeholders.impl.StringArgOps;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.text.ClickEvent;
-//#if MC > 11802
 import net.minecraft.text.BlockNbtDataSource;
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.EntityNbtDataSource;
-import net.minecraft.text.StorageNbtDataSource;
-//#endif
 import net.minecraft.text.MutableText;
 //#if MC > 12101
 import net.minecraft.text.ParsedSelector;
 //#endif
+import net.minecraft.text.StorageNbtDataSource;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -155,11 +153,7 @@ public final class BuiltinTags {
 					var type = data.getNext("type");
 					var value = data.getNext("value", "");
 					for (ClickEvent.Action action : ClickEvent.Action.values()) {
-						//#if MC > 12002
 						if (action.asString().equals(type)) {
-						//#else
-						//$$ if (action.getName().equals(type)) {
-						//#endif
 							return new ClickActionNode(nodes, action, parser.parseNode(value));
 						}
 					}
@@ -234,11 +228,7 @@ public final class BuiltinTags {
 							var value = data.getNext("value", "");
 							try {
 								var nbt = StringNbtReader.parse(value);
-								//#if MC > 12006
 								var id = Identifier.of(nbt.getString("id"));
-								//#else
-								//$$ var id = Identifier.tryParse(nbt.getString("id"));
-								//#endif
 								var count = nbt.contains("count") ? nbt.getInt("count") : 1;
 
 								var comps = nbt.getCompound("components");
@@ -246,11 +236,7 @@ public final class BuiltinTags {
 							} catch (Throwable ignored) {
 							}
 							try {
-								//#if MC > 12006
 								var item = Identifier.of(data.get("item", value));
-								//#else
-								//$$ var item = Identifier.tryParse(data.get("item", value));
-								//#endif
 								var count = 1;
 								var countTxt = data.getNext("count");
 								if (countTxt != null) {
@@ -316,12 +302,7 @@ public final class BuiltinTags {
 						break;
 					}
 
-					//#if MC > 12002
 					TextColor.parse(part).result().ifPresent(textColors::add);
-					//#else
-					//$$ var c = TextColor.parse(part);
-					//$$ if (c != null) textColors.add(c);
-					//#endif
 				}
 				return new GradientNode(nodes, switch (type) {
 					case "oklab" -> GradientNode.GradientProvider.colorsOkLab(textColors);
@@ -344,12 +325,7 @@ public final class BuiltinTags {
 						break;
 					}
 
-					//#if MC > 12002
 					TextColor.parse(part).result().ifPresent(textColors::add);
-					//#else
-					//$$ var c = TextColor.parse(part);
-					//$$ if (c != null) textColors.add(c);
-					//#endif
 				}
 				// We cannot have an empty list!
 				if (textColors.isEmpty()) {
@@ -369,20 +345,12 @@ public final class BuiltinTags {
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("rawstyle", "special", false, (nodes, data, parser) -> {
-				//#if MC > 11802
-				//#if MC > 12002
 				var x = Style.Codecs.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
-				//#else
-				//$$ var x = Style.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
-				//#endif
 				if (x.error().isPresent()) {
 					System.out.println(x.error().get().message());
 					return TextNode.asSingle(nodes);
 				}
 				return new StyledNode(nodes, x.result().get().getFirst(), null, null, null);
-				//#else
-				//$$ return TextNode.asSingle(nodes);
-				//#endif
 			}));
 		}
 
@@ -415,7 +383,6 @@ public final class BuiltinTags {
 				String source = data.getNext("source", "");
 				var cleanLine1 = data.getNext("path", "");
 
-				//#if MC > 11802
 				var type = switch (source) {
 					case "block" -> new BlockNbtDataSource(cleanLine1);
 					case "entity" -> new EntityNbtDataSource(cleanLine1);
@@ -433,9 +400,6 @@ public final class BuiltinTags {
 				var shouldInterpret = SimpleArguments.bool(data.getNext("interpret"), false);
 
 				return new NbtNode(cleanLine1, shouldInterpret, separator, type);
-				//#else
-				//$$ return TextNode.empty();
-				//#endif
 			}));
 		}
 	}
@@ -457,11 +421,7 @@ public final class BuiltinTags {
 				case "bold" -> x -> x.withBold(null);
 				case "italic" -> x -> x.withItalic(null);
 				case "underline" -> x -> x.withUnderline(null);
-				//#if MC > 11605
 				case "strikethrough" -> x -> x.withStrikethrough(null);
-				//#else
-				//$$ case "strikethrough" -> x -> x.withFormatting(net.minecraft.util.Formatting.STRIKETHROUGH);
-				//#endif
 				case "all" -> x -> Style.EMPTY;
 				default -> x -> x;
 			});

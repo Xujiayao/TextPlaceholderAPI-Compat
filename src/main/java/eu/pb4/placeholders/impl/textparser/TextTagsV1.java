@@ -30,22 +30,16 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.registry.DynamicRegistryManager;
-//#if MC > 11902
 import net.minecraft.registry.Registries;
-//#else
-//$$ import net.minecraft.util.registry.Registry;
-//#endif
-//#if MC > 11802
 import net.minecraft.text.BlockNbtDataSource;
-import net.minecraft.text.EntityNbtDataSource;
-import net.minecraft.text.StorageNbtDataSource;
-//#endif
 import net.minecraft.text.ClickEvent;
+import net.minecraft.text.EntityNbtDataSource;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 //#if MC > 12101
 import net.minecraft.text.ParsedSelector;
 //#endif
+import net.minecraft.text.StorageNbtDataSource;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -101,11 +95,7 @@ public final class TextTagsV1 {
 		}
 
 		{
-			//#if MC > 12002
 			TextParserV1.registerDefault(TextParserV1.TextTag.of("color", List.of("colour", "c"), "color", true, wrap((nodes, data) -> new ColorNode(nodes, TextColor.parse(cleanArgument(data)).result().orElse(null)))));
-			//#else
-			//$$ TextParserV1.registerDefault(TextParserV1.TextTag.of("color", List.of("colour", "c"), "color", true, wrap((nodes, data) -> new ColorNode(nodes, TextColor.parse(cleanArgument(data))))));
-			//#endif
 		}
 		{
 			TextParserV1.registerDefault(TextParserV1.TextTag.of("font", "other_formatting", false, wrap((nodes, data) -> new FontNode(nodes, Identifier.tryParse(cleanArgument(data))))));
@@ -168,11 +158,7 @@ public final class TextTagsV1 {
 				var out = recursiveParsing(input, handlers, endAt);
 				if (lines.length > 1) {
 					for (ClickEvent.Action action : ClickEvent.Action.values()) {
-						//#if MC > 12002
 						if (action.asString().equals(cleanArgument(lines[0]))) {
-						//#else
-						//$$ if (action.getName().equals(cleanArgument(lines[0]))) {
-						//#endif
 							return out.value(new ClickActionNode(out.nodes(), action, new LiteralNode(restoreOriginalEscaping(cleanArgument(lines[1])))));
 						}
 					}
@@ -238,11 +224,7 @@ public final class TextTagsV1 {
 
 				try {
 					if (lines.length > 1) {
-						//#if MC > 12002
 						HoverEvent.Action<?> action = HoverEvent.Action.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(cleanArgument(lines[0].toLowerCase(Locale.ROOT)))).result().orElse(null);
-						//#else
-						//$$ HoverEvent.Action<?> action = HoverEvent.Action.byName(cleanArgument(lines[0].toLowerCase(Locale.ROOT)));
-						//#endif
 						if (action == HoverEvent.Action.SHOW_TEXT) {
 							return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.TEXT, new ParentNode(parse(restoreOriginalEscaping(cleanArgument(lines[1])), handlers))));
 						} else if (action == HoverEvent.Action.SHOW_ENTITY) {
@@ -252,19 +234,11 @@ public final class TextTagsV1 {
 							}
 						} else if (action == HoverEvent.Action.SHOW_ITEM) {
 							try {
-								//#if MC > 12004
 								return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.ITEM_STACK, new HoverEvent.ItemStackContent(ItemStack.fromNbtOrEmpty(DynamicRegistryManager.EMPTY, StringNbtReader.parse(restoreOriginalEscaping(cleanArgument(lines[1])))))));
-								//#else
-								//$$ return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.ITEM_STACK, new HoverEvent.ItemStackContent(ItemStack.fromNbt(StringNbtReader.parse(restoreOriginalEscaping(cleanArgument(lines[1])))))));
-								//#endif
 							} catch (Throwable e) {
 								lines = lines[1].split(":", 2);
 								if (lines.length > 0) {
-									//#if MC > 11902
 									var stack = Registries.ITEM.get(Identifier.tryParse(lines[0])).getDefaultStack();
-									//#else
-									//$$ var stack = Registry.ITEM.get(Identifier.tryParse(lines[0])).getDefaultStack();
-									//#endif
 
 									if (lines.length > 1) {
 										stack.setCount(Integer.parseInt(lines[1]));
@@ -356,12 +330,7 @@ public final class TextTagsV1 {
 				var out = recursiveParsing(input, handlers, endAt);
 				List<TextColor> textColors = new ArrayList<>();
 				for (String string : val) {
-					//#if MC > 12002
 					TextColor.parse(string).result().ifPresent(textColors::add);
-					//#else
-					//$$ var c = TextColor.parse(string);
-					//$$ if (c != null) textColors.add(c);
-					//#endif
 				}
 				return out.value(GradientNode.colors(textColors, out.nodes()));
 			}));
@@ -376,12 +345,7 @@ public final class TextTagsV1 {
 				var textColors = new ArrayList<TextColor>();
 
 				for (String string : val) {
-					//#if MC > 12002
 					TextColor.parse(string).result().ifPresent(textColors::add);
-					//#else
-					//$$ var c = TextColor.parse(string);
-					//$$ if (c != null) textColors.add(c);
-					//#endif
 				}
 				// We cannot have an empty list!
 				if (textColors.isEmpty()) {
@@ -404,11 +368,7 @@ public final class TextTagsV1 {
 		}
 
 		{
-			//#if MC > 12004
 			TextParserV1.registerDefault(TextParserV1.TextTag.of("raw_style", "special", false, (tag, data, input, handlers, endAt) -> new TextParserV1.TagNodeValue(new DirectTextNode(Text.Serialization.fromLenientJson(restoreOriginalEscaping(cleanArgument(data)), DynamicRegistryManager.EMPTY)), 0)));
-			//#else
-			//$$ TextParserV1.registerDefault(TextParserV1.TextTag.of("raw_style", "special", false, (tag, data, input, handlers, endAt) -> new TextParserV1.TagNodeValue(new DirectTextNode(Text.Serialization.fromLenientJson(restoreOriginalEscaping(cleanArgument(data)))), 0)));
-			//#endif
 		}
 
 		{
@@ -456,7 +416,6 @@ public final class TextTagsV1 {
 
 				var cleanLine1 = restoreOriginalEscaping(cleanArgument(lines[1]));
 
-				//#if MC > 11802
 				var type = switch (lines[0]) {
 					case "block" -> new BlockNbtDataSource(cleanLine1);
 					case "entity" -> new EntityNbtDataSource(cleanLine1);
@@ -472,9 +431,6 @@ public final class TextTagsV1 {
 				var shouldInterpret = lines.length > 4 && Boolean.parseBoolean(lines[4]);
 
 				return new TextParserV1.TagNodeValue(new NbtNode(lines[2], shouldInterpret, separator, type), 0);
-				//#else
-				//$$ return TextParserV1.TagNodeValue.EMPTY;
-				//#endif
 			}));
 		}
 	}
@@ -496,11 +452,7 @@ public final class TextTagsV1 {
 				case "bold" -> x -> x.withBold(null);
 				case "italic" -> x -> x.withItalic(null);
 				case "underline" -> x -> x.withUnderline(null);
-				//#if MC > 11605
 				case "strikethrough" -> x -> x.withStrikethrough(null);
-				//#else
-				//$$ case "strikethrough" -> x -> x.withFormatting(net.minecraft.util.Formatting.STRIKETHROUGH);
-				//#endif
 				case "all" -> x -> Style.EMPTY;
 				default -> x -> x;
 			});

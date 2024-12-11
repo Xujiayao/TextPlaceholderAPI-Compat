@@ -8,6 +8,6 @@ public record EmptyNode() implements TextNode {
 
 	@Override
 	public Text toText(ParserContext context, boolean removeBackslashes) {
-		return Text.of("");
+		return Text.empty();
 	}
 }

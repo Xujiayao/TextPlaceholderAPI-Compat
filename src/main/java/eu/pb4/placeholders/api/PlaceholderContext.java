@@ -8,10 +8,6 @@ import net.minecraft.server.command.CommandOutput;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-//#if MC <= 11802
-//$$ import net.minecraft.text.LiteralText;
-//#endif
-import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec2f;
@@ -34,22 +30,6 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 		this(server, source, world, player, entity, gameProfile, ViewObject.DEFAULT);
 	}
 
-	private static Identifier createIdentifier(String s1, String s2) {
-		//#if MC > 11802
-		return Identifier.of(s1, s2);
-		//#else
-		//$$ return new Identifier(s1, s2);
-		//#endif
-	}
-
-	private static MutableText createText(String s) {
-		//#if MC > 11802
-		return Text.literal(s);
-		//#else
-		//$$ return new LiteralText(s);
-		//#endif
-	}
-
 	public static PlaceholderContext of(MinecraftServer server) {
 		return of(server, ViewObject.DEFAULT);
 	}
@@ -64,7 +44,7 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 
 	public static PlaceholderContext of(GameProfile profile, MinecraftServer server, ViewObject view) {
 		var name = profile.getName() != null ? profile.getName() : profile.getId().toString();
-		return new PlaceholderContext(server, () -> new ServerCommandSource(CommandOutput.DUMMY, Vec3d.ZERO, Vec2f.ZERO, server.getOverworld(), server.getPermissionLevel(profile), name, createText(name), server, null), null, null, null, profile, view);
+		return new PlaceholderContext(server, () -> new ServerCommandSource(CommandOutput.DUMMY, Vec3d.ZERO, Vec2f.ZERO, server.getOverworld(), server.getPermissionLevel(profile), name, Text.literal(name), server, null), null, null, null, profile, view);
 	}
 
 	public static PlaceholderContext of(ServerPlayerEntity player) {
@@ -80,11 +60,7 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 	}
 
 	public static PlaceholderContext of(ServerCommandSource source, ViewObject view) {
-		try {
-			return new PlaceholderContext(source.getServer(), source, source.getWorld(), source.getPlayer(), source.getEntity(), source.getPlayer() != null ? source.getPlayer().getGameProfile() : null, view);
-		} catch (Exception e) {
-			return null;
-		}
+		return new PlaceholderContext(source.getServer(), source, source.getWorld(), source.getPlayer(), source.getEntity(), source.getPlayer() != null ? source.getPlayer().getGameProfile() : null, view);
 	}
 
 	public static PlaceholderContext of(Entity entity) {
@@ -95,11 +71,7 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 		if (entity instanceof ServerPlayerEntity player) {
 			return of(player, view);
 		} else {
-			//#if MC > 11701
 			var world = (ServerWorld) entity.getWorld();
-			//#else
-			//$$ var world = (ServerWorld) entity.world;
-			//#endif
 			//#if MC > 12101
 			return new PlaceholderContext(entity.getServer(), () -> entity.getCommandSource(world), world, null, entity, null, view);
 			//#else
@@ -142,7 +114,7 @@ public record PlaceholderContext(MinecraftServer server, Supplier<ServerCommandS
 	}
 
 	public interface ViewObject {
-		ViewObject DEFAULT = of(createIdentifier("placeholder_api", "default"));
+		ViewObject DEFAULT = of(Identifier.of("placeholder_api", "default"));
 
 		static ViewObject of(Identifier identifier) {
 			return new ViewObjectImpl(identifier);
