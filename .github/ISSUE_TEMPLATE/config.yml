@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Latest Builds
+    url: https://github.com/Xujiayao/TextPlaceholderAPI-Compat/actions
+    about: You can find the latest build JAR files at GitHub Actions.
+  - name: Discord Server
+    url: https://discord.gg/kbXkV6k2XU
+    about: You can ask me questions on my Discord Server.
