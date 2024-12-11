@@ -9,6 +9,10 @@ import net.minecraft.scoreboard.ScoreboardEntry;
 import net.minecraft.scoreboard.ScoreboardObjective;
 import net.minecraft.scoreboard.ServerScoreboard;
 import net.minecraft.server.MinecraftServer;
+//#if MC <= 11802
+//$$ import net.minecraft.text.LiteralText;
+//#endif
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -28,8 +32,24 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class ServerPlaceholders {
+	private static Identifier createIdentifier(String s1, String s2) {
+		//#if MC > 11802
+		return Identifier.of(s1, s2);
+		//#else
+		//$$ return new Identifier(s1, s2);
+		//#endif
+	}
+
+	private static MutableText createText(String s) {
+		//#if MC > 11802
+		return Text.literal(s);
+		//#else
+		//$$ return new LiteralText(s);
+		//#endif
+	}
+
 	public static void register() {
-		Placeholders.register(Identifier.of("server", "tps"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "tps"), (ctx, arg) -> {
 			//#if MC > 12002
 			double tps = TimeUnit.SECONDS.toMillis(1) / Math.max(ctx.server().getAverageTickTime(), ctx.server().getTickManager().getMillisPerTick());
 			//#else
@@ -49,7 +69,7 @@ public class ServerPlaceholders {
 			return PlaceholderResult.value(String.format(format, tps));
 		});
 
-		Placeholders.register(Identifier.of("server", "tps_colored"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "tps_colored"), (ctx, arg) -> {
 			//#if MC > 12002
 			double tps = TimeUnit.SECONDS.toMillis(1) / Math.max(ctx.server().getAverageTickTime(), ctx.server().getTickManager().getMillisPerTick());
 			//#else
@@ -65,30 +85,30 @@ public class ServerPlaceholders {
 					format = "%.1f";
 				}
 			}
-			return PlaceholderResult.value(Text.literal(String.format(format, tps)).formatted(tps > 19 ? Formatting.GREEN : tps > 16 ? Formatting.GOLD : Formatting.RED));
+			return PlaceholderResult.value(createText(String.format(format, tps)).formatted(tps > 19 ? Formatting.GREEN : tps > 16 ? Formatting.GOLD : Formatting.RED));
 		});
 
 		//#if MC > 12002
-		Placeholders.register(Identifier.of("server", "mspt"), (ctx, arg) -> PlaceholderResult.value(String.format("%.0f", ctx.server().getAverageTickTime())));
+		Placeholders.register(createIdentifier("server", "mspt"), (ctx, arg) -> PlaceholderResult.value(String.format("%.0f", ctx.server().getAverageTickTime())));
 		//#else
-		//$$ Placeholders.register(Identifier.of("server", "mspt"), (ctx, arg) -> PlaceholderResult.value(String.format("%.0f", ctx.server().getTickTime())));
+		//$$ Placeholders.register(createIdentifier("server", "mspt"), (ctx, arg) -> PlaceholderResult.value(String.format("%.0f", ctx.server().getTickTime())));
 		//#endif
 
-		Placeholders.register(Identifier.of("server", "mspt_colored"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "mspt_colored"), (ctx, arg) -> {
 			//#if MC > 12002
 			float x = ctx.server().getAverageTickTime();
 			//#else
 			//$$ float x = ctx.server().getTickTime();
 			//#endif
-			return PlaceholderResult.value(Text.literal(String.format("%.0f", x)).formatted(x < 45 ? Formatting.GREEN : x < 51 ? Formatting.GOLD : Formatting.RED));
+			return PlaceholderResult.value(createText(String.format("%.0f", x)).formatted(x < 45 ? Formatting.GREEN : x < 51 ? Formatting.GOLD : Formatting.RED));
 		});
 
-		Placeholders.register(Identifier.of("server", "time"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "time"), (ctx, arg) -> {
 			SimpleDateFormat format = new SimpleDateFormat(arg != null ? arg : "HH:mm:ss");
 			return PlaceholderResult.value(format.format(new Date(System.currentTimeMillis())));
 		});
 
-		Placeholders.register(Identifier.of("server", "time_new"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "time_new"), (ctx, arg) -> {
 			var args = arg == null ? StringArgs.empty() : StringArgs.full(arg, ' ', ':');
 			var format = DateTimeFormatter.ofPattern(args.get("format", "HH:mm:ss"));
 			var date = args.get("zone") != null ? LocalDateTime.now(ZoneId.of(args.get("zone", ""))) : LocalDateTime.now();
@@ -101,7 +121,7 @@ public class ServerPlaceholders {
 				long ms;
 			};
 
-			Placeholders.register(Identifier.of("server", "uptime"), (ctx, arg) -> {
+			Placeholders.register(createIdentifier("server", "uptime"), (ctx, arg) -> {
 				if (ref.server == null || !ref.server.refersTo(ctx.server())) {
 					ref.server = new WeakReference<>(ctx.server());
 					ref.ms = System.currentTimeMillis() - ctx.server().getTicks() * 50L;
@@ -111,9 +131,9 @@ public class ServerPlaceholders {
 			});
 		}
 
-		Placeholders.register(Identifier.of("server", "version"), (ctx, arg) -> PlaceholderResult.value(ctx.server().getVersion()));
+		Placeholders.register(createIdentifier("server", "version"), (ctx, arg) -> PlaceholderResult.value(ctx.server().getVersion()));
 
-		Placeholders.register(Identifier.of("server", "motd"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "motd"), (ctx, arg) -> {
 			var metadata = ctx.server().getServerMetadata();
 
 			if (metadata == null) {
@@ -127,67 +147,67 @@ public class ServerPlaceholders {
 			//#endif
 		});
 
-		Placeholders.register(Identifier.of("server", "mod_version"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "mod_version"), (ctx, arg) -> {
 			if (arg != null) {
 				var container = FabricLoader.getInstance().getModContainer(arg);
 
 				if (container.isPresent()) {
-					return PlaceholderResult.value(Text.literal(container.get().getMetadata().getVersion().getFriendlyString()));
+					return PlaceholderResult.value(createText(container.get().getMetadata().getVersion().getFriendlyString()));
 				}
 			}
 			return PlaceholderResult.invalid("Invalid argument");
 		});
 
-		Placeholders.register(Identifier.of("server", "mod_name"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "mod_name"), (ctx, arg) -> {
 			if (arg != null) {
 				var container = FabricLoader.getInstance().getModContainer(arg);
 
 				if (container.isPresent()) {
-					return PlaceholderResult.value(Text.literal(container.get().getMetadata().getName()));
+					return PlaceholderResult.value(createText(container.get().getMetadata().getName()));
 				}
 			}
 			return PlaceholderResult.invalid("Invalid argument");
 		});
 
-		Placeholders.register(Identifier.of("server", "brand"), (ctx, arg) -> {
-			return PlaceholderResult.value(Text.literal(ctx.server().getServerModName()));
+		Placeholders.register(createIdentifier("server", "brand"), (ctx, arg) -> {
+			return PlaceholderResult.value(createText(ctx.server().getServerModName()));
 		});
 
-		Placeholders.register(Identifier.of("server", "mod_count"), (ctx, arg) -> {
-			return PlaceholderResult.value(Text.literal("" + FabricLoader.getInstance().getAllMods().size()));
+		Placeholders.register(createIdentifier("server", "mod_count"), (ctx, arg) -> {
+			return PlaceholderResult.value(createText("" + FabricLoader.getInstance().getAllMods().size()));
 		});
 
-		Placeholders.register(Identifier.of("server", "mod_description"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "mod_description"), (ctx, arg) -> {
 			if (arg != null) {
 				var container = FabricLoader.getInstance().getModContainer(arg);
 
 				if (container.isPresent()) {
-					return PlaceholderResult.value(Text.literal(container.get().getMetadata().getDescription()));
+					return PlaceholderResult.value(createText(container.get().getMetadata().getDescription()));
 				}
 			}
 			return PlaceholderResult.invalid("Invalid argument");
 		});
 
-		Placeholders.register(Identifier.of("server", "name"), (ctx, arg) -> PlaceholderResult.value(ctx.server().getName()));
+		Placeholders.register(createIdentifier("server", "name"), (ctx, arg) -> PlaceholderResult.value(ctx.server().getName()));
 
-		Placeholders.register(Identifier.of("server", "used_ram"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "used_ram"), (ctx, arg) -> {
 			MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 			MemoryUsage heapUsage = memoryMXBean.getHeapMemoryUsage();
 
 			return PlaceholderResult.value(Objects.equals(arg, "gb") ? String.format("%.1f", (float) heapUsage.getUsed() / 1073741824) : String.format("%d", heapUsage.getUsed() / 1048576));
 		});
 
-		Placeholders.register(Identifier.of("server", "max_ram"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "max_ram"), (ctx, arg) -> {
 			MemoryMXBean memoryMXBean = ManagementFactory.getMemoryMXBean();
 			MemoryUsage heapUsage = memoryMXBean.getHeapMemoryUsage();
 
 			return PlaceholderResult.value(Objects.equals(arg, "gb") ? String.format("%.1f", (float) heapUsage.getMax() / 1073741824) : String.format("%d", heapUsage.getMax() / 1048576));
 		});
 
-		Placeholders.register(Identifier.of("server", "online"), (ctx, arg) -> PlaceholderResult.value(String.valueOf(ctx.server().getPlayerManager().getCurrentPlayerCount())));
-		Placeholders.register(Identifier.of("server", "max_players"), (ctx, arg) -> PlaceholderResult.value(String.valueOf(ctx.server().getPlayerManager().getMaxPlayerCount())));
+		Placeholders.register(createIdentifier("server", "online"), (ctx, arg) -> PlaceholderResult.value(String.valueOf(ctx.server().getPlayerManager().getCurrentPlayerCount())));
+		Placeholders.register(createIdentifier("server", "max_players"), (ctx, arg) -> PlaceholderResult.value(String.valueOf(ctx.server().getPlayerManager().getMaxPlayerCount())));
 
-		Placeholders.register(Identifier.of("server", "objective_name_top"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "objective_name_top"), (ctx, arg) -> {
 			var args = arg.split(" ");
 			if (args.length >= 2) {
 				ServerScoreboard scoreboard = ctx.server().getScoreboard();
@@ -207,7 +227,7 @@ public class ServerPlaceholders {
 			}
 			return PlaceholderResult.invalid("Not enough arguments!");
 		});
-		Placeholders.register(Identifier.of("server", "objective_score_top"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("server", "objective_score_top"), (ctx, arg) -> {
 			var args = arg.split(" ");
 			if (args.length >= 2) {
 				ServerScoreboard scoreboard = ctx.server().getScoreboard();

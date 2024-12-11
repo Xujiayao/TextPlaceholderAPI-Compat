@@ -22,13 +22,13 @@ public record PlaceholderNode(ParserContext.Key<PlaceholderContext> contextKey, 
 				return handler.onPlaceholderRequest(ctx, argument).text();
 			} catch (Throwable e) {
 				GeneralUtils.LOGGER.error("Error occurred while parsing placeholder " + placeholder + " / " + contextKey.key() + "!", e);
-				return Text.empty();
+				return Text.of("");
 			}
 		} else {
 			if (GeneralUtils.IS_DEV) {
 				GeneralUtils.LOGGER.error("Missing context for placeholders requiring them (" + placeholder + " / " + contextKey.key() + ")!", new NullPointerException());
 			}
-			return Text.empty();
+			return Text.of("");
 		}
 	}
 

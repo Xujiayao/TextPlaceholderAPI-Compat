@@ -1,6 +1,10 @@
 package eu.pb4.placeholders.api.node;
 
 import eu.pb4.placeholders.api.ParserContext;
+//#if MC <= 11802
+//$$ import net.minecraft.text.LiteralText;
+//#endif
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 
 public record LiteralNode(String value) implements TextNode {
@@ -9,10 +13,18 @@ public record LiteralNode(String value) implements TextNode {
 		this(builder.toString());
 	}
 
+	private static MutableText createText(String s) {
+		//#if MC > 11802
+		return Text.literal(s);
+		//#else
+		//$$ return new LiteralText(s);
+		//#endif
+	}
+
 	@Override
 	public Text toText(ParserContext context, boolean removeBackslashes) {
 		if (this.value.isEmpty()) {
-			return Text.empty();
+			return Text.of("");
 		}
 
 		if (removeBackslashes) {
@@ -35,9 +47,9 @@ public record LiteralNode(String value) implements TextNode {
 				}
 			}
 
-			return Text.literal(builder.toString());
+			return createText(builder.toString());
 		} else {
-			return Text.literal(this.value());
+			return createText(this.value());
 		}
 	}
 }

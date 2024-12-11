@@ -21,6 +21,10 @@ import net.minecraft.scoreboard.ServerScoreboard;
 //#endif
 import net.minecraft.stat.StatType;
 import net.minecraft.stat.Stats;
+//#if MC <= 11802
+//$$ import net.minecraft.text.LiteralText;
+//#endif
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -30,8 +34,24 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import java.util.Locale;
 
 public class PlayerPlaceholders {
+	private static Identifier createIdentifier(String s1, String s2) {
+		//#if MC > 11802
+		return Identifier.of(s1, s2);
+		//#else
+		//$$ return new Identifier(s1, s2);
+		//#endif
+	}
+
+	private static MutableText createText(String s) {
+		//#if MC > 11802
+		return Text.literal(s);
+		//#else
+		//$$ return new LiteralText(s);
+		//#endif
+	}
+
 	public static void register() {
-		Placeholders.register(Identifier.of("player", "name"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "name"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(ctx.player().getName());
 			} else if (ctx.hasGameProfile()) {
@@ -41,7 +61,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "name_visual"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "name_visual"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(GeneralUtils.removeHoverAndClick(ctx.player().getName()));
 			} else if (ctx.hasGameProfile()) {
@@ -51,7 +71,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "name_unformatted"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "name_unformatted"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(ctx.player().getName().getString());
 			} else if (ctx.hasGameProfile()) {
@@ -61,7 +81,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "ping"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "ping"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				//#if MC > 12001
 				return PlaceholderResult.value(String.valueOf(ctx.player().networkHandler.getLatency()));
@@ -73,20 +93,20 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "ping_colored"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "ping_colored"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				//#if MC > 12001
 				int x = ctx.player().networkHandler.getLatency();
 				//#else
 				//$$ int x = ctx.player().pingMilliseconds;
 				//#endif
-				return PlaceholderResult.value(Text.literal(String.valueOf(x)).formatted(x < 100 ? Formatting.GREEN : x < 200 ? Formatting.GOLD : Formatting.RED));
+				return PlaceholderResult.value(createText(String.valueOf(x)).formatted(x < 100 ? Formatting.GREEN : x < 200 ? Formatting.GOLD : Formatting.RED));
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "displayname"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "displayname"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(ctx.player().getDisplayName());
 			} else if (ctx.hasGameProfile()) {
@@ -96,9 +116,9 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "display_name"), Placeholders.getPlaceholders().get(Identifier.of("player", "displayname")));
+		Placeholders.register(createIdentifier("player", "display_name"), Placeholders.getPlaceholders().get(createIdentifier("player", "displayname")));
 
-		Placeholders.register(Identifier.of("player", "displayname_visual"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "displayname_visual"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(GeneralUtils.removeHoverAndClick(ctx.player().getDisplayName()));
 			} else if (ctx.hasGameProfile()) {
@@ -108,20 +128,20 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "display_name_visual"), Placeholders.getPlaceholders().get(Identifier.of("player", "displayname_visual")));
+		Placeholders.register(createIdentifier("player", "display_name_visual"), Placeholders.getPlaceholders().get(createIdentifier("player", "displayname_visual")));
 
-		Placeholders.register(Identifier.of("player", "displayname_unformatted"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "displayname_unformatted"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
-				return PlaceholderResult.value(Text.literal(ctx.player().getDisplayName().getString()));
+				return PlaceholderResult.value(createText(ctx.player().getDisplayName().getString()));
 			} else if (ctx.hasGameProfile()) {
 				return PlaceholderResult.value(Text.of(ctx.gameProfile().getName()));
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
 		});
-		Placeholders.register(Identifier.of("player", "display_name_unformatted"), Placeholders.getPlaceholders().get(Identifier.of("player", "displayname_unformatted")));
+		Placeholders.register(createIdentifier("player", "display_name_unformatted"), Placeholders.getPlaceholders().get(createIdentifier("player", "displayname_unformatted")));
 
-		Placeholders.register(Identifier.of("player", "inventory_slot"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "inventory_slot"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					int slot = Integer.parseInt(arg);
@@ -143,7 +163,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "inventory_slot_no_rarity"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "inventory_slot_no_rarity"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					int slot = Integer.parseInt(arg);
@@ -165,7 +185,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "equipment_slot"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "equipment_slot"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					var slot = EquipmentSlot.byName(arg);
@@ -181,7 +201,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "equipment_slot_no_rarity"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "equipment_slot_no_rarity"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					var slot = EquipmentSlot.byName(arg);
@@ -197,7 +217,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "playtime"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "playtime"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				int x = ctx.player().getStatHandler().getStat(Stats.CUSTOM.getOrCreateStat(Stats.PLAY_TIME));
 				return PlaceholderResult.value(arg != null ? DurationFormatUtils.formatDuration((long) x * 50, arg, true) : GeneralUtils.durationToString((long) x / 20));
@@ -206,7 +226,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "statistic"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "statistic"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					//#if MC > 11902
@@ -252,7 +272,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "statistic_raw"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "statistic_raw"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					//#if MC > 11902
@@ -298,7 +318,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "objective"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "objective"), (ctx, arg) -> {
 			if (ctx.hasPlayer() && arg != null) {
 				try {
 					ServerScoreboard scoreboard = ctx.server().getScoreboard();
@@ -321,7 +341,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "facing"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "facing"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				//#if MC > 12004
 				return PlaceholderResult.value(ctx.player().getFacing().asString());
@@ -333,7 +353,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "facing_axis"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "facing_axis"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				//#if MC > 12004
 				var facing = ctx.player().getFacing();
@@ -346,7 +366,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "horizontal_facing"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "horizontal_facing"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(ctx.player().getHorizontalFacing().asString());
 			} else {
@@ -354,7 +374,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "horizontal_facing_axis"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "horizontal_facing_axis"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				var facing = ctx.player().getHorizontalFacing();
 				return PlaceholderResult.value((facing.getDirection() == Direction.AxisDirection.NEGATIVE ? "-" : "+") + facing.getAxis().asString().toUpperCase(Locale.ROOT));
@@ -363,7 +383,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "pos_x"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "pos_x"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				double value = ctx.player().getX();
 				String format = "%.2f";
@@ -383,7 +403,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "pos_y"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "pos_y"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				double value = ctx.player().getY();
 				String format = "%.2f";
@@ -403,7 +423,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "pos_z"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "pos_z"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				double value = ctx.player().getZ();
 				String format = "%.2f";
@@ -423,7 +443,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "uuid"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "uuid"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(ctx.player().getUuidAsString());
 			} else if (ctx.hasGameProfile()) {
@@ -433,7 +453,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "health"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "health"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(String.format("%.0f", ctx.player().getHealth()));
 			} else {
@@ -441,7 +461,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "max_health"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "max_health"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(String.format("%.0f", ctx.player().getMaxHealth()));
 			} else {
@@ -449,7 +469,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "hunger"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "hunger"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(String.valueOf(ctx.player().getHungerManager().getFoodLevel()));
 			} else {
@@ -457,7 +477,7 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "saturation"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "saturation"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				return PlaceholderResult.value(String.format("%.0f", ctx.player().getHungerManager().getSaturationLevel()));
 			} else {
@@ -465,36 +485,36 @@ public class PlayerPlaceholders {
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "team_name"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "team_name"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				var team = ctx.player().getScoreboardTeam();
-				return PlaceholderResult.value(team == null ? Text.empty() : Text.of(team.getName()));
+				return PlaceholderResult.value(team == null ? Text.of("") : Text.of(team.getName()));
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "team_displayname"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "team_displayname"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				//#if MC > 12002
 				var team = ctx.player().getScoreboardTeam();
 				//#else
 				//$$ var team = (Team) ctx.player().getScoreboardTeam();
 				//#endif
-				return PlaceholderResult.value(team == null ? Text.empty() : team.getDisplayName());
+				return PlaceholderResult.value(team == null ? Text.of("") : team.getDisplayName());
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}
 		});
 
-		Placeholders.register(Identifier.of("player", "team_displayname_formatted"), (ctx, arg) -> {
+		Placeholders.register(createIdentifier("player", "team_displayname_formatted"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
 				//#if MC > 12002
 				var team = ctx.player().getScoreboardTeam();
 				//#else
 				//$$ var team = (Team) ctx.player().getScoreboardTeam();
 				//#endif
-				return PlaceholderResult.value(team == null ? Text.empty() : team.getFormattedName());
+				return PlaceholderResult.value(team == null ? Text.of("") : team.getFormattedName());
 			} else {
 				return PlaceholderResult.invalid("No player!");
 			}

@@ -31,6 +31,7 @@ import net.minecraft.text.SelectorTextContent;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
+import net.minecraft.text.TextContent;
 import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.ApiStatus;
@@ -67,9 +68,9 @@ public class GeneralUtils {
 
 	public static boolean isEmpty(Text text) {
 		//#if MC > 12002
-		return (text.getContent() == PlainTextContent.EMPTY || (text.getContent() instanceof PlainTextContent.Literal l && l.string().isEmpty())) && text.getSiblings().isEmpty();
+		return (getContent(text) == PlainTextContent.EMPTY || (getContent(text) instanceof PlainTextContent.Literal l && l.string().isEmpty())) && text.getSiblings().isEmpty();
 		//#else
-		//$$ return (text.getContent() == TextContent.EMPTY || (text.getContent() instanceof LiteralTextContent l && l.string().isEmpty())) && text.getSiblings().isEmpty();
+		//$$ return (getContent(text) == TextContent.EMPTY || (getContent(text) instanceof LiteralTextContent l && l.string().isEmpty())) && text.getSiblings().isEmpty();
 		//#endif
 	}
 
@@ -79,9 +80,9 @@ public class GeneralUtils {
 
 	private static int getGradientLength(Text base) {
 		//#if MC > 12002
-		int length = base.getContent() instanceof PlainTextContent.Literal l ? l.string().codePointCount(0, l.string().length()) : base.getContent() == PlainTextContent.EMPTY ? 0 : 1;
+		int length = getContent(base) instanceof PlainTextContent.Literal l ? l.string().codePointCount(0, l.string().length()) : getContent(base) == PlainTextContent.EMPTY ? 0 : 1;
 		//#else
-		//$$ int length = base.getContent() instanceof LiteralTextContent l ? l.string().codePointCount(0, l.string().length()) : base.getContent() == TextContent.EMPTY ? 0 : 1;
+		//$$ int length = getContent(base) instanceof LiteralTextContent l ? l.string().codePointCount(0, l.string().length()) : getContent(base) == TextContent.EMPTY ? 0 : 1;
 		//#endif
 
 		for (var text : base.getSiblings()) {
@@ -93,11 +94,15 @@ public class GeneralUtils {
 
 	private static TextLengthPair recursiveGradient(Text base, GradientNode.GradientProvider posToColor, int pos, int totalLength) {
 		if (base.getStyle().getColor() == null) {
+			//#if MC > 11802
 			MutableText out = Text.empty().setStyle(base.getStyle());
-			//#if MC > 12002
-			if (base.getContent() instanceof PlainTextContent.Literal literalTextContent) {
 			//#else
-			//$$ if (base.getContent() instanceof LiteralTextContent literalTextContent) {
+			//$$ MutableText out = new LiteralText("").setStyle(base.getStyle());
+			//#endif
+			//#if MC > 12002
+			if (getContent(base) instanceof PlainTextContent.Literal literalTextContent) {
+			//#else
+			//$$ if (getContent(base) instanceof LiteralTextContent literalTextContent) {
 			//#endif
 				var l = literalTextContent.string().length();
 				for (var i = 0; i < l; i++) {
@@ -114,8 +119,11 @@ public class GeneralUtils {
 						value = character;
 					}
 
+					//#if MC > 11802
 					out.append(Text.literal(Character.toString(value)).setStyle(Style.EMPTY.withColor(posToColor.getColorAt(pos++, totalLength))));
-
+					//#else
+					//$$ out.append(new LiteralText(Character.toString(value)).setStyle(Style.EMPTY.withColor(posToColor.getColorAt(pos++, totalLength))));
+					//#endif
 				}
 			} else {
 				out.append(base.copyContentOnly().setStyle(Style.EMPTY.withColor(posToColor.getColorAt(pos++, totalLength))));
@@ -152,7 +160,7 @@ public class GeneralUtils {
 			input.setStyle(input.getStyle().withHoverEvent(null).withClickEvent(null));
 		}
 
-		if (input.getContent() instanceof TranslatableTextContent text) {
+		if (getContent(input) instanceof TranslatableTextContent text) {
 			for (int i = 0; i < text.getArgs().length; i++) {
 				var arg = text.getArgs()[i];
 				if (arg instanceof MutableText argText) {
@@ -169,7 +177,7 @@ public class GeneralUtils {
 
 	public static MutableText cloneText(Text input) {
 		MutableText baseText;
-		if (input.getContent() instanceof TranslatableTextContent translatable) {
+		if (getContent(input) instanceof TranslatableTextContent translatable) {
 			var obj = new ArrayList<>();
 
 			for (var arg : translatable.getArgs()) {
@@ -180,7 +188,11 @@ public class GeneralUtils {
 				}
 			}
 
+			//#if MC > 11802
 			baseText = Text.translatable(translatable.getKey(), obj.toArray());
+			//#else
+			//$$ baseText = new TranslatableText(translatable.getKey(), obj.toArray());
+			//#endif
 		} else {
 			baseText = input.copyContentOnly();
 		}
@@ -195,7 +207,7 @@ public class GeneralUtils {
 
 	public static MutableText cloneTransformText(Text input, Function<MutableText, MutableText> transform) {
 		MutableText baseText;
-		if (input.getContent() instanceof TranslatableTextContent translatable) {
+		if (getContent(input) instanceof TranslatableTextContent translatable) {
 			var obj = new ArrayList<>();
 
 			for (var arg : translatable.getArgs()) {
@@ -206,7 +218,11 @@ public class GeneralUtils {
 				}
 			}
 
+			//#if MC > 11802
 			baseText = Text.translatable(translatable.getKey(), obj.toArray());
+			//#else
+			//$$ baseText = new TranslatableText(translatable.getKey(), obj.toArray());
+			//#endif
 		} else {
 			baseText = input.copyContentOnly();
 		}
@@ -221,7 +237,11 @@ public class GeneralUtils {
 
 	public static Text getItemText(ItemStack stack, boolean rarity) {
 		if (!stack.isEmpty()) {
+			//#if MC > 11802
 			MutableText mutableText = Text.empty().append(stack.getName());
+			//#else
+			//$$ MutableText mutableText = new LiteralText("").append(stack.getName());
+			//#endif
 			//#if MC > 12004
 			if (stack.contains(DataComponentTypes.CUSTOM_NAME)) {
 			//#else
@@ -244,19 +264,23 @@ public class GeneralUtils {
 			return mutableText;
 		}
 
+		//#if MC > 11802
 		return Text.empty().append(ItemStack.EMPTY.getName());
+		//#else
+		//$$ return new LiteralText("").append(ItemStack.EMPTY.getName());
+		//#endif
 	}
 
 	public static ParentNode convertToNodes(Text input) {
 		var list = new ArrayList<TextNode>();
 
 		//#if MC > 12002
-		if (input.getContent() instanceof PlainTextContent.Literal content) {
+		if (getContent(input) instanceof PlainTextContent.Literal content) {
 		//#else
-		//$$ if (input.getContent() instanceof LiteralTextContent content) {
+		//$$ if (getContent(input) instanceof LiteralTextContent content) {
 		//#endif
 			list.add(new LiteralNode(content.string()));
-		} else if (input.getContent() instanceof TranslatableTextContent content) {
+		} else if (getContent(input) instanceof TranslatableTextContent content) {
 			var args = new ArrayList<>();
 			for (var arg : content.getArgs()) {
 				if (arg instanceof Text text) {
@@ -273,14 +297,16 @@ public class GeneralUtils {
 			//#else
 			//$$ list.add(TranslatedNode.of(content.getKey(), args.toArray()));
 			//#endif
-		} else if (input.getContent() instanceof ScoreTextContent content) {
+		} else if (getContent(input) instanceof ScoreTextContent content) {
 			list.add(new ScoreNode(content.name(), content.objective()));
-		} else if (input.getContent() instanceof KeybindTextContent content) {
+		} else if (getContent(input) instanceof KeybindTextContent content) {
 			list.add(new KeybindNode(content.getKey()));
-		} else if (input.getContent() instanceof SelectorTextContent content) {
+		} else if (getContent(input) instanceof SelectorTextContent content) {
 			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
-		} else if (input.getContent() instanceof NbtTextContent content) {
+		} else if (getContent(input) instanceof NbtTextContent content) {
+			//#if MC > 11802
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
+			//#endif
 		}
 
 		for (var child : input.getSiblings()) {
@@ -340,4 +366,14 @@ public class GeneralUtils {
 			return mutableText.setStyle(textMutableTextFunction.apply(mutableText.getStyle()));
 		}
 	}
+
+	//#if MC > 11802
+	private static TextContent getContent(Text text) {
+		return text.getContent();
+	}
+	//#else
+	//$$ private static Text getContent(Text text) {
+	//$$ 	return text;
+	//$$ }
+	//#endif
 }

@@ -35,15 +35,17 @@ import net.minecraft.registry.Registries;
 //#else
 //$$ import net.minecraft.util.registry.Registry;
 //#endif
+//#if MC > 11802
 import net.minecraft.text.BlockNbtDataSource;
-import net.minecraft.text.ClickEvent;
 import net.minecraft.text.EntityNbtDataSource;
+import net.minecraft.text.StorageNbtDataSource;
+//#endif
+import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 //#if MC > 12101
 import net.minecraft.text.ParsedSelector;
 //#endif
-import net.minecraft.text.StorageNbtDataSource;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -454,6 +456,7 @@ public final class TextTagsV1 {
 
 				var cleanLine1 = restoreOriginalEscaping(cleanArgument(lines[1]));
 
+				//#if MC > 11802
 				var type = switch (lines[0]) {
 					case "block" -> new BlockNbtDataSource(cleanLine1);
 					case "entity" -> new EntityNbtDataSource(cleanLine1);
@@ -469,6 +472,9 @@ public final class TextTagsV1 {
 				var shouldInterpret = lines.length > 4 && Boolean.parseBoolean(lines[4]);
 
 				return new TextParserV1.TagNodeValue(new NbtNode(lines[2], shouldInterpret, separator, type), 0);
+				//#else
+				//$$ return TextParserV1.TagNodeValue.EMPTY;
+				//#endif
 			}));
 		}
 	}

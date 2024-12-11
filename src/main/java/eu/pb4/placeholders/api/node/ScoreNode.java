@@ -5,6 +5,9 @@ import eu.pb4.placeholders.api.ParserContext;
 //#if MC > 12101
 import net.minecraft.text.ParsedSelector;
 //#endif
+//#if MC <= 11802
+//$$ import net.minecraft.text.ScoreText;
+//#endif
 import net.minecraft.text.Text;
 
 //#if MC > 12101
@@ -23,8 +26,10 @@ public record ScoreNode(Either<ParsedSelector, String> name, String objective) i
 	public Text toText(ParserContext context, boolean removeBackslashes) {
 		//#if MC > 12101
 		return name.map(selector -> Text.score(selector, objective), name -> Text.score(name, objective));
-		//#else
+		//#elseif MC > 11802
 		//$$ return Text.score(name, objective);
+		//#else
+		//$$ return new ScoreText(name, objective);
 		//#endif
 	}
 }

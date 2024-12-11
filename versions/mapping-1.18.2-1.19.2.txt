@@ -1,0 +1,4 @@
+net.minecraft.command.argument.NbtPathArgumentType.NbtPath net.minecraft.text.NbtDataSource
+net.minecraft.text.Text net.minecraft.text.TextContent
+net.minecraft.text.LiteralText net.minecraft.text.LiteralTextContent
+net.minecraft.text.LiteralText asString() net.minecraft.text.LiteralTextContent string()

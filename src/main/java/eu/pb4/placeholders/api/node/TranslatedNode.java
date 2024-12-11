@@ -3,6 +3,9 @@ package eu.pb4.placeholders.api.node;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.parsers.NodeParser;
 import net.minecraft.text.Text;
+//#if MC <= 11802
+//$$ import net.minecraft.text.TranslatableText;
+//#endif
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,8 +37,10 @@ public record TranslatedNode(String key, @Nullable String fallback, Object[] arg
 
 		//#if MC > 11903
 		return Text.translatableWithFallback(this.key(), this.fallback, args);
-		//#else
+		//#elseif MC > 11802
 		//$$ return Text.translatable(this.key(), args);
+		//#else
+		//$$ return new TranslatableText(this.key(), args);
 		//#endif
 	}
 

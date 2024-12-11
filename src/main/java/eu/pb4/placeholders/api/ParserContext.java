@@ -1,6 +1,8 @@
 package eu.pb4.placeholders.api;
 
+//#if MC > 11902
 import net.minecraft.registry.RegistryWrapper;
+//#endif
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

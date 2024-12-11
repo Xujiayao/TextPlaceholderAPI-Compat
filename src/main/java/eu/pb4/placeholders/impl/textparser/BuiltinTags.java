@@ -32,14 +32,16 @@ import eu.pb4.placeholders.impl.StringArgOps;
 import net.minecraft.entity.EntityType;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.text.BlockNbtDataSource;
 import net.minecraft.text.ClickEvent;
+//#if MC > 11802
+import net.minecraft.text.BlockNbtDataSource;
 import net.minecraft.text.EntityNbtDataSource;
+import net.minecraft.text.StorageNbtDataSource;
+//#endif
 import net.minecraft.text.MutableText;
 //#if MC > 12101
 import net.minecraft.text.ParsedSelector;
 //#endif
-import net.minecraft.text.StorageNbtDataSource;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextColor;
@@ -367,6 +369,7 @@ public final class BuiltinTags {
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("rawstyle", "special", false, (nodes, data, parser) -> {
+				//#if MC > 11802
 				//#if MC > 12002
 				var x = Style.Codecs.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
 				//#else
@@ -377,6 +380,9 @@ public final class BuiltinTags {
 					return TextNode.asSingle(nodes);
 				}
 				return new StyledNode(nodes, x.result().get().getFirst(), null, null, null);
+				//#else
+				//$$ return TextNode.asSingle(nodes);
+				//#endif
 			}));
 		}
 
@@ -409,6 +415,7 @@ public final class BuiltinTags {
 				String source = data.getNext("source", "");
 				var cleanLine1 = data.getNext("path", "");
 
+				//#if MC > 11802
 				var type = switch (source) {
 					case "block" -> new BlockNbtDataSource(cleanLine1);
 					case "entity" -> new EntityNbtDataSource(cleanLine1);
@@ -426,6 +433,9 @@ public final class BuiltinTags {
 				var shouldInterpret = SimpleArguments.bool(data.getNext("interpret"), false);
 
 				return new NbtNode(cleanLine1, shouldInterpret, separator, type);
+				//#else
+				//$$ return TextNode.empty();
+				//#endif
 			}));
 		}
 	}

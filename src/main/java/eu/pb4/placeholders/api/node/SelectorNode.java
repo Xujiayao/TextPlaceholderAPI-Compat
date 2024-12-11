@@ -4,6 +4,9 @@ import eu.pb4.placeholders.api.ParserContext;
 //#if MC > 12101
 import net.minecraft.text.ParsedSelector;
 //#endif
+//#if MC <= 11802
+//$$ import net.minecraft.text.SelectorText;
+//#endif
 import net.minecraft.text.Text;
 
 import java.util.Optional;
@@ -18,8 +21,10 @@ public record SelectorNode(ParsedSelector selector, Optional<TextNode> separator
 	public Text toText(ParserContext context, boolean removeBackslashes) {
 		//#if MC > 12101
 		return Text.selector(selector, separator.map(x -> x.toText(context, removeBackslashes)));
-		//#else
+		//#elseif MC > 11802
 		//$$ return Text.selector(pattern, separator.map(x -> x.toText(context, removeBackslashes)));
+		//#else
+		//$$ return new SelectorText(pattern, separator.map(x -> x.toText(context, removeBackslashes)));
 		//#endif
 	}
 
