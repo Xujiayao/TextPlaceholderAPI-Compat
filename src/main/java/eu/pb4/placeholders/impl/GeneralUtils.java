@@ -241,16 +241,12 @@ public class GeneralUtils {
 			}
 
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
-		} else if (input.getContent() instanceof ScoreTextContent(
-				com.mojang.datafixers.util.Either<net.minecraft.text.ParsedSelector, String> name, String objective
-		)) {
-			list.add(new ScoreNode(name, objective));
+		} else if (input.getContent() instanceof ScoreTextContent content) {
+			list.add(new ScoreNode(content.name(), content.objective()));
 		} else if (input.getContent() instanceof KeybindTextContent content) {
 			list.add(new KeybindNode(content.getKey()));
-		} else if (input.getContent() instanceof SelectorTextContent(
-				net.minecraft.text.ParsedSelector selector, java.util.Optional<Text> separator
-		)) {
-			list.add(new SelectorNode(selector, separator.map(GeneralUtils::convertToNodes)));
+		} else if (input.getContent() instanceof SelectorTextContent content) {
+			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
 		} else if (input.getContent() instanceof NbtTextContent content) {
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
 		}
