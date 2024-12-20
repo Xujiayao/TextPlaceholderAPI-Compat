@@ -1,6 +1,7 @@
 plugins {
 	id "fabric-loom" version "1.8-SNAPSHOT" apply false // 1.9 is not working (2024/12/05)
 	id "com.replaymod.preprocess" version "88169fcb"
+	id "maven-publish"
 }
 
 preprocess {
