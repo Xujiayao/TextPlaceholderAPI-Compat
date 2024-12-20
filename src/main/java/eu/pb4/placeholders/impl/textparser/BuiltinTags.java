@@ -92,9 +92,7 @@ public final class BuiltinTags {
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("color", List.of("colour", "c"), "color", true, (nodes, data, parser) -> {
-				return new DynamicColorNode(nodes, parser.parseNode(data.get("value", 0, "white")));
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("color", List.of("colour", "c"), "color", true, (nodes, data, parser) -> new DynamicColorNode(nodes, parser.parseNode(data.get("value", 0, "white")))));
 		}
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("font", "other_formatting", false, (nodes, data, parser) -> new FontNode(nodes, Identifier.tryParse(data.get("value", 0, "")))));
@@ -220,34 +218,39 @@ public final class BuiltinTags {
 							type = data.getNext("type", "");
 						}
 						type = type.toLowerCase(Locale.ROOT);
-						if (type.equals("show_text") || type.equals("text")) {
-							return new HoverNode<>(nodes, HoverNode.Action.TEXT, parser.parseNode(data.getNext("value", "")));
-						} else if (type.equals("show_entity") || type.equals("entity")) {
-							return new HoverNode<>(nodes, HoverNode.Action.ENTITY, new HoverNode.EntityNodeContent(EntityType.get(data.getNext("entity", "")).orElse(EntityType.PIG), UUID.fromString(data.getNext("uuid", Util.NIL_UUID.toString())), new ParentNode(parser.parseNode(data.get("name", 3, "")))));
-						} else if (type.equals("show_item") || type.equals("item")) {
-							var value = data.getNext("value", "");
-							try {
-								var nbt = StringNbtReader.parse(value);
-								var id = Identifier.of(nbt.getString("id"));
-								var count = nbt.contains("count") ? nbt.getInt("count") : 1;
-
-								var comps = nbt.getCompound("components");
-								return new HoverNode<>(nodes, HoverNode.Action.LAZY_ITEM_STACK, new HoverNode.LazyItemStackNodeContent<>(id, count, NbtOps.INSTANCE, comps));
-							} catch (Throwable ignored) {
+						switch (type) {
+							case "show_text", "text" -> {
+								return new HoverNode<>(nodes, HoverNode.Action.TEXT, parser.parseNode(data.getNext("value", "")));
 							}
-							try {
-								var item = Identifier.of(data.get("item", value));
-								var count = 1;
-								var countTxt = data.getNext("count");
-								if (countTxt != null) {
-									count = Integer.parseInt(countTxt);
+							case "show_entity", "entity" -> {
+								return new HoverNode<>(nodes, HoverNode.Action.ENTITY, new HoverNode.EntityNodeContent(EntityType.get(data.getNext("entity", "")).orElse(EntityType.PIG), UUID.fromString(data.getNext("uuid", Util.NIL_UUID.toString())), new ParentNode(parser.parseNode(data.get("name", 3, "")))));
+							}
+							case "show_item", "item" -> {
+								var value = data.getNext("value", "");
+								try {
+									var nbt = StringNbtReader.parse(value);
+									var id = Identifier.of(nbt.getString("id"));
+									var count = nbt.contains("count") ? nbt.getInt("count") : 1;
+
+									var comps = nbt.getCompound("components");
+									return new HoverNode<>(nodes, HoverNode.Action.LAZY_ITEM_STACK, new HoverNode.LazyItemStackNodeContent<>(id, count, NbtOps.INSTANCE, comps));
+								} catch (Throwable ignored) {
 								}
+								try {
+									var item = Identifier.of(data.get("item", value));
+									var count = 1;
+									var countTxt = data.getNext("count");
+									if (countTxt != null) {
+										count = Integer.parseInt(countTxt);
+									}
 
-								return new HoverNode<>(nodes, HoverNode.Action.LAZY_ITEM_STACK, new HoverNode.LazyItemStackNodeContent<>(item, count, StringArgOps.INSTANCE, Either.right(data.getNestedOrEmpty("components"))));
-							} catch (Throwable ignored) {
+									return new HoverNode<>(nodes, HoverNode.Action.LAZY_ITEM_STACK, new HoverNode.LazyItemStackNodeContent<>(item, count, StringArgOps.INSTANCE, Either.right(data.getNestedOrEmpty("components"))));
+								} catch (Throwable ignored) {
+								}
 							}
-						} else {
-							return new HoverNode<>(nodes, HoverNode.Action.TEXT, parser.parseNode(data.get("value", type)));
+							default -> {
+								return new HoverNode<>(nodes, HoverNode.Action.TEXT, parser.parseNode(data.get("value", type)));
+							}
 						}
 					} else {
 						return new HoverNode<>(nodes, HoverNode.Action.TEXT, parser.parseNode(data.getNext("value")));
@@ -338,9 +341,7 @@ public final class BuiltinTags {
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("clear", "special", false, (nodes, data, parser) -> {
-				return new TransformNode(nodes, getTransform(data));
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("clear", "special", false, (nodes, data, parser) -> new TransformNode(nodes, getTransform(data))));
 		}
 
 		{
@@ -355,10 +356,7 @@ public final class BuiltinTags {
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.self("score", "special", false, (nodes, data, parser) -> {
-
-				return new ScoreNode(data.getNext("name", ""), data.getNext("objective", ""));
-			}));
+			TagRegistry.registerDefault(TextTag.self("score", "special", false, (nodes, data, parser) -> new ScoreNode(data.getNext("name", ""), data.getNext("objective", ""))));
 		}
 
 		{

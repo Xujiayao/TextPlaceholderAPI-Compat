@@ -63,6 +63,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		return new SingleTagLikeParser(format, provider);
 	}
 
+	@SafeVarargs
 	public static TagLikeParser of(Pair<Format, Provider>... formatsAndProviders) {
 		return new MultiTagLikeParser(formatsAndProviders);
 	}
@@ -84,21 +85,22 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 	}
 
 	private void parse(TextNode node, Context context) {
-		if (node instanceof LiteralNode literal) {
-			context.input = literal.value();
-			this.handleLiteral(literal.value(), context);
-		} else if (node instanceof TranslatedNode translatedNode) {
-			context.addNode(translatedNode.transform(this));
-		} else if (node instanceof ParentTextNode parent) {
-			var size = context.size();
-			context.pushWithParser(null, parent::copyWith);
-			for (var x : parent.getChildren()) {
-				parse(x, context);
+		switch (node) {
+			case LiteralNode(String value) -> {
+				context.input = value;
+				this.handleLiteral(value, context);
 			}
+			case TranslatedNode translatedNode -> context.addNode(translatedNode.transform(this));
+			case ParentTextNode parent -> {
+				var size = context.size();
+				context.pushWithParser(null, parent::copyWith);
+				for (var x : parent.getChildren()) {
+					parse(x, context);
+				}
 
-			context.pop(context.size() - size);
-		} else {
-			context.addNode(node);
+				context.pop(context.size() - size);
+			}
+			case null, default -> context.addNode(node);
 		}
 	}
 

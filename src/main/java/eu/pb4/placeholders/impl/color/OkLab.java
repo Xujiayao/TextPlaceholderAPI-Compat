@@ -41,16 +41,13 @@ public record OkLab(float l, float a, float b) {
 		float m = m_ * m_ * m_;
 		float s = s_ * s_ * s_;
 
-		var r = +4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s;
+		var r = 4.0767416621f * l - 3.3077115913f * m + 0.2309699292f * s;
 		var g = -1.2684380046f * l + 2.6097574011f * m - 0.3413193965f * s;
 		var b = -0.0041960863f * l - 0.7034186147f * m + 1.7076147010f * s;
 
 		var max = Math.max(Math.max(Math.max(r, g), b), 1);
 		var min = Math.min(Math.min(Math.min(r, g), b), 0);
 		float mult = 1;
-		if (max > 1 || min < 0) {
-			//mult = 1 / (max + min);
-		}
 		return GeneralUtils.rgbToInt(MathHelper.clamp(r * mult, 0, 1), MathHelper.clamp(g * mult, 0, 1), MathHelper.clamp(b * mult, 0, 1));
 	}
 

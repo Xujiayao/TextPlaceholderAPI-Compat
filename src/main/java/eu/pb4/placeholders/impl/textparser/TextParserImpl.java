@@ -3,6 +3,7 @@ package eu.pb4.placeholders.impl.textparser;
 import eu.pb4.placeholders.api.node.LiteralNode;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.TextParserV1;
+import eu.pb4.placeholders.impl.GeneralUtils;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ import static eu.pb4.placeholders.impl.GeneralUtils.Pair;
 @ApiStatus.Internal
 public class TextParserImpl {
 	// Based on minimessage's regex, modified to fit more parsers needs
-	public static final Pattern STARTING_PATTERN = Pattern.compile("<(?<id>[^<>/]+)(?<data>([:]([']?([^'](\\\\\\\\['])?)+[']?))*)>");
+	public static final Pattern STARTING_PATTERN = Pattern.compile("<(?<id>[^<>/]+)(?<data>(:('?([^'](\\\\\\\\')?)+'?))*)>");
 	@Deprecated
 	public static final List<Pair<String, String>> ESCAPED_CHARS = new ArrayList<>();
 	public static final TextNode[] CASTER = new TextNode[0];
@@ -164,7 +165,7 @@ public class TextParserImpl {
 							}
 						}
 					} catch (Exception e) {
-						e.printStackTrace();
+						GeneralUtils.LOGGER.error("Error parsing tag " + tag + "!", e);
 					}
 				}
 			}

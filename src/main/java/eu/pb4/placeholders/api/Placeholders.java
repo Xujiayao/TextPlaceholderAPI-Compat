@@ -33,17 +33,7 @@ public final class Placeholders {
 	public static final Pattern PREDEFINED_PLACEHOLDER_PATTERN = PatternPlaceholderParser.PREDEFINED_PLACEHOLDER_PATTERN;
 
 	private static final HashMap<Identifier, PlaceholderHandler> PLACEHOLDERS = new HashMap<>();
-	public static final PlaceholderGetter DEFAULT_PLACEHOLDER_GETTER = new PlaceholderGetter() {
-		@Override
-		public PlaceholderHandler getPlaceholder(String placeholder) {
-			return PLACEHOLDERS.get(Identifier.tryParse(placeholder));
-		}
-
-		@Override
-		public boolean isContextOptional() {
-			return false;
-		}
-	};
+	public static final PlaceholderGetter DEFAULT_PLACEHOLDER_GETTER = placeholder -> PLACEHOLDERS.get(Identifier.tryParse(placeholder));
 	public static final NodeParser DEFAULT_PLACEHOLDER_PARSER = TagLikeParser.placeholder(TagLikeParser.PLACEHOLDER, PlaceholderContext.KEY, DEFAULT_PLACEHOLDER_GETTER);
 	private static final List<PlaceholderListChangedCallback> CHANGED_CALLBACKS = new ArrayList<>();
 

@@ -40,7 +40,6 @@ public class TextParserV1 implements NodeParser {
 	private final List<TextTag> tags = new ArrayList<>();
 	private final Map<String, TextTag> byName = new HashMap<>();
 	private final Map<String, TextTag> byNameAlias = new HashMap<>();
-	private final boolean allowOverrides = false;
 
 	public static TextParserV1 createDefault() {
 		return DEFAULT.copy();
@@ -59,8 +58,8 @@ public class TextParserV1 implements NodeParser {
 	}
 
 	public static TextNode[] parseNodesWith(TextNode input, TagParserGetter getter) {
-		if (input instanceof LiteralNode literalNode) {
-			return TextParserImpl.parse(literalNode.value(), getter);
+		if (input instanceof LiteralNode(String value)) {
+			return TextParserImpl.parse(value, getter);
 		} else if (input instanceof ParentTextNode parentTextNode) {
 			var list = new ArrayList<TextNode>();
 
@@ -80,11 +79,8 @@ public class TextParserV1 implements NodeParser {
 
 	public void register(TextTag tag) {
 		if (this.byName.containsKey(tag.name())) {
-			if (allowOverrides) {
-				this.tags.removeIf((t) -> t.name().equals(tag.name()));
-			} else {
-				throw new RuntimeException("Duplicate tag identifier!");
-			}
+			boolean allowOverrides = false;
+			throw new RuntimeException("Duplicate tag identifier!");
 		}
 
 		this.byName.put(tag.name(), tag);
@@ -126,16 +122,13 @@ public class TextParserV1 implements NodeParser {
 	}
 
 	public @Nullable TextTag getTag(String name) {
-		var o = this.byNameAlias.get(name);
-		return o;
+		return this.byNameAlias.get(name);
 	}
 
 	@FunctionalInterface
 	public interface TagNodeBuilder {
 		static TagNodeBuilder selfClosing(SelfTagParsedCreator selfTagCreator) {
-			return (tag, data, input, handlers, endAt) -> {
-				return new TextParserV1.TagNodeValue(selfTagCreator.createTextNode(data, new TagParserGetterParser(handlers)), 0);
-			};
+			return (tag, data, input, handlers, endAt) -> new TagNodeValue(selfTagCreator.createTextNode(data, new TagParserGetterParser(handlers)), 0);
 		}
 
 		static TagNodeBuilder wrapping(FormattingTagParsedCreator formattingTagCreator) {
@@ -146,9 +139,7 @@ public class TextParserV1 implements NodeParser {
 		}
 
 		static TagNodeBuilder selfClosing(SelfTagCreator selfTagCreator) {
-			return (tag, data, input, handlers, endAt) -> {
-				return new TextParserV1.TagNodeValue(selfTagCreator.createTextNode(data), 0);
-			};
+			return (tag, data, input, handlers, endAt) -> new TagNodeValue(selfTagCreator.createTextNode(data), 0);
 		}
 
 		static TagNodeBuilder wrapping(FormattingTagCreator formattingTagCreator) {
@@ -161,7 +152,7 @@ public class TextParserV1 implements NodeParser {
 		static TagNodeBuilder wrappingBoolean(BooleanFormattingTagCreator formattingTagCreator) {
 			return (tag, data, input, handlers, endAt) -> {
 				var out = parseNodesWith(input, handlers, endAt);
-				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data == null || data.isEmpty() || !data.equals("false")), out.length());
+				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data == null || !data.equals("false")), out.length());
 			};
 		}
 

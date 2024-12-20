@@ -24,10 +24,10 @@ import java.util.regex.Pattern;
 @Deprecated
 public record PatternPlaceholderParser(Pattern pattern,
                                        Function<String, @Nullable TextNode> placeholderProvider) implements NodeParser {
-	public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("(?<!((?<!(\\\\))\\\\))[%](?<id>[^%]+:[^%]+)[%]");
+	public static final Pattern PLACEHOLDER_PATTERN = Pattern.compile("(?<!((?<!(\\\\))\\\\))%(?<id>[^%]+:[^%]+)%");
 	public static final Pattern ALT_PLACEHOLDER_PATTERN = Pattern.compile("(?<!((?<!(\\\\))\\\\))[{](?<id>[^{}]+:[^{}]+)[}]");
 
-	public static final Pattern PLACEHOLDER_PATTERN_CUSTOM = Pattern.compile("(?<!((?<!(\\\\))\\\\))[%](?<id>[^%]+)[%]");
+	public static final Pattern PLACEHOLDER_PATTERN_CUSTOM = Pattern.compile("(?<!((?<!(\\\\))\\\\))%(?<id>[^%]+)%");
 	public static final Pattern ALT_PLACEHOLDER_PATTERN_CUSTOM = Pattern.compile("(?<!((?<!(\\\\))\\\\))[{](?<id>[^{}]+)[}]");
 
 	public static final Pattern PREDEFINED_PLACEHOLDER_PATTERN = Pattern.compile("(?<!((?<!(\\\\))\\\\))\\$[{](?<id>[^}]+)}");
@@ -59,11 +59,10 @@ public record PatternPlaceholderParser(Pattern pattern,
 	public TextNode[] parseNodes(TextNode text) {
 		if (text instanceof TranslatedNode translatedNode) {
 			return new TextNode[]{translatedNode.transform(this)};
-		} else if (text instanceof LiteralNode literalNode) {
+		} else if (text instanceof LiteralNode(String value)) {
 			var out = new ArrayList<TextNode>();
 
-			String string = literalNode.value();
-			Matcher matcher = pattern.matcher(string);
+			Matcher matcher = pattern.matcher(value);
 			int start;
 			int end;
 
@@ -78,18 +77,18 @@ public record PatternPlaceholderParser(Pattern pattern,
 
 				if (output != null) {
 					if (start != 0) {
-						out.add(new LiteralNode(string.substring(previousEnd, start)));
+						out.add(new LiteralNode(value.substring(previousEnd, start)));
 					}
 					out.add(output);
 
 					previousEnd = end;
 				} else {
-					matcher.region(start + 1, string.length());
+					matcher.region(start + 1, value.length());
 				}
 			}
 
-			if (previousEnd != string.length()) {
-				out.add(new LiteralNode(string.substring(previousEnd)));
+			if (previousEnd != value.length()) {
+				out.add(new LiteralNode(value.substring(previousEnd)));
 			}
 
 			return out.toArray(new TextNode[0]);

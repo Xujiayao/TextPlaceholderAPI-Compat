@@ -48,9 +48,9 @@ public class ParentNode implements ParentTextNode {
 		} else {
 			MutableText base = compact ? null : Text.empty();
 
-			for (int i = 0; i < this.children.length; i++) {
-				if (this.children[i] != null) {
-					var child = this.children[i].toText(context, true);
+			for (TextNode textNode : this.children) {
+				if (textNode != null) {
+					var child = textNode.toText(context, true);
 
 					if (!GeneralUtils.isEmpty(child)) {
 						if (base == null) {

@@ -24,9 +24,10 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 				combiner.addAll(List.of(tagLikeParser.pairs()));
 			} else {
 				if (combiner.size() == 1) {
-					list.add(new SingleTagLikeParser(combiner.get(0).getLeft(), combiner.get(0).getRight()));
+					list.add(new SingleTagLikeParser(combiner.getFirst().getLeft(), combiner.getFirst().getRight()));
 					combiner.clear();
 				} else if (combiner.size() > 1) {
+					//noinspection unchecked
 					list.add(new MultiTagLikeParser(combiner.toArray(new Pair[]{})));
 					combiner.clear();
 				}
@@ -35,8 +36,9 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 		}
 
 		if (combiner.size() == 1) {
-			list.add(new SingleTagLikeParser(combiner.get(0).getLeft(), combiner.get(0).getRight()));
+			list.add(new SingleTagLikeParser(combiner.getFirst().getLeft(), combiner.getFirst().getRight()));
 		} else if (combiner.size() > 1) {
+			//noinspection unchecked
 			list.add(new MultiTagLikeParser(combiner.toArray(new Pair[]{})));
 		}
 		this.parsers = list.toArray(new NodeParser[0]);
@@ -45,8 +47,8 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 	@Override
 	public TextNode[] parseNodes(TextNode input) {
 		var out = new TextNode[]{input};
-		for (int i = 0; i < this.parsers.length; i++) {
-			out = parsers[i].parseNodes(TextNode.asSingle(out));
+		for (NodeParser parser : this.parsers) {
+			out = parser.parseNodes(TextNode.asSingle(out));
 		}
 
 		return out;

@@ -22,8 +22,8 @@ import java.util.List;
  * Parser that can read legacy (and legacy like) format and convert it into TextNodes
  */
 public class LegacyFormattingParser implements NodeParser {
-	public static NodeParser COLORS = new LegacyFormattingParser(true, Arrays.stream(Formatting.values()).filter(x -> !x.isColor()).toArray(x -> new Formatting[x]));
-	public static NodeParser BASE_COLORS = new LegacyFormattingParser(false, Arrays.stream(Formatting.values()).filter(x -> !x.isColor()).toArray(x -> new Formatting[x]));
+	public static NodeParser COLORS = new LegacyFormattingParser(true, Arrays.stream(Formatting.values()).filter(x -> !x.isColor()).toArray(Formatting[]::new));
+	public static NodeParser BASE_COLORS = new LegacyFormattingParser(false, Arrays.stream(Formatting.values()).filter(x -> !x.isColor()).toArray(Formatting[]::new));
 	public static NodeParser ALL = new LegacyFormattingParser(true, Formatting.values());
 	private final Char2ObjectOpenHashMap<Formatting> map = new Char2ObjectOpenHashMap<>();
 	private final boolean allowRgb;
@@ -49,15 +49,12 @@ public class LegacyFormattingParser implements NodeParser {
 	}
 
 	public TextNode[] parseNodes(TextNode input, List<TextNode> nextNodes) {
-		if (input instanceof LiteralNode literalNode) {
-			return parseLiteral(literalNode, nextNodes);
-		} else if (input instanceof TranslatedNode translatedNode) {
-			return new TextNode[]{translatedNode.transform(this)};
-		} else if (input instanceof ParentTextNode parentTextNode) {
-			return parseParents(parentTextNode);
-		} else {
-			return new TextNode[]{input};
-		}
+		return switch (input) {
+			case LiteralNode literalNode -> parseLiteral(literalNode, nextNodes);
+			case TranslatedNode translatedNode -> new TextNode[]{translatedNode.transform(this)};
+			case ParentTextNode parentTextNode -> parseParents(parentTextNode);
+			case null, default -> new TextNode[]{input};
+		};
 	}
 
 	private TextNode[] parseParents(ParentTextNode parentTextNode) {
@@ -66,7 +63,7 @@ public class LegacyFormattingParser implements NodeParser {
 		if (parentTextNode.getChildren().length > 0) {
 			var nodes = new ArrayList<>(List.of(parentTextNode.getChildren()));
 			while (!nodes.isEmpty()) {
-				list.add(TextNode.asSingle(parseNodes(nodes.remove(0), nodes)));
+				list.add(TextNode.asSingle(parseNodes(nodes.removeFirst(), nodes)));
 			}
 		}
 
@@ -100,12 +97,11 @@ public class LegacyFormattingParser implements NodeParser {
 
 						var rgb = Integer.parseInt(builder1.toString(), 16);
 
-						var list = new ArrayList<TextNode>();
-						list.addAll(nexts);
+						var list = new ArrayList<>(nexts);
 						nexts.clear();
 
 						var base = TextNode.asSingle(parseLiteral(new LiteralNode(reader.getRemaining()), list));
-						list.add(0, base);
+						list.addFirst(base);
 
 						return new TextNode[]{new LiteralNode(builder.toString()), new ColorNode(list.toArray(TextParserImpl.CASTER), TextColor.fromRgb(rgb))};
 					} catch (Throwable e) {
@@ -118,13 +114,12 @@ public class LegacyFormattingParser implements NodeParser {
 				var x = this.map.get(i);
 
 				if (x != null) {
-					var list = new ArrayList<TextNode>();
-					list.addAll(nexts);
+					var list = new ArrayList<>(nexts);
 					nexts.clear();
 
 					var base = TextNode.asSingle(parseLiteral(new LiteralNode(reader.getRemaining()), list));
 
-					list.add(0, base);
+					list.addFirst(base);
 
 					return new TextNode[]{new LiteralNode(builder.toString()), new FormattingNode(list.toArray(TextParserImpl.CASTER), x)};
 				} else {

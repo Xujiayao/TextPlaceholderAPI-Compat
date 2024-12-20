@@ -60,24 +60,29 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 
 	@Override
 	public TextNode[] parseNodes(TextNode input) {
-		if (input instanceof LiteralNode literalNode) {
-			var list = new ArrayList<SubNode<?>>();
-			parseLiteral(literalNode, list::add);
-			return parseSubNodes(list.listIterator(), null, -1, false);
-		} else if (input instanceof TranslatedNode translatedNode) {
-			return new TextNode[]{translatedNode.transform(this)};
-		} else if (input instanceof ParentTextNode parentTextNode) {
-			var list = new ArrayList<SubNode<?>>();
-			for (var children : parentTextNode.getChildren()) {
-				if (children instanceof LiteralNode literalNode) {
-					parseLiteral(literalNode, list::add);
-				} else {
-					list.add(new SubNode<>(SubNodeType.TEXT_NODE, TextNode.asSingle(parseNodes(children))));
-				}
+		switch (input) {
+			case LiteralNode literalNode -> {
+				var list = new ArrayList<SubNode<?>>();
+				parseLiteral(literalNode, list::add);
+				return parseSubNodes(list.listIterator(), null, -1, false);
 			}
-			return new TextNode[]{parentTextNode.copyWith(parseSubNodes(list.listIterator(), null, -1, false), this)};
-		} else {
-			return new TextNode[]{input};
+			case TranslatedNode translatedNode -> {
+				return new TextNode[]{translatedNode.transform(this)};
+			}
+			case ParentTextNode parentTextNode -> {
+				var list = new ArrayList<SubNode<?>>();
+				for (var children : parentTextNode.getChildren()) {
+					if (children instanceof LiteralNode literalNode) {
+						parseLiteral(literalNode, list::add);
+					} else {
+						list.add(new SubNode<>(SubNodeType.TEXT_NODE, TextNode.asSingle(parseNodes(children))));
+					}
+				}
+				return new TextNode[]{parentTextNode.copyWith(parseSubNodes(list.listIterator(), null, -1, false), this)};
+			}
+			case null, default -> {
+				return new TextNode[]{input};
+			}
 		}
 	}
 
@@ -142,7 +147,7 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 		}
 	}
 
-	private TextNode[] parseSubNodes(ListIterator<SubNode<?>> nodes, @Nullable SubNodeType endAt, int count, boolean requireEmpty) {
+	private TextNode[] parseSubNodes(ListIterator<SubNode<?>> nodes, @Nullable SubNodeType<?> endAt, int count, boolean requireEmpty) {
 		var out = new ArrayList<TextNode>();
 		int startIndex = nodes.nextIndex();
 		var builder = new StringBuilder();

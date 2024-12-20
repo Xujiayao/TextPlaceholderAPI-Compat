@@ -203,6 +203,7 @@ public class PlayerPlaceholders {
 						var type = Identifier.tryParse(args[0]);
 						var id = Identifier.tryParse(args[1]);
 						if (type != null) {
+							//noinspection unchecked
 							var statType = (StatType<Object>) Registries.STAT_TYPE.get(type);
 
 							if (statType != null) {
@@ -240,6 +241,7 @@ public class PlayerPlaceholders {
 						var type = Identifier.tryParse(args[0]);
 						var id = Identifier.tryParse(args[1]);
 						if (type != null) {
+							//noinspection unchecked
 							var statType = (StatType<Object>) Registries.STAT_TYPE.get(type);
 
 							if (statType != null) {

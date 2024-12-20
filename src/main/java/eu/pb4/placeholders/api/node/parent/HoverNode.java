@@ -18,6 +18,7 @@ import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class HoverNode<T, H> extends SimpleStylingNode {
@@ -33,8 +34,10 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 	@Override
 	protected Style style(ParserContext context) {
 		if (this.action == Action.TEXT) {
+			//noinspection unchecked
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((TextNode) this.value).toText(context, true)));
 		} else if (this.action == Action.ENTITY) {
+			//noinspection unchecked
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((EntityNodeContent) this.value).toVanilla(context)));
 		} else if (this.action == Action.LAZY_ITEM_STACK) {
 			RegistryWrapper.WrapperLookup wrapper;
@@ -46,8 +49,9 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 				return Style.EMPTY;
 			}
 
-			return Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ((LazyItemStackNodeContent) this.value).toVanilla(wrapper)));
+			return Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ((LazyItemStackNodeContent<?>) this.value).toVanilla(wrapper)));
 		} else {
+			//noinspection unchecked
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), this.value));
 		}
 
@@ -55,16 +59,16 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 
 	@Override
 	public ParentTextNode copyWith(TextNode[] children) {
-		return new HoverNode(children, this.action, this.value);
+		return new HoverNode<>(children, this.action, this.value);
 	}
 
 	@Override
 	public ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
 		if (this.action == Action.TEXT) {
-			return new HoverNode(children, Action.TEXT, parser.parseNode((TextNode) this.value));
+			return new HoverNode<>(children, Action.TEXT, parser.parseNode((TextNode) this.value));
 		} else if (this.action == Action.ENTITY && ((EntityNodeContent) this.value).name != null) {
 			var val = ((EntityNodeContent) this.value);
-			return new HoverNode(children, Action.ENTITY, new EntityNodeContent(val.entityType, val.uuid, parser.parseNode(val.name)));
+			return new HoverNode<>(children, Action.ENTITY, new EntityNodeContent(val.entityType, val.uuid, parser.parseNode(val.name)));
 		}
 		return this.copyWith(children);
 	}
@@ -84,7 +88,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 
 	@Override
 	public boolean isDynamicNoChildren() {
-		return (this.action == Action.TEXT && ((TextNode) this.value).isDynamic()) || (this.action == Action.ENTITY && ((EntityNodeContent) this.value).name.isDynamic()) || this.action == Action.LAZY_ITEM_STACK;
+		return (this.action == Action.TEXT && ((TextNode) this.value).isDynamic()) || (this.action == Action.ENTITY && Objects.requireNonNull(((EntityNodeContent) this.value).name).isDynamic()) || this.action == Action.LAZY_ITEM_STACK;
 	}
 
 	public record Action<T, H>(HoverEvent.Action<H> vanillaType) {
@@ -92,7 +96,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 		public static final Action<TextNode, Text> TEXT = new Action<>(HoverEvent.Action.SHOW_TEXT);
 
 		public static final Action<HoverEvent.ItemStackContent, HoverEvent.ItemStackContent> ITEM_STACK = new Action<>(HoverEvent.Action.SHOW_ITEM);
-		public static final Action<LazyItemStackNodeContent, HoverEvent.ItemStackContent> LAZY_ITEM_STACK = new Action<>(HoverEvent.Action.SHOW_ITEM);
+		public static final Action<LazyItemStackNodeContent<?>, HoverEvent.ItemStackContent> LAZY_ITEM_STACK = new Action<>(HoverEvent.Action.SHOW_ITEM);
 	}
 
 	public record EntityNodeContent(EntityType<?> entityType, UUID uuid, @Nullable TextNode name) {

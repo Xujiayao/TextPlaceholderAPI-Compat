@@ -125,7 +125,7 @@ public final class GradientNode extends ParentNode {
 			if (hvs.isEmpty()) {
 				hvs.add(new HSV(1, 1, 1));
 			} else if (hvs.size() == 1) {
-				hvs.add(hvs.get(0));
+				hvs.add(hvs.getFirst());
 			}
 
 			final int colorSize = hvs.size();
@@ -164,7 +164,7 @@ public final class GradientNode extends ParentNode {
 
 			return (pos, length) -> {
 				if (length == 0) {
-					return colors.get(0);
+					return colors.getFirst();
 				}
 
 				final float sectionSize = ((float) length) / colorSize;

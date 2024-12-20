@@ -47,12 +47,11 @@ public final class ParserContext {
 
 		public static <T> Key<T> of(String key, T type) {
 			//noinspection unchecked
-			return new Key<T>(key, (Class<T>) type.getClass());
+			return new Key<>(key, (Class<T>) type.getClass());
 		}
 
 		public static <T> Key<T> of(String key) {
-			//noinspection unchecked
-			return new Key<T>(key, null);
+			return new Key<>(key, null);
 		}
 	}
 }

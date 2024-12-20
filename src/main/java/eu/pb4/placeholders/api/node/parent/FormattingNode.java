@@ -31,6 +31,6 @@ public final class FormattingNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "FormattingNode{" + "formatting=" + formatting + ", children=" + Arrays.toString(children) + '}';
+		return "FormattingNode{" + "formatting=" + Arrays.toString(formatting) + ", children=" + Arrays.toString(children) + '}';
 	}
 }

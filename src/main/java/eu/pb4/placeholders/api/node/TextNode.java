@@ -36,7 +36,7 @@ public interface TextNode {
 	static TextNode asSingle(List<TextNode> nodes) {
 		return switch (nodes.size()) {
 			case 0 -> EmptyNode.INSTANCE;
-			case 1 -> nodes.get(0);
+			case 1 -> nodes.getFirst();
 			default -> wrap(nodes);
 		};
 	}

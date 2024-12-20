@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.function.Function;
 
 @ApiStatus.Internal
@@ -61,7 +62,9 @@ public class GeneralUtils {
 	}
 
 	public static boolean isEmpty(Text text) {
-		return (text.getContent() == PlainTextContent.EMPTY || (text.getContent() instanceof PlainTextContent.Literal l && l.string().isEmpty())) && text.getSiblings().isEmpty();
+		return (text.getContent() == PlainTextContent.EMPTY || (text.getContent() instanceof PlainTextContent.Literal(
+				String string
+		) && string.isEmpty())) && text.getSiblings().isEmpty();
 	}
 
 	public static MutableText toGradient(Text base, GradientNode.GradientProvider posToColor) {
@@ -69,7 +72,9 @@ public class GeneralUtils {
 	}
 
 	private static int getGradientLength(Text base) {
-		int length = base.getContent() instanceof PlainTextContent.Literal l ? l.string().codePointCount(0, l.string().length()) : base.getContent() == PlainTextContent.EMPTY ? 0 : 1;
+		int length = base.getContent() instanceof PlainTextContent.Literal(
+				String string
+		) ? string.codePointCount(0, string.length()) : base.getContent() == PlainTextContent.EMPTY ? 0 : 1;
 
 		for (var text : base.getSiblings()) {
 			length += getGradientLength(text);
@@ -81,13 +86,13 @@ public class GeneralUtils {
 	private static TextLengthPair recursiveGradient(Text base, GradientNode.GradientProvider posToColor, int pos, int totalLength) {
 		if (base.getStyle().getColor() == null) {
 			MutableText out = Text.empty().setStyle(base.getStyle());
-			if (base.getContent() instanceof PlainTextContent.Literal literalTextContent) {
-				var l = literalTextContent.string().length();
+			if (base.getContent() instanceof PlainTextContent.Literal(String string)) {
+				var l = string.length();
 				for (var i = 0; i < l; i++) {
-					var character = literalTextContent.string().charAt(i);
+					var character = string.charAt(i);
 					int value;
 					if (Character.isHighSurrogate(character) && i + 1 < l) {
-						var next = literalTextContent.string().charAt(++i);
+						var next = string.charAt(++i);
 						if (Character.isLowSurrogate(next)) {
 							value = Character.toCodePoint(character, next);
 						} else {
@@ -125,9 +130,7 @@ public class GeneralUtils {
 	}
 
 	public static Text removeHoverAndClick(Text input) {
-		var output = cloneText(input);
-		removeHoverAndClick(output);
-		return output;
+		return deepTransform(input);
 	}
 
 	private static void removeHoverAndClick(MutableText input) {
@@ -212,9 +215,7 @@ public class GeneralUtils {
 			if (rarity) {
 				mutableText.formatted(stack.getRarity().getFormatting());
 			}
-			mutableText.styled((style) -> {
-				return style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(stack)));
-			});
+			mutableText.styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(stack))));
 
 			return mutableText;
 		}
@@ -225,8 +226,8 @@ public class GeneralUtils {
 	public static ParentNode convertToNodes(Text input) {
 		var list = new ArrayList<TextNode>();
 
-		if (input.getContent() instanceof PlainTextContent.Literal content) {
-			list.add(new LiteralNode(content.string()));
+		if (input.getContent() instanceof PlainTextContent.Literal(String string)) {
+			list.add(new LiteralNode(string));
 		} else if (input.getContent() instanceof TranslatableTextContent content) {
 			var args = new ArrayList<>();
 			for (var arg : content.getArgs()) {
@@ -240,12 +241,16 @@ public class GeneralUtils {
 			}
 
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
-		} else if (input.getContent() instanceof ScoreTextContent content) {
-			list.add(new ScoreNode(content.name(), content.objective()));
+		} else if (input.getContent() instanceof ScoreTextContent(
+				com.mojang.datafixers.util.Either<net.minecraft.text.ParsedSelector, String> name, String objective
+		)) {
+			list.add(new ScoreNode(name, objective));
 		} else if (input.getContent() instanceof KeybindTextContent content) {
 			list.add(new KeybindNode(content.getKey()));
-		} else if (input.getContent() instanceof SelectorTextContent content) {
-			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
+		} else if (input.getContent() instanceof SelectorTextContent(
+				net.minecraft.text.ParsedSelector selector, java.util.Optional<Text> separator
+		)) {
+			list.add(new SelectorNode(selector, separator.map(GeneralUtils::convertToNodes)));
 		} else if (input.getContent() instanceof NbtTextContent content) {
 			list.add(new NbtNode(content.getPath(), content.shouldInterpret(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
 		}
@@ -258,7 +263,7 @@ public class GeneralUtils {
 			return new ParentNode(list);
 		} else {
 			var style = input.getStyle();
-			var hoverValue = style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT ? convertToNodes(style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT)) : null;
+			var hoverValue = style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT ? convertToNodes(Objects.requireNonNull(style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT))) : null;
 
 			var clickValue = style.getClickEvent() != null ? new LiteralNode(style.getClickEvent().getValue()) : null;
 			var insertion = style.getInsertion() != null ? new LiteralNode(style.getInsertion()) : null;

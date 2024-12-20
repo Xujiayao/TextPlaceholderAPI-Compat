@@ -22,7 +22,7 @@ public interface NodeParser {
 	static NodeParser merge(List<NodeParser> parsers) {
 		return switch (parsers.size()) {
 			case 0 -> NOOP;
-			case 1 -> parsers.get(0);
+			case 1 -> parsers.getFirst();
 			default -> new MergedParser(parsers.toArray(new NodeParser[0]));
 		};
 	}
@@ -50,6 +50,6 @@ public interface NodeParser {
 	}
 
 	default Codec<WrappedText> codec() {
-		return Codec.STRING.xmap(x -> WrappedText.from(this, x), w -> w.input());
+		return Codec.STRING.xmap(x -> WrappedText.from(this, x), WrappedText::input);
 	}
 }

@@ -462,7 +462,7 @@ public final class TextTagsV1 {
 	}
 
 	private static boolean isntFalse(String arg) {
-		return arg.isEmpty() || !arg.equals("false");
+		return !arg.equals("false");
 	}
 
 	private static TextParserV1.TagNodeBuilder wrap(Wrapper wrapper) {
