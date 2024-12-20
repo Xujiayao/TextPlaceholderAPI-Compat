@@ -87,3 +87,13 @@ processResources {
 		writer.close()
 	}
 }
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifact(remapJar) {
+				builtBy remapJar
+			}
+		}
+	}
+}
