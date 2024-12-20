@@ -32,12 +32,11 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected Style style(ParserContext context) {
 		if (this.action == Action.TEXT) {
-			//noinspection unchecked
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((TextNode) this.value).toText(context, true)));
 		} else if (this.action == Action.ENTITY) {
-			//noinspection unchecked
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((EntityNodeContent) this.value).toVanilla(context)));
 		} else if (this.action == Action.LAZY_ITEM_STACK) {
 			RegistryWrapper.WrapperLookup wrapper;
@@ -51,7 +50,6 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 
 			return Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ((LazyItemStackNodeContent<?>) this.value).toVanilla(wrapper)));
 		} else {
-			//noinspection unchecked
 			return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), this.value));
 		}
 

@@ -61,6 +61,7 @@ import java.util.function.Function;
 public final class BuiltinTags {
 	public static final TextColor DEFAULT_COLOR = TextColor.fromFormatting(Formatting.WHITE);
 
+	@SuppressWarnings("deprecation")
 	public static void register() {
 		{
 			Map<Formatting, List<String>> aliases = new HashMap<>();

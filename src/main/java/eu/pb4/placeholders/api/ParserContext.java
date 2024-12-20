@@ -27,13 +27,13 @@ public final class ParserContext {
 	}
 
 	@Nullable
+	@SuppressWarnings("unchecked")
 	public <T> T get(Key<T> key) {
-		//noinspection unchecked
 		return (T) this.map.get(key);
 	}
 
+	@SuppressWarnings("unchecked")
 	public <T> T getOrThrow(Key<T> key) {
-		//noinspection unchecked
 		return Objects.requireNonNull((T) this.map.get(key));
 	}
 
@@ -45,8 +45,8 @@ public final class ParserContext {
 		public static final Key<Boolean> COMPACT_TEXT = new Key<>("compact_text", Boolean.class);
 		public static final Key<RegistryWrapper.WrapperLookup> WRAPPER_LOOKUP = new Key<>("wrapper_lookup", RegistryWrapper.WrapperLookup.class);
 
+		@SuppressWarnings("unchecked")
 		public static <T> Key<T> of(String key, T type) {
-			//noinspection unchecked
 			return new Key<>(key, (Class<T>) type.getClass());
 		}
 

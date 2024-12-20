@@ -147,6 +147,7 @@ public final class MarkdownLiteParserV1 implements NodeParser {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private TextNode[] parseSubNodes(ListIterator<SubNode<?>> nodes, @Nullable SubNodeType<?> endAt, int count, boolean requireEmpty) {
 		var out = new ArrayList<TextNode>();
 		int startIndex = nodes.nextIndex();

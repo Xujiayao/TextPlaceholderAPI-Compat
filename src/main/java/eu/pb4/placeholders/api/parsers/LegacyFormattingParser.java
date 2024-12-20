@@ -57,6 +57,7 @@ public class LegacyFormattingParser implements NodeParser {
 		};
 	}
 
+	@SuppressWarnings("deprecation")
 	private TextNode[] parseParents(ParentTextNode parentTextNode) {
 		var list = new ArrayList<TextNode>();
 
@@ -70,6 +71,7 @@ public class LegacyFormattingParser implements NodeParser {
 		return new TextNode[]{parentTextNode.copyWith(list.toArray(TextParserImpl.CASTER), this)};
 	}
 
+	@SuppressWarnings("deprecation")
 	private TextNode[] parseLiteral(LiteralNode literalNode, List<TextNode> nexts) {
 		var builder = new StringBuilder();
 		var reader = new StringReader(literalNode.value());

@@ -11,6 +11,7 @@ public interface ParentTextNode extends TextNode {
 
 	ParentTextNode copyWith(TextNode[] children);
 
+	@SuppressWarnings("deprecation")
 	default ParentTextNode copyWith(Collection<TextNode> children) {
 		return this.copyWith(children.toArray(TextParserImpl.CASTER));
 	}
@@ -32,6 +33,7 @@ public interface ParentTextNode extends TextNode {
 		return copyWith(children);
 	}
 
+	@SuppressWarnings("deprecation")
 	default ParentTextNode copyWith(Collection<TextNode> children, NodeParser parser) {
 		return this.copyWith(children.toArray(TextParserImpl.CASTER), parser);
 	}

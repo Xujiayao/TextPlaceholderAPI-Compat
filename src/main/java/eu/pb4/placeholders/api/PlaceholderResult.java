@@ -52,6 +52,7 @@ public final class PlaceholderResult {
 	 *
 	 * @return PlaceholderResult
 	 */
+	@SuppressWarnings("deprecation")
 	public static PlaceholderResult value(String text) {
 		return new PlaceholderResult(TextParserV1.DEFAULT.parseText(text, null), null);
 	}

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record MergedParser(NodeParser[] parsers) implements NodeParser {
+	@SuppressWarnings("unchecked")
 	public MergedParser(NodeParser[] parsers) {
 		var list = new ArrayList<NodeParser>(parsers.length);
 		var combiner = new ArrayList<Pair<TagLikeParser.Format, TagLikeParser.Provider>>(4);
@@ -27,7 +28,6 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 					list.add(new SingleTagLikeParser(combiner.getFirst().getLeft(), combiner.getFirst().getRight()));
 					combiner.clear();
 				} else if (combiner.size() > 1) {
-					//noinspection unchecked
 					list.add(new MultiTagLikeParser(combiner.toArray(new Pair[]{})));
 					combiner.clear();
 				}
@@ -38,7 +38,6 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 		if (combiner.size() == 1) {
 			list.add(new SingleTagLikeParser(combiner.getFirst().getLeft(), combiner.getFirst().getRight()));
 		} else if (combiner.size() > 1) {
-			//noinspection unchecked
 			list.add(new MultiTagLikeParser(combiner.toArray(new Pair[]{})));
 		}
 		this.parsers = list.toArray(new NodeParser[0]);

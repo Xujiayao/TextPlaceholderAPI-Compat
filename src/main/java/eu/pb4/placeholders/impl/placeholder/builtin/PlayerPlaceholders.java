@@ -19,6 +19,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import java.util.Locale;
 
 public class PlayerPlaceholders {
+	@SuppressWarnings("unchecked")
 	public static void register() {
 		Placeholders.register(Identifier.of("player", "name"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {
@@ -203,7 +204,6 @@ public class PlayerPlaceholders {
 						var type = Identifier.tryParse(args[0]);
 						var id = Identifier.tryParse(args[1]);
 						if (type != null) {
-							//noinspection unchecked
 							var statType = (StatType<Object>) Registries.STAT_TYPE.get(type);
 
 							if (statType != null) {
@@ -241,7 +241,6 @@ public class PlayerPlaceholders {
 						var type = Identifier.tryParse(args[0]);
 						var id = Identifier.tryParse(args[1]);
 						if (type != null) {
-							//noinspection unchecked
 							var statType = (StatType<Object>) Registries.STAT_TYPE.get(type);
 
 							if (statType != null) {
