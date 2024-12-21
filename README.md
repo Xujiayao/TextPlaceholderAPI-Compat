@@ -8,20 +8,38 @@ Latest release of Patbox's Text Placeholder API, but compatible with all Fabric 
 
 This fork is primarily created for my multi-version mod, [Discord-MC-Chat](https://github.com/Xujiayao/Discord-MC-Chat).
 
-## Usage (For Developers)
+## Usage
+
+### For Users
+
+Put the downloaded JAR file in the `mods` folder.
+
+### For Developers
+
+Only edit the `common.gradle` file. There is no need to add the following to the wrapper's `build.gradle`.
 
 ```groovy
-// Gradle
-
 repositories {
 	maven {
-		name = "Jitpack"
-		url = "https://jitpack.io"
+		name = "Nucleoid"
+		url = "https://maven.nucleoid.xyz/"
 	}
 }
 
 dependencies {
-	modImplementation("com.github.Xujiayao:TextPlaceholderAPI-Compat:2.5.1-compat.1")
+	modCompileOnly("eu.pb4:placeholder-api:2.5.1+1.21.3")
+}
+```
+
+Also edit all existing `fabric.mod.json` files.
+
+```json
+{
+	"depends": {
+		"fabricloader": ">=0.15.10",
+		"java": ">=21",
+		"placeholder-api-compat": "*"
+	}
 }
 ```
 
@@ -37,11 +55,13 @@ Join my Discord server through: https://discord.gg/kbXkV6k2XU
 
 See [Patbox/TextPlaceholderAPI](https://github.com/Patbox/TextPlaceholderAPI)
 
-It's a small, jij-able API that allows creation and parsing placeholders within strings and Minecraft Text Components.
-Placeholders use simple format of `%modid:type%` or `%modid:type/data%`.
+It's a small, JIJ-able API that allows creation and parsing placeholders within strings and Minecraft Text Components.
+Placeholder API uses a simple format of `%modid:type%` or `%modid:type data%` (`%modid:type/data%` prior to 1.19).
 It also includes simple, general usage text format indented for simplifying user input in configs/chats/etc.
 
 For information about usage (for developers and users) you can check official docs at https://placeholders.pb4.eu/!
+
+\*[JIJ]: Jar-in-Jar
 
 ## License
 
