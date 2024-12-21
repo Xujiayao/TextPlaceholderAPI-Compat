@@ -63,7 +63,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		return new SingleTagLikeParser(format, provider);
 	}
 
-	@SafeVarargs
+	@SuppressWarnings("unchecked")
 	public static TagLikeParser of(Pair<Format, Provider>... formatsAndProviders) {
 		return new MultiTagLikeParser(formatsAndProviders);
 	}

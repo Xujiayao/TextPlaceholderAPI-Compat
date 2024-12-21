@@ -79,7 +79,6 @@ public class TextParserV1 implements NodeParser {
 
 	public void register(TextTag tag) {
 		if (this.byName.containsKey(tag.name())) {
-			boolean allowOverrides = false;
 			throw new RuntimeException("Duplicate tag identifier!");
 		}
 
