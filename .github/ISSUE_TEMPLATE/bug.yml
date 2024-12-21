@@ -62,6 +62,7 @@ body:
       multiple: false
       options:
         - "Latest Build (GitHub Actions)"
+        - "2.5.1-compat.2"
         - "2.5.1-compat.1"
     validations:
       required: true
