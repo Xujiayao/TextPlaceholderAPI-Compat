@@ -9,7 +9,7 @@ import java.util.Collection;
 public interface ParentTextNode extends TextNode {
 	TextNode[] getChildren();
 
-	ParentTextNode copyWith(TextNode[] children);
+	ParentTextNode copyWith(TextNode[] var1);
 
 	@SuppressWarnings("deprecation")
 	default ParentTextNode copyWith(Collection<TextNode> children) {
@@ -21,16 +21,17 @@ public interface ParentTextNode extends TextNode {
 	}
 
 	default boolean isDynamic() {
-		for (var x : getChildren()) {
+		for (TextNode x : this.getChildren()) {
 			if (x.isDynamic()) {
 				return true;
 			}
 		}
+
 		return this.isDynamicNoChildren();
 	}
 
 	default ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
-		return copyWith(children);
+		return this.copyWith(children);
 	}
 
 	@SuppressWarnings("deprecation")
@@ -41,6 +42,6 @@ public interface ParentTextNode extends TextNode {
 	@Deprecated(forRemoval = true)
 	@FunctionalInterface
 	interface Constructor {
-		ParentTextNode createNode(String definition, Collection<ParentTextNode> children);
+		ParentTextNode createNode(String var1, Collection<ParentTextNode> var2);
 	}
 }

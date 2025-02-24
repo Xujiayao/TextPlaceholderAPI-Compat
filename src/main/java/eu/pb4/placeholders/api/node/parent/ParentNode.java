@@ -3,9 +3,9 @@ package eu.pb4.placeholders.api.node.parent;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.impl.GeneralUtils;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -33,31 +33,25 @@ public class ParentNode implements ParentTextNode {
 	}
 
 	@Override
-	public final Text toText(ParserContext context, boolean removeBackslashes) {
-		var compact = context != null && context.get(ParserContext.Key.COMPACT_TEXT) != Boolean.FALSE;
-
+	public final Component toText(ParserContext context, boolean removeBackslashes) {
+		boolean compact = context != null && context.get(ParserContext.Key.COMPACT_TEXT) != Boolean.FALSE;
 		if (this.children.length == 0) {
-			return Text.empty();
-		} else if ((this.children.length == 1 && this.children[0] != null) && compact) {
-			var out = this.children[0].toText(context, true);
-			if (GeneralUtils.isEmpty(out)) {
-				return out;
-			}
-
-			return this.applyFormatting(out.copy(), context);
+			return Component.empty();
+		} else if (this.children.length == 1 && this.children[0] != null && compact) {
+			Component out = this.children[0].toText(context, true);
+			return GeneralUtils.isEmpty(out) ? out : this.applyFormatting(out.copy(), context);
 		} else {
-			MutableText base = compact ? null : Text.empty();
+			MutableComponent base = compact ? null : Component.empty();
 
 			for (TextNode textNode : this.children) {
 				if (textNode != null) {
-					var child = textNode.toText(context, true);
-
+					Component child = textNode.toText(context, true);
 					if (!GeneralUtils.isEmpty(child)) {
 						if (base == null) {
 							if (child.getStyle().isEmpty()) {
 								base = child.copy();
 							} else {
-								base = Text.empty();
+								base = Component.empty();
 								base.append(child);
 							}
 						} else {
@@ -67,16 +61,16 @@ public class ParentNode implements ParentTextNode {
 				}
 			}
 
-			if (base == null || GeneralUtils.isEmpty(base)) {
-				return Text.empty();
+			if (base != null && !GeneralUtils.isEmpty(base)) {
+				return this.applyFormatting(base, context);
+			} else {
+				return Component.empty();
 			}
-
-			return this.applyFormatting(base, context);
 		}
 	}
 
-	protected Text applyFormatting(MutableText out, ParserContext context) {
-		return out.setStyle(applyFormatting(out.getStyle(), context));
+	protected Component applyFormatting(MutableComponent out, ParserContext context) {
+		return out.setStyle(this.applyFormatting(out.getStyle(), context));
 	}
 
 	protected Style applyFormatting(Style style, ParserContext context) {
@@ -85,6 +79,6 @@ public class ParentNode implements ParentTextNode {
 
 	@Override
 	public String toString() {
-		return "ParentNode{" + "children=" + Arrays.toString(children) + '}';
+		return "ParentNode{children=" + Arrays.toString(this.children) + "}";
 	}
 }

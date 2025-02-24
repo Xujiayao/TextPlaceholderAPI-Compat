@@ -2,13 +2,18 @@ package eu.pb4.placeholders.api.node.parent;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 
 public final class ItalicNode extends SimpleStylingNode {
-	private static final Style TRUE = Style.EMPTY.withItalic(true);
-	private static final Style FALSE = Style.EMPTY.withItalic(false);
+	private static final Style TRUE;
+	private static final Style FALSE;
+
+	static {
+		TRUE = Style.EMPTY.withItalic(true);
+		FALSE = Style.EMPTY.withItalic(false);
+	}
 
 	private final boolean value;
 
@@ -29,6 +34,6 @@ public final class ItalicNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ItalicNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
+		return "ItalicNode{value=" + this.value + ", children=" + Arrays.toString(this.children) + "}";
 	}
 }

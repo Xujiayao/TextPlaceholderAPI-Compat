@@ -2,13 +2,19 @@ package eu.pb4.placeholders.api.node.parent;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 
 public final class UnderlinedNode extends SimpleStylingNode {
-	private static final Style TRUE = Style.EMPTY.withUnderline(true);
-	private static final Style FALSE = Style.EMPTY.withUnderline(false);
+	private static final Style TRUE;
+	private static final Style FALSE;
+
+	static {
+		TRUE = Style.EMPTY.withUnderlined(true);
+		FALSE = Style.EMPTY.withUnderlined(false);
+	}
+
 	private final boolean value;
 
 	public UnderlinedNode(TextNode[] nodes, boolean value) {
@@ -28,6 +34,7 @@ public final class UnderlinedNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "UnderlinedNode{" + "children=" + Arrays.toString(children) + ", value=" + value + '}';
+		String var10000 = Arrays.toString(this.children);
+		return "UnderlinedNode{children=" + var10000 + ", value=" + this.value + "}";
 	}
 }

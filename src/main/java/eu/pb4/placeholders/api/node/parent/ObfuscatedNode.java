@@ -2,13 +2,19 @@ package eu.pb4.placeholders.api.node.parent;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 
 public final class ObfuscatedNode extends SimpleStylingNode {
-	private static final Style TRUE = Style.EMPTY.withObfuscated(true);
-	private static final Style FALSE = Style.EMPTY.withObfuscated(false);
+	private static final Style TRUE;
+	private static final Style FALSE;
+
+	static {
+		TRUE = Style.EMPTY.withObfuscated(true);
+		FALSE = Style.EMPTY.withObfuscated(false);
+	}
+
 	private final boolean value;
 
 	public ObfuscatedNode(TextNode[] nodes, boolean value) {
@@ -28,6 +34,6 @@ public final class ObfuscatedNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ObfuscatedNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
+		return "ObfuscatedNode{value=" + this.value + ", children=" + Arrays.toString(this.children) + "}";
 	}
 }

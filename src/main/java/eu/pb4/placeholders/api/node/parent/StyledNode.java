@@ -3,14 +3,14 @@ package eu.pb4.placeholders.api.node.parent;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.HoverEvent;
+import net.minecraft.network.chat.HoverEvent.Action;
+import net.minecraft.network.chat.Style;
 import org.jetbrains.annotations.Nullable;
 
 public final class StyledNode extends SimpleStylingNode {
 	private final Style style;
-
 	private final ParentNode hoverValue;
 	private final TextNode clickValue;
 	private final TextNode insertion;
@@ -24,19 +24,19 @@ public final class StyledNode extends SimpleStylingNode {
 	}
 
 	public Style style(ParserContext context) {
-		var style = this.style;
-
-		if (hoverValue != null && style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT) {
-			style = style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.hoverValue.toText(context, true)));
+		Style style = this.style;
+		if (this.hoverValue != null && style.getHoverEvent() != null && style.getHoverEvent().getAction() == Action.SHOW_TEXT) {
+			style = style.withHoverEvent(new HoverEvent(Action.SHOW_TEXT, this.hoverValue.toText(context, true)));
 		}
 
-		if (clickValue != null && style.getClickEvent() != null) {
+		if (this.clickValue != null && style.getClickEvent() != null) {
 			style = style.withClickEvent(new ClickEvent(style.getClickEvent().getAction(), this.clickValue.toText(context, true).getString()));
 		}
 
-		if (insertion != null) {
+		if (this.insertion != null) {
 			style = style.withInsertion(this.insertion.toText(context, true).getString());
 		}
+
 		return style;
 	}
 
@@ -44,19 +44,16 @@ public final class StyledNode extends SimpleStylingNode {
 		return this.style;
 	}
 
-	@Nullable
-	public ParentNode hoverValue() {
-		return hoverValue;
+	public @Nullable ParentNode hoverValue() {
+		return this.hoverValue;
 	}
 
-	@Nullable
-	public TextNode clickValue() {
-		return clickValue;
+	public @Nullable TextNode clickValue() {
+		return this.clickValue;
 	}
 
-	@Nullable
-	public TextNode insertion() {
-		return insertion;
+	public @Nullable TextNode insertion() {
+		return this.insertion;
 	}
 
 	@Override
@@ -71,11 +68,12 @@ public final class StyledNode extends SimpleStylingNode {
 
 	@Override
 	public boolean isDynamicNoChildren() {
-		return (this.clickValue != null && this.clickValue.isDynamic()) || (this.hoverValue != null && this.hoverValue.isDynamic()) || (this.insertion != null && this.insertion.isDynamic());
+		return this.clickValue != null && this.clickValue.isDynamic() || this.hoverValue != null && this.hoverValue.isDynamic() || this.insertion != null && this.insertion.isDynamic();
 	}
 
 	@Override
 	public String toString() {
-		return "StyledNode{" + "style=" + style + ", hoverValue=" + hoverValue + ", clickValue=" + clickValue + ", insertion=" + insertion + '}';
+		String var10000 = String.valueOf(this.style);
+		return "StyledNode{style=" + var10000 + ", hoverValue=" + this.hoverValue + ", clickValue=" + this.clickValue + ", insertion=" + this.insertion + "}";
 	}
 }

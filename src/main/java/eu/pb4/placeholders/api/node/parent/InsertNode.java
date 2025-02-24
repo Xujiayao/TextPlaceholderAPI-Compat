@@ -3,7 +3,7 @@ package eu.pb4.placeholders.api.node.parent;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 
@@ -21,7 +21,7 @@ public final class InsertNode extends SimpleStylingNode {
 
 	@Override
 	protected Style style(ParserContext context) {
-		return Style.EMPTY.withInsertion(value.toText(context, true).getString());
+		return Style.EMPTY.withInsertion(this.value.toText(context, true).getString());
 	}
 
 	@Override
@@ -36,7 +36,8 @@ public final class InsertNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "InsertNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
+		String var10000 = String.valueOf(this.value);
+		return "InsertNode{value=" + var10000 + ", children=" + Arrays.toString(this.children) + "}";
 	}
 
 	@Override
