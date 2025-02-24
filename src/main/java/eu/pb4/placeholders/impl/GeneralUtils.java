@@ -243,15 +243,13 @@ public class GeneralUtils {
 
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
 		} else if (input.getContents() instanceof ScoreContents(
-				Either<SelectorPattern, String> name,
-				String objective
+				Either<SelectorPattern, String> name, String objective
 		)) {
 			list.add(new ScoreNode(name, objective));
 		} else if (input.getContents() instanceof KeybindContents content) {
 			list.add(new KeybindNode(content.getName()));
 		} else if (input.getContents() instanceof SelectorContents(
-				SelectorPattern selector,
-				Optional<Component> separator
+				SelectorPattern selector, Optional<Component> separator
 		)) {
 			list.add(new SelectorNode(selector, separator.map(GeneralUtils::convertToNodes)));
 		} else if (input.getContents() instanceof NbtContents content) {

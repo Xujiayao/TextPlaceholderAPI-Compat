@@ -2,7 +2,6 @@ package eu.pb4.placeholders.impl.placeholder.builtin;
 
 import eu.pb4.placeholders.api.PlaceholderResult;
 import eu.pb4.placeholders.api.Placeholders;
-import it.unimi.dsi.fastutil.ints.IntIterator;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
