@@ -2,7 +2,6 @@ package eu.pb4.placeholders.api.parsers.format;
 
 public record SingleCharacterFormat(char start, char end, char argument,
                                     char[] argumentWrappers) implements BaseFormat {
-
 	public SingleCharacterFormat(char start, char end) {
 		this(start, end, (char) 0, DEFAULT_ARGUMENT_WRAPPER);
 	}
@@ -19,7 +18,6 @@ public record SingleCharacterFormat(char start, char end, char argument,
 	@Override
 	public int matchEnd(String string, int index) {
 		return string.charAt(index) == this.end ? 1 : 0;
-
 	}
 
 	@Override

@@ -15,97 +15,100 @@ public interface BaseFormat extends TagLikeParser.Format {
 
 	@Override
 	@Nullable
-	default TagLikeParser.Format.Tag findAt(String string, int start, TagLikeParser.Provider provider, TagLikeParser.Context context) {
+	default TagLikeParser.Format.@Nullable Tag findAt(String string, int start, TagLikeParser.Provider provider, TagLikeParser.Context context) {
 		if (string.charAt(start) == '\\') {
 			return null;
-		}
+		} else {
+			int mStart = this.matchStart(string, start);
+			if (mStart == 0) {
+				return null;
+			} else {
+				String id = null;
+				String argument = "";
+				char wrapper = 0;
+				StringBuilder builder = new StringBuilder();
+				int maxLengthEnd = string.length();
+				int b = start + mStart;
 
-		var mStart = this.matchStart(string, start);
-
-		if (mStart == 0) {
-			return null;
-		}
-
-		String id = null;
-		String argument = "";
-
-		char wrapper = 0;
-		var builder = new StringBuilder();
-		int maxLengthEnd = string.length();
-		validationLoop:
-		for (int b = start + mStart; b < maxLengthEnd; b++) {
-			var curr = string.charAt(b);
-			var matched = true;
-			int arg = 0;
-
-			if (wrapper != 0) {
-				if (curr == wrapper) {
-					wrapper = 0;
-				}
-
-				builder.append(curr);
-				continue;
-			}
-
-			if (curr == '\\') {
-				if (b + 1 < string.length()) {
-					b++;
-					builder.append(string.charAt(b));
-				}
-
-				continue;
-			}
-
-			if (id != null) {
-				for (char argumentWrapper : this.argumentWrappers()) {
-					if (curr == argumentWrapper) {
-						builder.append(curr);
-						wrapper = curr;
-						continue validationLoop;
-					}
-				}
-			}
-
-			if (id == null && this.hasArgument()) {
-				arg = this.matchArgument(string, b);
-				if (arg <= 0) {
-					matched = false;
-					arg = 0;
-				}
-			}
-
-			int end = 0;
-			if (arg == 0) {
-				matched = true;
-				end = this.matchEnd(string, b);
-				if (end <= 0) {
-					matched = false;
-					end = 0;
-				}
-			}
-
-			if (matched) {
-				var str = builder.toString();
-				if (id == null) {
-					if (provider.isValidTag(str, context)) {
-						id = str;
-						builder = new StringBuilder();
-						if (end == 0) {
-							continue;
-						}
-					} else {
+				int end;
+				while (true) {
+					if (b >= maxLengthEnd) {
 						return null;
 					}
-				} else {
-					argument = str;
+
+					char curr = string.charAt(b);
+					boolean matched = true;
+					int arg = 0;
+					if (wrapper != 0) {
+						if (curr == wrapper) {
+							wrapper = 0;
+						}
+
+						builder.append(curr);
+					} else if (curr == '\\') {
+						if (b + 1 < string.length()) {
+							++b;
+							builder.append(string.charAt(b));
+						}
+					} else {
+						label82:
+						{
+							if (id != null) {
+								for (char argumentWrapper : this.argumentWrappers()) {
+									if (curr == argumentWrapper) {
+										builder.append(curr);
+										wrapper = curr;
+										break label82;
+									}
+								}
+							}
+
+							if (id == null && this.hasArgument()) {
+								arg = this.matchArgument(string, b);
+								if (arg <= 0) {
+									matched = false;
+									arg = 0;
+								}
+							}
+
+							end = 0;
+							if (arg == 0) {
+								matched = true;
+								end = this.matchEnd(string, b);
+								if (end <= 0) {
+									matched = false;
+									end = 0;
+								}
+							}
+
+							if (matched) {
+								String str = builder.toString();
+								if (id != null) {
+									argument = str;
+									break;
+								}
+
+								if (!provider.isValidTag(str, context)) {
+									return null;
+								}
+
+								id = str;
+								builder = new StringBuilder();
+								if (end != 0) {
+									break;
+								}
+							} else {
+								builder.append(curr);
+							}
+						}
+					}
+
+					++b;
 				}
 
-				return new Tag(start, b + end, id, argument);
+				return new TagLikeParser.Format.Tag(start, b + end, id, argument);
 			}
-
-			builder.append(curr);
 		}
-		return null;
 	}
 
 	char[] argumentWrappers();

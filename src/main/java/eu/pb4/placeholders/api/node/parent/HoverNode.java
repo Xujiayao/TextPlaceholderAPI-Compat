@@ -109,7 +109,8 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 		}
 	}
 
-	public record LazyItemStackNodeContent<T>(ResourceLocation identifier, int count, DynamicOps<T> ops, T componentMap) {
+	public record LazyItemStackNodeContent<T>(ResourceLocation identifier, int count, DynamicOps<T> ops,
+	                                          T componentMap) {
 		public HoverEvent.ItemStackInfo toVanilla(HolderLookup.Provider lookup) {
 			ItemStack stack = new ItemStack(lookup.lookupOrThrow(Registries.ITEM).getOrThrow(ResourceKey.create(Registries.ITEM, this.identifier)));
 			stack.setCount(this.count);
