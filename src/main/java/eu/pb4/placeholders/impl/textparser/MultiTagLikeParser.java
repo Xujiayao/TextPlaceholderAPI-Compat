@@ -8,36 +8,33 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 public class MultiTagLikeParser extends TagLikeParser {
-
 	private final Pair<Format, Provider>[] pairs;
 
 	public MultiTagLikeParser(Pair<Format, Provider>[] formatsAndProviders) {
-		var copy = Arrays.copyOf(formatsAndProviders, formatsAndProviders.length);
-		Arrays.sort(copy, Comparator.comparingInt(p -> p.getLeft().index()));
+		Pair<Format, Provider>[] copy = Arrays.copyOf(formatsAndProviders, formatsAndProviders.length);
+		Arrays.sort(copy, Comparator.comparingInt((p) -> p.getLeft().index()));
 		this.pairs = copy;
 	}
 
 	@Override
-	protected void handleLiteral(String value, Context context) {
+	protected void handleLiteral(String value, TagLikeParser.Context context) {
 		int pos = 0;
 
 		while (pos != -1) {
 			int tPos = pos;
-			Provider provider = null;
-			Format.Tag tag = null;
+			TagLikeParser.Provider provider = null;
+			TagLikeParser.Format.Tag tag;
 
-			while (tPos < value.length()) {
-				for (var p : pairs) {
-					var tag1 = p.getLeft().findAt(value, tPos, p.getRight(), context);
+			for (tag = null; tPos < value.length(); ++tPos) {
+				for (Pair<Format, Provider> p : this.pairs) {
+					Format.Tag tag1 = p.getLeft().findAt(value, tPos, p.getRight(), context);
 					if (tag1 != null && (tag == null || tag1.start() < tag.start())) {
 						provider = p.getRight();
 						tag = tag1;
 					}
 				}
 
-				if (tag == null) {
-					tPos++;
-				} else {
+				if (tag != null) {
 					break;
 				}
 			}
@@ -48,9 +45,10 @@ public class MultiTagLikeParser extends TagLikeParser {
 				pos = -1;
 			}
 		}
+
 	}
 
 	public Pair<Format, Provider>[] pairs() {
-		return pairs;
+		return this.pairs;
 	}
 }

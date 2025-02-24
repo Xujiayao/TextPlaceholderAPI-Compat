@@ -3,17 +3,16 @@ package eu.pb4.placeholders.impl.textparser;
 import eu.pb4.placeholders.api.parsers.TagLikeParser;
 
 public class SingleTagLikeParser extends TagLikeParser {
+	private final TagLikeParser.Format format;
+	private final TagLikeParser.Provider provider;
 
-	private final Format format;
-	private final Provider provider;
-
-	public SingleTagLikeParser(Format format, Provider provider) {
+	public SingleTagLikeParser(TagLikeParser.Format format, TagLikeParser.Provider provider) {
 		this.format = format;
 		this.provider = provider;
 	}
 
 	@Override
-	protected void handleLiteral(String value, Context context) {
+	protected void handleLiteral(String value, TagLikeParser.Context context) {
 		int pos = 0;
 
 		while (pos != -1) {
@@ -21,11 +20,11 @@ public class SingleTagLikeParser extends TagLikeParser {
 		}
 	}
 
-	public Format format() {
+	public TagLikeParser.Format format() {
 		return this.format;
 	}
 
-	public Provider provider() {
-		return provider;
+	public TagLikeParser.Provider provider() {
+		return this.provider;
 	}
 }

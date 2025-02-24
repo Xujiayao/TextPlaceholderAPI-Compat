@@ -10,11 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record MergedParser(NodeParser[] parsers) implements NodeParser {
-	@SuppressWarnings("unchecked")
 	public MergedParser(NodeParser[] parsers) {
-		var list = new ArrayList<NodeParser>(parsers.length);
-		var combiner = new ArrayList<Pair<TagLikeParser.Format, TagLikeParser.Provider>>(4);
-		for (var parser : parsers) {
+		ArrayList<NodeParser> list = new ArrayList<>(parsers.length);
+		ArrayList<Pair<TagLikeParser.Format, TagLikeParser.Provider>> combiner = new ArrayList<>(4);
+		for (NodeParser parser : parsers) {
 			if (parser instanceof TagLikeWrapper wrapper) {
 				parser = wrapper.asTagLikeParser();
 			}
@@ -28,7 +27,7 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 					list.add(new SingleTagLikeParser(combiner.getFirst().getLeft(), combiner.getFirst().getRight()));
 					combiner.clear();
 				} else if (combiner.size() > 1) {
-					list.add(new MultiTagLikeParser(combiner.toArray(new Pair[]{})));
+					list.add(new MultiTagLikeParser(combiner.toArray(new Pair[0])));
 					combiner.clear();
 				}
 				list.add(parser);
@@ -38,14 +37,14 @@ public record MergedParser(NodeParser[] parsers) implements NodeParser {
 		if (combiner.size() == 1) {
 			list.add(new SingleTagLikeParser(combiner.getFirst().getLeft(), combiner.getFirst().getRight()));
 		} else if (combiner.size() > 1) {
-			list.add(new MultiTagLikeParser(combiner.toArray(new Pair[]{})));
+			list.add(new MultiTagLikeParser(combiner.toArray(new Pair[0])));
 		}
 		this.parsers = list.toArray(new NodeParser[0]);
 	}
 
 	@Override
 	public TextNode[] parseNodes(TextNode input) {
-		var out = new TextNode[]{input};
+		TextNode[] out = new TextNode[]{input};
 		for (NodeParser parser : this.parsers) {
 			out = parser.parseNodes(TextNode.asSingle(out));
 		}

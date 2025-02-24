@@ -90,8 +90,8 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 
 	@Override
 	public Either<String, StringArgs> createMap(Stream<Pair<Either<String, StringArgs>, Either<String, StringArgs>>> map) {
-		var arg = StringArgs.emptyNew();
-		map.forEach(x -> x.getSecond().ifLeft(y -> arg.unsafeKeyed().put(x.getFirst().left().orElse(""), y)).ifRight(y -> arg.unsafeKeyedMap().put(x.getFirst().left().orElse(""), y)));
+		StringArgs arg = StringArgs.emptyNew();
+		map.forEach((x) -> (x.getSecond()).ifLeft((y) -> arg.unsafeKeyed().put((x.getFirst()).left().orElse(""), y)).ifRight((y) -> arg.unsafeKeyedMap().put((x.getFirst()).left().orElse(""), y)));
 		return Either.right(arg);
 	}
 
@@ -102,14 +102,14 @@ public class StringArgOps implements DynamicOps<Either<String, StringArgs>> {
 
 	@Override
 	public Either<String, StringArgs> createList(Stream<Either<String, StringArgs>> input) {
-		var arg = StringArgs.emptyNew();
-		input.forEach(x -> x.ifLeft(arg.unsafeOrdered()::add).ifRight(y -> arg.unsafeKeyedMap().put("" + arg.unsafeKeyedMap().size(), y)));
+		StringArgs arg = StringArgs.emptyNew();
+		input.forEach((x) -> x.ifLeft(arg.unsafeOrdered()::add).ifRight((y) -> arg.unsafeKeyedMap().put("" + arg.unsafeKeyedMap().size(), y)));
 		return Either.right(arg);
 	}
 
 	@Override
 	public Either<String, StringArgs> remove(Either<String, StringArgs> input, String key) {
-		input.ifRight(x -> {
+		input.ifRight((x) -> {
 			x.unsafeKeyed().remove(key);
 			x.unsafeKeyedMap().remove(key);
 		});
