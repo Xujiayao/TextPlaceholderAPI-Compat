@@ -33,22 +33,20 @@ public final class SimpleTagRegistry implements TagRegistry {
 	@Override
 	public void register(TextTag tag) {
 		if (this.byName.containsKey(tag.name())) {
-			if (allowOverrides) {
-				this.tags.removeIf((t) -> t.name().equals(tag.name()));
-			} else {
+			if (!this.allowOverrides) {
 				throw new RuntimeException("Duplicate tag identifier!");
 			}
+
+			this.tags.removeIf((t) -> t.name().equals(tag.name()));
 		}
 
 		this.byName.put(tag.name(), tag);
 		this.tags.add(tag);
-
 		this.byNameAlias.put(tag.name(), tag);
-
 		if (tag.aliases() != null) {
-			for (int i = 0; i < tag.aliases().length; i++) {
-				var alias = tag.aliases()[i];
-				var old = this.byNameAlias.get(alias);
+			for (int i = 0; i < tag.aliases().length; ++i) {
+				String alias = tag.aliases()[i];
+				TextTag old = this.byNameAlias.get(alias);
 				if (old == null || !old.name().equals(alias)) {
 					this.byNameAlias.put(alias, tag);
 				}
@@ -59,8 +57,8 @@ public final class SimpleTagRegistry implements TagRegistry {
 	@Override
 	public void remove(TextTag tag) {
 		if (this.allowOverrides && this.tags.remove(tag)) {
-			this.byNameAlias.values().removeIf(x -> x == tag);
-			this.byName.values().removeIf(x -> x == tag);
+			this.byNameAlias.values().removeIf((x) -> x == tag);
+			this.byName.values().removeIf((x) -> x == tag);
 		} else if (!this.allowOverrides) {
 			throw new RuntimeException("Can't remove tag!");
 		}
@@ -68,8 +66,8 @@ public final class SimpleTagRegistry implements TagRegistry {
 
 	@Override
 	public TagRegistry copy() {
-		var parser = new SimpleTagRegistry(false);
-		for (var tag : this.tags) {
+		SimpleTagRegistry parser = new SimpleTagRegistry(false);
+		for (TextTag tag : this.tags) {
 			parser.register(tag);
 		}
 		return parser;

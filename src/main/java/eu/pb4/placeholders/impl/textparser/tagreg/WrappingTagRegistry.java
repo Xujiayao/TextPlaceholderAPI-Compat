@@ -17,13 +17,13 @@ public record WrappingTagRegistry(TagRegistry source, TagRegistry mutable,
 
 	@Override
 	public void register(TextTag tag) {
-		mutable.register(tag);
+		this.mutable.register(tag);
 	}
 
 	@Override
 	public void remove(TextTag tag) {
-		mutable.remove(tag);
-		removed.add(tag);
+		this.mutable.remove(tag);
+		this.removed.add(tag);
 	}
 
 	@Override
@@ -33,23 +33,18 @@ public record WrappingTagRegistry(TagRegistry source, TagRegistry mutable,
 
 	@Override
 	public @Nullable TextTag getTag(String name) {
-		var a = this.mutable.getTag(name);
+		TextTag a = this.mutable.getTag(name);
 		if (a != null) {
 			return a;
+		} else {
+			TextTag x = this.source.getTag(name);
+			return x != null && !this.removed.contains(x) ? x : null;
 		}
-
-		var x = this.source.getTag(name);
-
-		if (x != null && !this.removed.contains(x)) {
-			return x;
-		}
-
-		return null;
 	}
 
 	@Override
 	public List<TextTag> getTags() {
-		var list = new ArrayList<>(this.source.getTags());
+		ArrayList<TextTag> list = new ArrayList<>(this.source.getTags());
 		list.removeAll(this.removed);
 		list.addAll(this.mutable.getTags());
 		return list;
