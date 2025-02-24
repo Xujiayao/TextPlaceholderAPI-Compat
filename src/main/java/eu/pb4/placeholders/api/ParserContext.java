@@ -1,6 +1,6 @@
 package eu.pb4.placeholders.api;
 
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.core.HolderLookup;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -18,7 +18,7 @@ public final class ParserContext {
 	}
 
 	public static <T> ParserContext of(Key<T> key, T object) {
-		return new ParserContext().with(key, object);
+		return (new ParserContext()).with(key, object);
 	}
 
 	public <T> ParserContext with(Key<T> key, T object) {
@@ -43,7 +43,7 @@ public final class ParserContext {
 
 	public record Key<T>(String key, @Nullable Class<T> type) {
 		public static final Key<Boolean> COMPACT_TEXT = new Key<>("compact_text", Boolean.class);
-		public static final Key<RegistryWrapper.WrapperLookup> WRAPPER_LOOKUP = new Key<>("wrapper_lookup", RegistryWrapper.WrapperLookup.class);
+		public static final Key<HolderLookup.Provider> WRAPPER_LOOKUP = new Key<>("wrapper_lookup", HolderLookup.Provider.class);
 
 		@SuppressWarnings("unchecked")
 		public static <T> Key<T> of(String key, T type) {

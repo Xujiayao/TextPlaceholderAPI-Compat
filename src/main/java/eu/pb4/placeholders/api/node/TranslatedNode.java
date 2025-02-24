@@ -2,7 +2,7 @@ package eu.pb4.placeholders.api.node;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -26,20 +26,22 @@ public record TranslatedNode(String key, @Nullable String fallback, Object[] arg
 	}
 
 	@Override
-	public Text toText(ParserContext context, boolean removeBackslashes) {
-		var args = new Object[this.args.length];
+	public Component toText(ParserContext context, boolean removeBackslashes) {
+		Object[] args = new Object[this.args.length];
 		for (int i = 0; i < this.args.length; i++) {
 			args[i] = this.args[i] instanceof TextNode textNode ? textNode.toText(context, removeBackslashes) : this.args[i];
 		}
 
-		return Text.translatableWithFallback(this.key(), this.fallback, args);
+		return Component.translatableWithFallback(this.key(), this.fallback, args);
 	}
 
 	@Override
 	public boolean isDynamic() {
-		for (var obj : args) {
-			if (obj instanceof TextNode t && t.isDynamic()) {
-				return true;
+		for (Object obj : this.args) {
+			if (obj instanceof TextNode t) {
+				if (t.isDynamic()) {
+					return true;
+				}
 			}
 		}
 
@@ -49,16 +51,17 @@ public record TranslatedNode(String key, @Nullable String fallback, Object[] arg
 	public TextNode transform(NodeParser parser) {
 		if (this.args.length == 0) {
 			return this;
-		}
-
-		var list = new ArrayList<>();
-		for (var arg : this.args()) {
-			if (arg instanceof TextNode textNode) {
-				list.add(parser.parseNode(textNode));
-			} else {
-				list.add(arg);
+		} else {
+			ArrayList<Object> list = new ArrayList<>();
+			for (Object arg : this.args()) {
+				if (arg instanceof TextNode textNode) {
+					list.add(parser.parseNode(textNode));
+				} else {
+					list.add(arg);
+				}
 			}
+
+			return ofFallback(this.key(), this.fallback(), list.toArray());
 		}
-		return TranslatedNode.ofFallback(this.key(), this.fallback(), list.toArray());
 	}
 }

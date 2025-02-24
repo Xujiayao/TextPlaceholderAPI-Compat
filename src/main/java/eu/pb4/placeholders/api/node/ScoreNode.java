@@ -2,29 +2,16 @@ package eu.pb4.placeholders.api.node;
 
 import com.mojang.datafixers.util.Either;
 import eu.pb4.placeholders.api.ParserContext;
-//#if MC > 12101
-import net.minecraft.text.ParsedSelector;
-//#endif
-import net.minecraft.text.Text;
+import net.minecraft.commands.arguments.selector.SelectorPattern;
+import net.minecraft.network.chat.Component;
 
-//#if MC > 12101
-public record ScoreNode(Either<ParsedSelector, String> name, String objective) implements TextNode {
-//#else
-//$$ public record ScoreNode(String name, String objective) implements TextNode {
-//#endif
-
-	//#if MC > 12101
+public record ScoreNode(Either<SelectorPattern, String> name, String objective) implements TextNode {
 	public ScoreNode(String name, String objective) {
-		this(ParsedSelector.parse(name).result().map(Either::<ParsedSelector, String>left).orElse(Either.right(name)), objective);
+		this(SelectorPattern.parse(name).result().map(Either::<SelectorPattern, String>left).orElse(Either.right(name)), objective);
 	}
-	//#endif
 
 	@Override
-	public Text toText(ParserContext context, boolean removeBackslashes) {
-		//#if MC > 12101
-		return name.map(selector -> Text.score(selector, objective), name -> Text.score(name, objective));
-		//#else
-		//$$ return Text.score(name, objective);
-		//#endif
+	public Component toText(ParserContext context, boolean removeBackslashes) {
+		return this.name.map((selector) -> Component.score(selector, this.objective), (name) -> Component.score(name, this.objective));
 	}
 }

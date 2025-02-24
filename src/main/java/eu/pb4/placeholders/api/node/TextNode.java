@@ -4,12 +4,12 @@ import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.PlaceholderContext;
 import eu.pb4.placeholders.api.node.parent.ParentNode;
 import eu.pb4.placeholders.impl.GeneralUtils;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
 public interface TextNode {
-	static TextNode convert(Text input) {
+	static TextNode convert(Component input) {
 		return GeneralUtils.convertToNodes(input);
 	}
 
@@ -49,18 +49,18 @@ public interface TextNode {
 		return EmptyNode.INSTANCE;
 	}
 
-	Text toText(ParserContext context, boolean removeBackslashes);
+	Component toText(ParserContext context, boolean removeBackslashes);
 
-	default Text toText(ParserContext context) {
-		return toText(context, true);
+	default Component toText(ParserContext context) {
+		return this.toText(context, true);
 	}
 
-	default Text toText(PlaceholderContext context) {
-		return toText(context.asParserContext(), true);
+	default Component toText(PlaceholderContext context) {
+		return this.toText(context.asParserContext(), true);
 	}
 
-	default Text toText() {
-		return toText(ParserContext.of(), true);
+	default Component toText() {
+		return this.toText(ParserContext.of(), true);
 	}
 
 	default boolean isDynamic() {
