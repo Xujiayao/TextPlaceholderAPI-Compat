@@ -4,12 +4,12 @@ import com.mojang.serialization.Codec;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.impl.textparser.MergedParser;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 import java.util.List;
 
 public interface NodeParser {
-	NodeParser NOOP = i -> new TextNode[]{i};
+	NodeParser NOOP = (i) -> new TextNode[]{i};
 
 	static NodeParser merge(NodeParser... parsers) {
 		return switch (parsers.length) {
@@ -41,15 +41,15 @@ public interface NodeParser {
 		return this.parseNode(TextNode.of(input));
 	}
 
-	default Text parseText(TextNode input, ParserContext context) {
+	default Component parseText(TextNode input, ParserContext context) {
 		return TextNode.asSingle(this.parseNodes(input)).toText(context, true);
 	}
 
-	default Text parseText(String input, ParserContext context) {
-		return parseText(TextNode.of(input), context);
+	default Component parseText(String input, ParserContext context) {
+		return this.parseText(TextNode.of(input), context);
 	}
 
-	default Codec<WrappedText> codec() {
-		return Codec.STRING.xmap(x -> WrappedText.from(this, x), WrappedText::input);
+	default Codec codec() {
+		return Codec.STRING.xmap((x) -> WrappedText.from(this, x), WrappedText::input);
 	}
 }

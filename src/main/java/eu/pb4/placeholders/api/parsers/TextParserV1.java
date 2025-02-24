@@ -61,9 +61,9 @@ public class TextParserV1 implements NodeParser {
 		if (input instanceof LiteralNode(String value)) {
 			return TextParserImpl.parse(value, getter);
 		} else if (input instanceof ParentTextNode parentTextNode) {
-			var list = new ArrayList<TextNode>();
+			ArrayList<TextNode> list = new ArrayList<>();
 
-			for (var child : parentTextNode.getChildren()) {
+			for (TextNode child : parentTextNode.getChildren()) {
 				list.add(new ParentNode(parseNodesWith(child, getter)));
 			}
 
@@ -88,9 +88,9 @@ public class TextParserV1 implements NodeParser {
 		this.byNameAlias.put(tag.name(), tag);
 
 		if (tag.aliases() != null) {
-			for (int i = 0; i < tag.aliases().length; i++) {
-				var alias = tag.aliases()[i];
-				var old = this.byNameAlias.get(alias);
+			for (int i = 0; i < tag.aliases().length; ++i) {
+				String alias = tag.aliases()[i];
+				TextTag old = this.byNameAlias.get(alias);
 				if (old == null || !old.name().equals(alias)) {
 					this.byNameAlias.put(alias, tag);
 				}
@@ -99,7 +99,7 @@ public class TextParserV1 implements NodeParser {
 	}
 
 	public List<TextTag> getTags() {
-		return ImmutableList.copyOf(tags);
+		return ImmutableList.copyOf(this.tags);
 	}
 
 	@Override
@@ -108,15 +108,15 @@ public class TextParserV1 implements NodeParser {
 	}
 
 	public TextParserV1 copy() {
-		var parser = new TextParserV1();
-		for (var tag : this.tags) {
+		TextParserV1 parser = new TextParserV1();
+		for (TextTag tag : this.tags) {
 			parser.register(tag);
 		}
 		return parser;
 	}
 
 	public @Nullable TagNodeBuilder getTagParser(String name) {
-		var o = this.byNameAlias.get(name);
+		TextTag o = this.byNameAlias.get(name);
 		return o != null ? o.parser() : null;
 	}
 
@@ -132,7 +132,7 @@ public class TextParserV1 implements NodeParser {
 
 		static TagNodeBuilder wrapping(FormattingTagParsedCreator formattingTagCreator) {
 			return (tag, data, input, handlers, endAt) -> {
-				var out = parseNodesWith(input, handlers, endAt);
+				NodeList out = parseNodesWith(input, handlers, endAt);
 				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data, new TagParserGetterParser(handlers)), out.length());
 			};
 		}
@@ -143,14 +143,14 @@ public class TextParserV1 implements NodeParser {
 
 		static TagNodeBuilder wrapping(FormattingTagCreator formattingTagCreator) {
 			return (tag, data, input, handlers, endAt) -> {
-				var out = parseNodesWith(input, handlers, endAt);
+				NodeList out = parseNodesWith(input, handlers, endAt);
 				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data), out.length());
 			};
 		}
 
 		static TagNodeBuilder wrappingBoolean(BooleanFormattingTagCreator formattingTagCreator) {
 			return (tag, data, input, handlers, endAt) -> {
-				var out = parseNodesWith(input, handlers, endAt);
+				NodeList out = parseNodesWith(input, handlers, endAt);
 				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data == null || !data.equals("false")), out.length());
 			};
 		}
@@ -197,7 +197,7 @@ public class TextParserV1 implements NodeParser {
 		}
 
 		public static TextTag from(eu.pb4.placeholders.api.parsers.tag.TextTag tag) {
-			return new TextTag(tag.name(), tag.aliases(), tag.type(), tag.userSafe(), tag.selfContained() ? TagNodeBuilder.selfClosing((a, b) -> tag.nodeCreator().createTextNode(GeneralUtils.CASTER, StringArgs.ordered(a, ':'), b)) : TagNodeBuilder.wrapping((a, b, c) -> tag.nodeCreator().createTextNode(a, StringArgs.ordered(b, ':'), c)));
+			return new TextTag(tag.name(), tag.aliases(), tag.type(), tag.userSafe(), tag.selfContained() ? TextParserV1.TagNodeBuilder.selfClosing((a, b) -> tag.nodeCreator().createTextNode(GeneralUtils.CASTER, StringArgs.ordered(a, ':'), b)) : TextParserV1.TagNodeBuilder.wrapping((a, b, c) -> tag.nodeCreator().createTextNode(a, StringArgs.ordered(b, ':'), c)));
 		}
 	}
 
@@ -220,7 +220,7 @@ public class TextParserV1 implements NodeParser {
 	private record TagParserGetterParser(TagParserGetter getter) implements NodeParser {
 		@Override
 		public TextNode[] parseNodes(TextNode input) {
-			return parseNodesWith(input, getter);
+			return parseNodesWith(input, this.getter);
 		}
 	}
 }

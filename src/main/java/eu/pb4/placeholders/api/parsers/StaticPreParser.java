@@ -19,9 +19,9 @@ public record StaticPreParser() implements NodeParser {
 		}
 
 		if (node instanceof ParentNode parentNode) {
-			var c = new ArrayList<TextNode>();
+			ArrayList<TextNode> c = new ArrayList<>();
 
-			for (var child : parentNode.getChildren()) {
+			for (TextNode child : parentNode.getChildren()) {
 				c.add(parse(child));
 			}
 

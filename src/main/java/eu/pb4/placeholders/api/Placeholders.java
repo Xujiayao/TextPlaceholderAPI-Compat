@@ -9,8 +9,8 @@ import eu.pb4.placeholders.api.parsers.TagLikeParser;
 import eu.pb4.placeholders.impl.placeholder.builtin.PlayerPlaceholders;
 import eu.pb4.placeholders.impl.placeholder.builtin.ServerPlaceholders;
 import eu.pb4.placeholders.impl.placeholder.builtin.WorldPlaceholders;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -22,22 +22,30 @@ import java.util.regex.Pattern;
 
 public final class Placeholders {
 	@Deprecated
-	public static final Pattern PLACEHOLDER_PATTERN = PatternPlaceholderParser.PLACEHOLDER_PATTERN;
+	public static final Pattern PLACEHOLDER_PATTERN;
 	@Deprecated
-	public static final Pattern ALT_PLACEHOLDER_PATTERN = PatternPlaceholderParser.ALT_PLACEHOLDER_PATTERN;
+	public static final Pattern ALT_PLACEHOLDER_PATTERN;
 	@Deprecated
-	public static final Pattern PLACEHOLDER_PATTERN_CUSTOM = PatternPlaceholderParser.PLACEHOLDER_PATTERN_CUSTOM;
+	public static final Pattern PLACEHOLDER_PATTERN_CUSTOM;
 	@Deprecated
-	public static final Pattern ALT_PLACEHOLDER_PATTERN_CUSTOM = PatternPlaceholderParser.ALT_PLACEHOLDER_PATTERN_CUSTOM;
+	public static final Pattern ALT_PLACEHOLDER_PATTERN_CUSTOM;
 	@Deprecated
-	public static final Pattern PREDEFINED_PLACEHOLDER_PATTERN = PatternPlaceholderParser.PREDEFINED_PLACEHOLDER_PATTERN;
-
-	private static final HashMap<Identifier, PlaceholderHandler> PLACEHOLDERS = new HashMap<>();
-	public static final PlaceholderGetter DEFAULT_PLACEHOLDER_GETTER = placeholder -> PLACEHOLDERS.get(Identifier.tryParse(placeholder));
-	public static final NodeParser DEFAULT_PLACEHOLDER_PARSER = TagLikeParser.placeholder(TagLikeParser.PLACEHOLDER, PlaceholderContext.KEY, DEFAULT_PLACEHOLDER_GETTER);
-	private static final List<PlaceholderListChangedCallback> CHANGED_CALLBACKS = new ArrayList<>();
+	public static final Pattern PREDEFINED_PLACEHOLDER_PATTERN;
+	public static final PlaceholderGetter DEFAULT_PLACEHOLDER_GETTER;
+	public static final NodeParser DEFAULT_PLACEHOLDER_PARSER;
+	private static final HashMap<ResourceLocation, PlaceholderHandler> PLACEHOLDERS;
+	private static final List<PlaceholderListChangedCallback> CHANGED_CALLBACKS;
 
 	static {
+		PLACEHOLDER_PATTERN = PatternPlaceholderParser.PLACEHOLDER_PATTERN;
+		ALT_PLACEHOLDER_PATTERN = PatternPlaceholderParser.ALT_PLACEHOLDER_PATTERN;
+		PLACEHOLDER_PATTERN_CUSTOM = PatternPlaceholderParser.PLACEHOLDER_PATTERN_CUSTOM;
+		ALT_PLACEHOLDER_PATTERN_CUSTOM = PatternPlaceholderParser.ALT_PLACEHOLDER_PATTERN_CUSTOM;
+		PREDEFINED_PLACEHOLDER_PATTERN = PatternPlaceholderParser.PREDEFINED_PLACEHOLDER_PATTERN;
+		PLACEHOLDERS = new HashMap<>();
+		CHANGED_CALLBACKS = new ArrayList<>();
+		DEFAULT_PLACEHOLDER_GETTER = placeholder -> PLACEHOLDERS.get(ResourceLocation.tryParse(placeholder));
+		DEFAULT_PLACEHOLDER_PARSER = TagLikeParser.placeholder(TagLikeParser.PLACEHOLDER, PlaceholderContext.KEY, DEFAULT_PLACEHOLDER_GETTER);
 		PlayerPlaceholders.register();
 		ServerPlaceholders.register();
 		WorldPlaceholders.register();
@@ -48,12 +56,8 @@ public final class Placeholders {
 	 *
 	 * @return PlaceholderResult
 	 */
-	public static PlaceholderResult parsePlaceholder(Identifier identifier, String argument, PlaceholderContext context) {
-		if (PLACEHOLDERS.containsKey(identifier)) {
-			return PLACEHOLDERS.get(identifier).onPlaceholderRequest(context, argument);
-		} else {
-			return PlaceholderResult.invalid("Placeholder doesn't exist!");
-		}
+	public static PlaceholderResult parsePlaceholder(ResourceLocation identifier, String argument, PlaceholderContext context) {
+		return PLACEHOLDERS.containsKey(identifier) ? PLACEHOLDERS.get(identifier).onPlaceholderRequest(context, argument) : PlaceholderResult.invalid("Placeholder doesn't exist!");
 	}
 
 	/**
@@ -76,11 +80,11 @@ public final class Placeholders {
 	 *
 	 * @return Text
 	 */
-	public static Text parseText(Text text, PlaceholderContext context) {
+	public static Component parseText(Component text, PlaceholderContext context) {
 		return parseNodes(TextNode.convert(text)).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
-	public static Text parseText(TextNode textNode, PlaceholderContext context) {
+	public static Component parseText(TextNode textNode, PlaceholderContext context) {
 		return parseNodes(textNode).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
@@ -105,7 +109,7 @@ public final class Placeholders {
 	}
 
 	@Deprecated
-	public static ParentNode parseNodes(TextNode node, Pattern pattern, Map<String, Text> placeholders) {
+	public static ParentNode parseNodes(TextNode node, Pattern pattern, Map<String, Component> placeholders) {
 		return asSingleParent(PatternPlaceholderParser.ofTextMap(pattern, placeholders).parseNodes(node));
 	}
 
@@ -115,20 +119,17 @@ public final class Placeholders {
 	}
 
 	@Deprecated
-	public static ParentNode parseNodes(TextNode node, Pattern pattern, Set<String> placeholders, ParserContext.Key<PlaceholderGetter> key, ParserContext.Key<PlaceholderContext> contextKey) {
+	public static ParentNode parseNodes(TextNode node, Pattern pattern, final Set<String> placeholders, final ParserContext.Key<PlaceholderGetter> key, ParserContext.Key<PlaceholderContext> contextKey) {
 		return asSingleParent(PatternPlaceholderParser.of(pattern, contextKey, new PlaceholderGetter() {
-			@Override
 			public PlaceholderHandler getPlaceholder(String placeholder, ParserContext context) {
-				var get = context.get(key);
+				PlaceholderGetter get = context.get(key);
 				return get != null ? get.getPlaceholder(placeholder, context) : null;
 			}
 
-			@Override
 			public PlaceholderHandler getPlaceholder(String placeholder) {
 				return placeholders.contains(placeholder) ? PlaceholderHandler.EMPTY : null;
 			}
 
-			@Override
 			public boolean isContextOptional() {
 				return true;
 			}
@@ -136,56 +137,56 @@ public final class Placeholders {
 	}
 
 	@Deprecated
-	public static Text parseText(Text text, PlaceholderContext context, Pattern pattern) {
+	public static Component parseText(Component text, PlaceholderContext context, Pattern pattern) {
 		return parseNodes(TextNode.convert(text), pattern).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
 	@Deprecated
-	public static Text parseText(Text text, PlaceholderContext context, Pattern pattern, PlaceholderGetter placeholderGetter) {
+	public static Component parseText(Component text, PlaceholderContext context, Pattern pattern, PlaceholderGetter placeholderGetter) {
 		return parseNodes(TextNode.convert(text), pattern, placeholderGetter).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
 	@Deprecated
-	public static Text parseText(Text text, Pattern pattern, Map<String, Text> placeholders) {
+	public static Component parseText(Component text, Pattern pattern, Map<String, Component> placeholders) {
 		return parseNodes(TextNode.convert(text), pattern, placeholders).toText(ParserContext.of());
 	}
 
 	@Deprecated
-	public static Text parseText(Text text, Pattern pattern, Set<String> placeholders, ParserContext.Key<PlaceholderGetter> key) {
+	public static Component parseText(Component text, Pattern pattern, Set<String> placeholders, ParserContext.Key<PlaceholderGetter> key) {
 		return parseNodes(TextNode.convert(text), pattern, placeholders, key).toText(ParserContext.of());
 	}
 
 	@Deprecated
-	public static Text parseText(TextNode textNode, PlaceholderContext context, Pattern pattern) {
+	public static Component parseText(TextNode textNode, PlaceholderContext context, Pattern pattern) {
 		return parseNodes(textNode, pattern).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
 	@Deprecated
-	public static Text parseText(TextNode textNode, PlaceholderContext context, Pattern pattern, PlaceholderGetter placeholderGetter) {
+	public static Component parseText(TextNode textNode, PlaceholderContext context, Pattern pattern, PlaceholderGetter placeholderGetter) {
 		return parseNodes(textNode, pattern, placeholderGetter).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
 	@Deprecated
-	public static Text parseText(TextNode textNode, PlaceholderContext context, Pattern pattern, Map<String, Text> placeholders) {
+	public static Component parseText(TextNode textNode, PlaceholderContext context, Pattern pattern, Map<String, Component> placeholders) {
 		return parseNodes(textNode, pattern, placeholders).toText(ParserContext.of(PlaceholderContext.KEY, context));
 	}
 
 	@Deprecated
-	public static Text parseText(TextNode textNode, Pattern pattern, Map<String, Text> placeholders) {
+	public static Component parseText(TextNode textNode, Pattern pattern, Map<String, Component> placeholders) {
 		return parseNodes(textNode, pattern, placeholders).toText();
 	}
 
 	@Deprecated
-	public static Text parseText(TextNode textNode, Pattern pattern, Set<String> placeholders, ParserContext.Key<PlaceholderGetter> key) {
+	public static Component parseText(TextNode textNode, Pattern pattern, Set<String> placeholders, ParserContext.Key<PlaceholderGetter> key) {
 		return parseNodes(textNode, pattern, placeholders, key).toText();
 	}
 
 	/**
 	 * Registers new placeholder for identifier
 	 */
-	public static void register(Identifier identifier, PlaceholderHandler handler) {
+	public static void register(ResourceLocation identifier, PlaceholderHandler handler) {
 		PLACEHOLDERS.put(identifier, handler);
-		for (var e : CHANGED_CALLBACKS) {
+		for (PlaceholderListChangedCallback e : CHANGED_CALLBACKS) {
 			e.onPlaceholderListChange(identifier, false);
 		}
 	}
@@ -193,15 +194,15 @@ public final class Placeholders {
 	/**
 	 * Removes placeholder
 	 */
-	public static void remove(Identifier identifier) {
+	public static void remove(ResourceLocation identifier) {
 		if (PLACEHOLDERS.remove(identifier) != null) {
-			for (var e : CHANGED_CALLBACKS) {
+			for (PlaceholderListChangedCallback e : CHANGED_CALLBACKS) {
 				e.onPlaceholderListChange(identifier, true);
 			}
 		}
 	}
 
-	public static ImmutableMap<Identifier, PlaceholderHandler> getPlaceholders() {
+	public static ImmutableMap<ResourceLocation, PlaceholderHandler> getPlaceholders() {
 		return ImmutableMap.copyOf(PLACEHOLDERS);
 	}
 
@@ -210,23 +211,14 @@ public final class Placeholders {
 	}
 
 	private static ParentNode asSingleParent(TextNode... textNodes) {
-		if (textNodes.length == 1 && textNodes[0] instanceof ParentNode) {
-			return (ParentNode) textNodes[0];
-		} else {
-			return new ParentNode(textNodes);
-		}
-	}
-
-	public interface PlaceholderListChangedCallback {
-		void onPlaceholderListChange(Identifier identifier, boolean removed);
+		return textNodes.length == 1 && textNodes[0] instanceof ParentNode ? (ParentNode) textNodes[0] : new ParentNode(textNodes);
 	}
 
 	public interface PlaceholderGetter {
 		@Nullable PlaceholderHandler getPlaceholder(String placeholder);
 
-		@Nullable
-		default PlaceholderHandler getPlaceholder(String placeholder, ParserContext context) {
-			return getPlaceholder(placeholder);
+		default @Nullable PlaceholderHandler getPlaceholder(String placeholder, ParserContext context) {
+			return this.getPlaceholder(placeholder);
 		}
 
 		default boolean isContextOptional() {
@@ -236,5 +228,9 @@ public final class Placeholders {
 		default boolean exists(String placeholder) {
 			return this.getPlaceholder(placeholder) != null;
 		}
+	}
+
+	public interface PlaceholderListChangedCallback {
+		void onPlaceholderListChange(ResourceLocation identifier, boolean removed);
 	}
 }

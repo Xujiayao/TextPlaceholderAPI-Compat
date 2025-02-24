@@ -9,7 +9,7 @@ import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.node.TranslatedNode;
 import eu.pb4.placeholders.api.node.parent.ParentTextNode;
 import eu.pb4.placeholders.impl.placeholder.PlaceholderNode;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -34,13 +34,8 @@ public record PatternPlaceholderParser(Pattern pattern,
 
 	public static PatternPlaceholderParser of(Pattern pattern, ParserContext.Key<PlaceholderContext> contextKey, Placeholders.PlaceholderGetter placeholders) {
 		return new PatternPlaceholderParser(pattern, (arg) -> {
-			var args = arg.split(" ", 2);
-
-			if (placeholders.exists(args[0])) {
-				return new PlaceholderNode(contextKey, args[0], placeholders, placeholders.isContextOptional(), args.length == 2 ? args[1] : null);
-			} else {
-				return null;
-			}
+			String[] args = arg.split(" ", 2);
+			return placeholders.exists(args[0]) ? new PlaceholderNode(contextKey, args[0], placeholders, placeholders.isContextOptional(), args.length == 2 ? args[1] : null) : null;
 		});
 	}
 
@@ -48,9 +43,9 @@ public record PatternPlaceholderParser(Pattern pattern,
 		return new PatternPlaceholderParser(pattern, map::get);
 	}
 
-	public static PatternPlaceholderParser ofTextMap(Pattern pattern, Map<String, Text> map) {
-		return new PatternPlaceholderParser(pattern, arg -> {
-			var x = map.get(arg);
+	public static PatternPlaceholderParser ofTextMap(Pattern pattern, Map<String, Component> map) {
+		return new PatternPlaceholderParser(pattern, (arg) -> {
+			Component x = map.get(arg);
 			return x != null ? new DirectTextNode(x) : null;
 		});
 	}
@@ -60,20 +55,18 @@ public record PatternPlaceholderParser(Pattern pattern,
 		if (text instanceof TranslatedNode translatedNode) {
 			return new TextNode[]{translatedNode.transform(this)};
 		} else if (text instanceof LiteralNode(String value)) {
-			var out = new ArrayList<TextNode>();
+			ArrayList<TextNode> out = new ArrayList<>();
 
-			Matcher matcher = pattern.matcher(value);
-			int start;
-			int end;
+			Matcher matcher = this.pattern.matcher(value);
 
 			int previousEnd = 0;
 
 			while (matcher.find()) {
-				var placeholder = matcher.group("id");
-				start = matcher.start();
-				end = matcher.end();
+				String placeholder = matcher.group("id");
+				int start = matcher.start();
+				int end = matcher.end();
 
-				var output = this.placeholderProvider.apply(placeholder);
+				TextNode output = this.placeholderProvider.apply(placeholder);
 
 				if (output != null) {
 					if (start != 0) {
@@ -95,9 +88,9 @@ public record PatternPlaceholderParser(Pattern pattern,
 		}
 
 		if (text instanceof ParentTextNode parentNode) {
-			var out = new ArrayList<TextNode>();
+			ArrayList<TextNode> out = new ArrayList<>();
 
-			for (var text1 : parentNode.getChildren()) {
+			for (TextNode text1 : parentNode.getChildren()) {
 				out.add(TextNode.asSingle(this.parseNodes(text1)));
 			}
 

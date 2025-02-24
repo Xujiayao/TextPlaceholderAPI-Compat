@@ -1,21 +1,21 @@
 package eu.pb4.placeholders.api;
 
 import eu.pb4.placeholders.api.parsers.TextParserV1;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 
 public final class PlaceholderResult {
-	private final Text text;
+	private final Component text;
 	private final boolean valid;
 	private String string;
 
-	private PlaceholderResult(Text text, String reason) {
+	private PlaceholderResult(Component text, String reason) {
 		if (text != null) {
 			this.text = text;
 			this.valid = true;
 		} else {
-			this.text = Text.literal("[" + (reason != null ? reason : "Invalid placeholder!") + "]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true));
+			this.text = Component.literal("[" + (reason != null ? reason : "Invalid placeholder!") + "]").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(true));
 			this.valid = false;
 		}
 	}
@@ -43,7 +43,7 @@ public final class PlaceholderResult {
 	 *
 	 * @return PlaceholderResult
 	 */
-	public static PlaceholderResult value(Text text) {
+	public static PlaceholderResult value(Component text) {
 		return new PlaceholderResult(text, null);
 	}
 
@@ -62,7 +62,7 @@ public final class PlaceholderResult {
 	 *
 	 * @return Text
 	 */
-	public Text text() {
+	public Component text() {
 		return this.text;
 	}
 
@@ -78,6 +78,7 @@ public final class PlaceholderResult {
 		if (this.string == null) {
 			this.string = this.text.getString();
 		}
+
 		return this.string;
 	}
 
@@ -90,4 +91,3 @@ public final class PlaceholderResult {
 		return this.valid;
 	}
 }
-

@@ -7,8 +7,8 @@ import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.tag.TagRegistry;
 import eu.pb4.placeholders.impl.textparser.MultiTagLikeParser;
 import eu.pb4.placeholders.impl.textparser.SingleTagLikeParser;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +25,7 @@ import java.util.function.Function;
 public class ParserBuilder {
 	private final Map<TagLikeParser.Format, TagLikeParser.Provider> tagLike = new HashMap<>();
 	private final List<NodeParser> parserList = new ArrayList<>();
-	private final List<Formatting> legacyFormatting = new ArrayList<>();
+	private final List<ChatFormatting> legacyFormatting = new ArrayList<>();
 	private boolean hasLegacy = false;
 	private boolean legacyRGB = false;
 	private boolean simplifiedTextFormat;
@@ -42,49 +42,49 @@ public class ParserBuilder {
 	 * Enables parsing of Global Placeholders (aka {@link Placeholders})
 	 */
 	public ParserBuilder globalPlaceholders() {
-		return add(Placeholders.DEFAULT_PLACEHOLDER_PARSER);
+		return this.add(Placeholders.DEFAULT_PLACEHOLDER_PARSER);
 	}
 
 	/**
 	 * Enables parsing of Global Placeholders, but with a custom format
 	 */
 	public ParserBuilder globalPlaceholders(TagLikeParser.Format format) {
-		return customTags(format, TagLikeParser.Provider.placeholder(PlaceholderContext.KEY, Placeholders.DEFAULT_PLACEHOLDER_GETTER));
+		return this.customTags(format, TagLikeParser.Provider.placeholder(PlaceholderContext.KEY, Placeholders.DEFAULT_PLACEHOLDER_GETTER));
 	}
 
 	/**
 	 * Enables parsing of Global Placeholder, but with a custom format and context source
 	 */
 	public ParserBuilder globalPlaceholders(TagLikeParser.Format format, ParserContext.Key<PlaceholderContext> contextKey) {
-		return customTags(format, TagLikeParser.Provider.placeholder(contextKey, Placeholders.DEFAULT_PLACEHOLDER_GETTER));
+		return this.customTags(format, TagLikeParser.Provider.placeholder(contextKey, Placeholders.DEFAULT_PLACEHOLDER_GETTER));
 	}
 
 	/**
 	 * Enables parsing of custom placeholder with a custom format and context source
 	 */
 	public ParserBuilder placeholders(TagLikeParser.Format format, ParserContext.Key<PlaceholderContext> contextKey, Placeholders.PlaceholderGetter getter) {
-		return customTags(format, TagLikeParser.Provider.placeholder(contextKey, getter));
+		return this.customTags(format, TagLikeParser.Provider.placeholder(contextKey, getter));
 	}
 
 	/**
 	 * Enables parsing of custom placeholder with a functional provider
 	 */
 	public ParserBuilder placeholders(TagLikeParser.Format format, Function<String, TextNode> function) {
-		return customTags(format, TagLikeParser.Provider.placeholder(function));
+		return this.customTags(format, TagLikeParser.Provider.placeholder(function));
 	}
 
 	/**
 	 * Enables parsing of custom, context dependent placeholders
 	 */
-	public ParserBuilder placeholders(TagLikeParser.Format format, ParserContext.Key<Function<String, Text>> key) {
-		return customTags(format, TagLikeParser.Provider.placeholder(key));
+	public ParserBuilder placeholders(TagLikeParser.Format format, ParserContext.Key<Function<String, Component>> key) {
+		return this.customTags(format, TagLikeParser.Provider.placeholder(key));
 	}
 
 	/**
 	 * Enables parsing of custom, context dependent placeholders
 	 */
-	public ParserBuilder placeholders(TagLikeParser.Format format, Set<String> tags, ParserContext.Key<Function<String, Text>> key) {
-		return customTags(format, TagLikeParser.Provider.placeholder(tags, key));
+	public ParserBuilder placeholders(TagLikeParser.Format format, Set<String> tags, ParserContext.Key<Function<String, Component>> key) {
+		return this.customTags(format, TagLikeParser.Provider.placeholder(tags, key));
 	}
 
 	/**
@@ -123,62 +123,62 @@ public class ParserBuilder {
 	 * Enables Markdown.
 	 */
 	public ParserBuilder markdown() {
-		return add(MarkdownLiteParserV1.ALL);
+		return this.add(MarkdownLiteParserV1.ALL);
 	}
 
 	/**
 	 * Enables Markdown with limited formatting.
 	 */
 	public ParserBuilder markdown(MarkdownLiteParserV1.MarkdownFormat... formats) {
-		return add(new MarkdownLiteParserV1(formats));
+		return this.add(new MarkdownLiteParserV1(formats));
 	}
 
 	/**
 	 * Enables Markdown with limited formatting.
 	 */
 	public ParserBuilder markdown(Collection<MarkdownLiteParserV1.MarkdownFormat> formats) {
-		return add(new MarkdownLiteParserV1(formats.toArray(new MarkdownLiteParserV1.MarkdownFormat[0])));
+		return this.add(new MarkdownLiteParserV1(formats.toArray(new MarkdownLiteParserV1.MarkdownFormat[0])));
 	}
 
 	/**
 	 * Enables Markdown with limited formatting.
 	 */
 	public ParserBuilder markdown(Function<TextNode[], TextNode> spoilerFormatting, Function<TextNode[], TextNode> quoteFormatting, BiFunction<TextNode[], TextNode, TextNode> urlFormatting, MarkdownLiteParserV1.MarkdownFormat... formatting) {
-		return add(new MarkdownLiteParserV1(spoilerFormatting, quoteFormatting, urlFormatting, formatting));
+		return this.add(new MarkdownLiteParserV1(spoilerFormatting, quoteFormatting, urlFormatting, formatting));
 	}
 
 	/**
 	 * Enables Markdown with limited formatting.
 	 */
 	public ParserBuilder markdown(Function<TextNode[], TextNode> spoilerFormatting, Function<TextNode[], TextNode> quoteFormatting, BiFunction<TextNode[], TextNode, TextNode> urlFormatting, Collection<MarkdownLiteParserV1.MarkdownFormat> formatting) {
-		return add(new MarkdownLiteParserV1(spoilerFormatting, quoteFormatting, urlFormatting, formatting.toArray(new MarkdownLiteParserV1.MarkdownFormat[0])));
+		return this.add(new MarkdownLiteParserV1(spoilerFormatting, quoteFormatting, urlFormatting, formatting.toArray(new MarkdownLiteParserV1.MarkdownFormat[0])));
 	}
 
 	/**
 	 * Enables legacy color tags (&X) with rgb extension.
 	 */
 	public ParserBuilder legacyColor() {
-		return add(LegacyFormattingParser.COLORS);
+		return this.add(LegacyFormattingParser.COLORS);
 	}
 
 	/**
 	 * Enables legacy color tags (&X).
 	 */
 	public ParserBuilder legacyVanillaColor() {
-		return add(LegacyFormattingParser.BASE_COLORS);
+		return this.add(LegacyFormattingParser.BASE_COLORS);
 	}
 
 	/**
 	 * Enables all legacy formatting (&X) with rgb extension.
 	 */
 	public ParserBuilder legacyAll() {
-		return add(LegacyFormattingParser.ALL);
+		return this.add(LegacyFormattingParser.ALL);
 	}
 
 	/**
 	 * Enables legacy formatting.
 	 */
-	public ParserBuilder legacy(boolean allowRGB, Formatting... formatting) {
+	public ParserBuilder legacy(boolean allowRGB, ChatFormatting... formatting) {
 		this.hasLegacy = true;
 		this.legacyRGB = allowRGB;
 		this.legacyFormatting.addAll(List.of(formatting));
@@ -189,7 +189,7 @@ public class ParserBuilder {
 	/**
 	 * Enables legacy formatting.
 	 */
-	public ParserBuilder legacy(boolean allowRGB, Collection<Formatting> formatting) {
+	public ParserBuilder legacy(boolean allowRGB, Collection<ChatFormatting> formatting) {
 		this.hasLegacy = true;
 		this.legacyRGB = allowRGB;
 		this.legacyFormatting.addAll(formatting);
@@ -207,7 +207,7 @@ public class ParserBuilder {
 
 	/**
 	 * Enables pre-parsing for static elements.
-	 * This should only be used if you don't convert to {@link Text} right away, but also don't transform
+	 * This should only be used if you don't convert to {@link Component} right away, but also don't transform
 	 * it further yourself (aka you use TextNode's as a template with custom placeholders)
 	 */
 	public ParserBuilder staticPreParsing() {
@@ -217,10 +217,12 @@ public class ParserBuilder {
 
 	public ParserBuilder add(NodeParser parser) {
 		if (parser instanceof TagLikeWrapper wrapper) {
-			var x = wrapper.asTagLikeParser();
+			TagLikeParser x = wrapper.asTagLikeParser();
 			if (x instanceof SingleTagLikeParser p) {
-				return customTags(p.format(), p.provider());
-			} else if (x instanceof MultiTagLikeParser p) {
+				return this.customTags(p.format(), p.provider());
+			}
+
+			if (x instanceof MultiTagLikeParser p) {
 				this.tagLike.putAll(Map.ofEntries(p.pairs()));
 				return this;
 			}
@@ -230,7 +232,7 @@ public class ParserBuilder {
 			this.legacyRGB |= legacyFormattingParser.allowRGB();
 		}
 
-		return forceAdd(parser);
+		return this.forceAdd(parser);
 	}
 
 	public ParserBuilder forceAdd(NodeParser parser) {
@@ -239,12 +241,12 @@ public class ParserBuilder {
 	}
 
 	public NodeParser build() {
-		var list = new ArrayList<NodeParser>(this.parserList.size() + 1);
+		ArrayList<NodeParser> list = new ArrayList<>(this.parserList.size() + 1);
 		if (!this.tagLike.isEmpty()) {
 			list.add(TagLikeParser.of(this.tagLike));
 		}
 
-		var reg = this.customTagRegistry != null ? this.customTagRegistry : this.safeOnly ? TagRegistry.SAFE : TagRegistry.DEFAULT;
+		TagRegistry reg = this.customTagRegistry != null ? this.customTagRegistry : (this.safeOnly ? TagRegistry.SAFE : TagRegistry.DEFAULT);
 
 		if (this.quickText && this.simplifiedTextFormat) {
 			list.add(TagParser.createQuickTextWithSTF(reg));
@@ -257,7 +259,7 @@ public class ParserBuilder {
 		list.addAll(this.parserList);
 
 		if (this.hasLegacy) {
-			list.add(new LegacyFormattingParser(this.legacyRGB, this.legacyFormatting.toArray(new Formatting[0])));
+			list.add(new LegacyFormattingParser(this.legacyRGB, this.legacyFormatting.toArray(new ChatFormatting[0])));
 		}
 
 		if (this.staticPreParsing) {
