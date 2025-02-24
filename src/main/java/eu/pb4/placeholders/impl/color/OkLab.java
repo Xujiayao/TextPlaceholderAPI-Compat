@@ -34,7 +34,7 @@ public record OkLab(float l, float a, float b) {
 		float l_ = cL + 0.3963377774F * ca + 0.2158037573F * cb;
 		float m_ = cL - 0.1055613458F * ca - 0.0638541728F * cb;
 		float s_ = cL - 0.0894841775F * ca - 1.2914855480F * cb;
-		
+
 		float l = l_ * l_ * l_;
 		float m = m_ * m_ * m_;
 		float s = s_ * s_ * s_;
