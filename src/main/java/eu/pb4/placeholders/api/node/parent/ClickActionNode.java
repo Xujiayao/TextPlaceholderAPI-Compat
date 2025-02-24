@@ -3,8 +3,8 @@ package eu.pb4.placeholders.api.node.parent;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Style;
 
 public final class ClickActionNode extends SimpleStylingNode {
 	private final ClickEvent.Action action;
@@ -17,11 +17,11 @@ public final class ClickActionNode extends SimpleStylingNode {
 	}
 
 	public ClickEvent.Action action() {
-		return action;
+		return this.action;
 	}
 
 	public TextNode value() {
-		return value;
+		return this.value;
 	}
 
 	@Override
@@ -46,6 +46,7 @@ public final class ClickActionNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "ClickActionNode{" + "action=" + action + ", value=" + value + '}';
+		String var10000 = String.valueOf(this.action);
+		return "ClickActionNode{action=" + var10000 + ", value=" + this.value + "}";
 	}
 }

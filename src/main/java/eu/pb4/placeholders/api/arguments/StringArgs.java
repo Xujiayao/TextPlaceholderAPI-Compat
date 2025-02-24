@@ -1,7 +1,7 @@
 package eu.pb4.placeholders.api.arguments;
 
-import net.minecraft.util.function.CharPredicate;
-import org.jetbrains.annotations.ApiStatus;
+import net.minecraft.CharPredicate;
+import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -25,7 +26,7 @@ public final class StringArgs {
 	}
 
 	public static StringArgs ordered(String input, char separator) {
-		var args = new StringArgs(input);
+		StringArgs args = new StringArgs(input);
 		args.ordered.addAll(SimpleArguments.split(input, separator));
 		return args;
 	}
@@ -35,13 +36,16 @@ public final class StringArgs {
 	}
 
 	public static StringArgs keyed(String input, char separator, char map, boolean hasMaps, CharPredicate wrapCharacters) {
-		var args = new StringArgs(input);
-		keyDecomposition(input, 0, separator, map, wrapCharacters, hasMaps, (char) 0, (key, value) -> {
+		StringArgs args = new StringArgs(input);
+		BiConsumer<String, String> var10007 = (key, value) -> {
 			if (key != null) {
 				args.keyed.put(key, value != null ? SimpleArguments.unwrap(value, wrapCharacters) : "");
 			}
-		}, args.keyedMaps::put);
 
+		};
+		Map<String, StringArgs> var10008 = args.keyedMaps;
+		Objects.requireNonNull(var10008);
+		keyDecomposition(input, 0, separator, map, wrapCharacters, hasMaps, '\u0000', var10007, var10008::put);
 		return args;
 	}
 
@@ -50,52 +54,60 @@ public final class StringArgs {
 	}
 
 	public static StringArgs full(String input, char separator, char map, boolean hasMaps, CharPredicate wrapCharacters) {
-		var args = new StringArgs(input);
-		keyDecomposition(input, 0, separator, map, wrapCharacters, hasMaps, (char) 0, (key, value) -> {
+		StringArgs args = new StringArgs(input);
+		BiConsumer<String, String> var10007 = (key, value) -> {
 			if (key != null) {
 				args.keyed.put(key, value != null ? SimpleArguments.unwrap(value, wrapCharacters) : "");
-
 				if (value == null) {
 					args.ordered.add(SimpleArguments.unwrap(key, wrapCharacters));
 				}
 			}
-		}, args.keyedMaps::put);
 
+		};
+		Map<String, StringArgs> var10008 = args.keyedMaps;
+		Objects.requireNonNull(var10008);
+		keyDecomposition(input, 0, separator, map, wrapCharacters, hasMaps, '\u0000', var10007, var10008::put);
 		return args;
 	}
 
-	private static int keyDecomposition(String input, int offset, char separator, char map, CharPredicate isWrap, boolean hasMaps, char stopAt, BiConsumer<@Nullable String, @Nullable String> consumer, BiConsumer<String, StringArgs> mapConsumer) {
+	private static int keyDecomposition(String input, int offset, char separator, char map, CharPredicate isWrap, boolean hasMaps, char stopAt, BiConsumer<String, String> consumer, BiConsumer<String, StringArgs> mapConsumer) {
 		String key = null;
 		String value = null;
-		var b = new StringBuilder();
+		StringBuilder b = new StringBuilder();
 		char wrap = 0;
-		int i = offset;
-		for (; i < input.length(); i++) {
-			var chr = input.charAt(i);
-			var chrN = i != input.length() - 1 ? input.charAt(i + 1) : 0;
+
+		int i;
+		for (i = offset; i < input.length(); ++i) {
+			char chr = input.charAt(i);
+			char chrN = i != input.length() - 1 ? input.charAt(i + 1) : 0;
 			if (chr == stopAt && wrap == 0) {
 				break;
-			} else if (key != null && b.isEmpty() && hasMaps && (chr == '{' || chr == '[') && wrap == 0) {
-				var ordered = new ArrayList<String>();
-				var keyed = new HashMap<String, String>();
-				var keyedMaps = new HashMap<String, StringArgs>();
-				var ti = keyDecomposition(input, i + 1, separator, map, isWrap, true, chr == '{' ? '}' : ']', (keyx, valuex) -> {
+			}
+
+			if (key != null && b.isEmpty() && hasMaps && (chr == '{' || chr == '[') && wrap == 0) {
+				ArrayList<String> ordered = new ArrayList<>();
+				HashMap<String, String> keyed = new HashMap<>();
+				HashMap<String, StringArgs> keyedMaps = new HashMap<>();
+				int var10001 = i + 1;
+				int var10006 = chr == '{' ? 125 : 93;
+				BiConsumer<String, String> var10007 = (keyx, valuex) -> {
 					if (keyx != null) {
 						keyed.put(keyx, valuex != null ? SimpleArguments.unwrap(valuex, isWrap) : "");
-
 						if (valuex == null) {
 							ordered.add(SimpleArguments.unwrap(keyx, isWrap));
 						}
 					}
-				}, keyedMaps::put);
+
+				};
+				Objects.requireNonNull(keyedMaps);
+				int ti = keyDecomposition(input, var10001, separator, map, isWrap, true, (char) var10006, var10007, keyedMaps::put);
 				if (ti == input.length()) {
 					b.append(chr);
 				} else {
-					var arg = new StringArgs(input.substring(i, ti));
+					StringArgs arg = new StringArgs(input.substring(i, ti));
 					arg.ordered.addAll(ordered);
 					arg.keyed.putAll(keyed);
 					arg.keyedMaps.putAll(keyedMaps);
-
 					mapConsumer.accept(key, arg);
 					key = null;
 					i = ti;
@@ -103,29 +115,32 @@ public final class StringArgs {
 			} else if (chr == map && wrap == 0 && key == null) {
 				key = b.toString();
 				b = new StringBuilder();
-			} else if ((chr == '\\' && chrN != 0) || (chrN != 0 && chr == chrN && isWrap.test(chr))) {
-				b.append(chrN);
-				i++;
-			} else if (isWrap.test(chr) && (wrap == 0 || wrap == chr)) {
-				wrap = wrap == 0 ? chr : 0;
-			} else if (chr == separator && wrap == 0) {
-				if (b.isEmpty() && key == null) {
-					consumer.accept(null, null);
-					continue;
-				}
+			} else if ((chr != '\\' || chrN == 0) && (chrN == 0 || chr != chrN || !isWrap.test(chr))) {
+				if (!isWrap.test(chr) || wrap != 0 && wrap != chr) {
+					if (chr == separator && wrap == 0) {
+						if (b.isEmpty() && key == null) {
+							consumer.accept(null, null);
+						} else {
+							if (key == null) {
+								key = b.toString();
+							} else {
+								value = b.toString();
+							}
 
-				if (key == null) {
-					key = b.toString();
+							consumer.accept(key, value);
+							key = null;
+							value = null;
+							b = new StringBuilder();
+						}
+					} else {
+						b.append(chr);
+					}
 				} else {
-					value = b.toString();
+					wrap = wrap == 0 ? chr : 0;
 				}
-
-				consumer.accept(key, value);
-				key = null;
-				value = null;
-				b = new StringBuilder();
 			} else {
-				b.append(chr);
+				b.append(chrN);
+				++i;
 			}
 		}
 
@@ -147,16 +162,14 @@ public final class StringArgs {
 	}
 
 	public String input() {
-		return input;
+		return this.input;
 	}
 
-	@Nullable
-	public String get(String name) {
+	public @Nullable String get(String name) {
 		return this.keyed.get(name);
 	}
 
-	@Nullable
-	public StringArgs getNested(String name) {
+	public @Nullable StringArgs getNested(String name) {
 		return this.keyedMaps.get(name);
 	}
 
@@ -168,42 +181,36 @@ public final class StringArgs {
 		return this.keyed.getOrDefault(name, defaultValue);
 	}
 
-	@Nullable
-	public String get(String name, int id) {
-		var x = this.keyed.get(name);
+	public @Nullable String get(String name, int id) {
+		String x = this.keyed.get(name);
 		if (x != null) {
 			return x;
+		} else {
+			return id < this.ordered.size() ? this.ordered.get(id) : null;
 		}
-		if (id < this.ordered.size()) {
-			return this.ordered.get(id);
-		}
-		return null;
 	}
 
 	public String get(String name, int id, String defaultValue) {
-		var x = get(name, id);
+		String x = this.get(name, id);
 		return x != null ? x : defaultValue;
 	}
 
-	@Nullable
-	public String getNext(String name) {
-		var x = this.keyed.get(name);
+	public @Nullable String getNext(String name) {
+		String x = this.keyed.get(name);
 		if (x != null) {
 			return x;
+		} else {
+			return this.currentOrdered < this.ordered.size() ? this.ordered.get(this.currentOrdered++) : null;
 		}
-		if (this.currentOrdered < this.ordered.size()) {
-			return this.ordered.get(this.currentOrdered++);
-		}
-		return null;
 	}
 
 	public String getNext(String name, String defaultValue) {
-		var x = getNext(name);
+		String x = this.getNext(name);
 		return x != null ? x : defaultValue;
 	}
 
 	public void ifPresent(String key, Consumer<String> valueConsumer) {
-		var val = get(key);
+		String val = this.get(key);
 		if (val != null) {
 			valueConsumer.accept(val);
 		}
@@ -225,23 +232,24 @@ public final class StringArgs {
 		return Math.max(this.keyed.size(), this.ordered.size());
 	}
 
-	@ApiStatus.Internal
+	@Internal
 	public List<String> unsafeOrdered() {
 		return this.ordered;
 	}
 
-	@ApiStatus.Internal
+	@Internal
 	public Map<String, String> unsafeKeyed() {
 		return this.keyed;
 	}
 
-	@ApiStatus.Internal
+	@Internal
 	public Map<String, StringArgs> unsafeKeyedMap() {
 		return this.keyedMaps;
 	}
 
 	@Override
 	public String toString() {
-		return "StringArgs{" + "ordered=" + ordered + ", keyed=" + keyed + ", keyedMaps=" + keyedMaps + '}';
+		String var10000 = String.valueOf(this.ordered);
+		return "StringArgs{ordered=" + var10000 + ", keyed=" + this.keyed + ", keyedMaps=" + this.keyedMaps + "}";
 	}
 }

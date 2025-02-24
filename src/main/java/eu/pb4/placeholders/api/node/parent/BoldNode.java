@@ -2,13 +2,19 @@ package eu.pb4.placeholders.api.node.parent;
 
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
-import net.minecraft.text.Style;
+import net.minecraft.network.chat.Style;
 
 import java.util.Arrays;
 
 public final class BoldNode extends SimpleStylingNode {
-	private static final Style TRUE = Style.EMPTY.withBold(true);
-	private static final Style FALSE = Style.EMPTY.withBold(false);
+	private static final Style TRUE;
+	private static final Style FALSE;
+
+	static {
+		TRUE = Style.EMPTY.withBold(true);
+		FALSE = Style.EMPTY.withBold(false);
+	}
+
 	private final boolean value;
 
 	public BoldNode(TextNode[] nodes, boolean value) {
@@ -23,7 +29,7 @@ public final class BoldNode extends SimpleStylingNode {
 
 	@Override
 	public String toString() {
-		return "BoldNode{" + "value=" + value + ", children=" + Arrays.toString(children) + '}';
+		return "BoldNode{value=" + this.value + ", children=" + Arrays.toString(this.children) + "}";
 	}
 
 	@Override

@@ -1,12 +1,15 @@
 package eu.pb4.placeholders.api.node.parent;
 
+import com.mojang.serialization.DataResult;
 import eu.pb4.placeholders.api.ParserContext;
 import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.parsers.NodeParser;
-import net.minecraft.text.Style;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.TextColor;
 
 import java.util.Arrays;
+import java.util.Objects;
+import java.util.Optional;
 
 public final class DynamicColorNode extends SimpleStylingNode {
 	private final TextNode color;
@@ -23,8 +26,11 @@ public final class DynamicColorNode extends SimpleStylingNode {
 
 	@Override
 	protected Style style(ParserContext context) {
-		var c = TextColor.parse(color.toText(context).getString());
-		return c.result().map(Style.EMPTY::withColor).orElse(Style.EMPTY);
+		DataResult<TextColor> c = TextColor.parseColor(this.color.toText(context).getString());
+		Optional<TextColor> var10000 = c.result();
+		Style var10001 = Style.EMPTY;
+		Objects.requireNonNull(var10001);
+		return var10000.map(var10001::withColor).orElse(Style.EMPTY);
 	}
 
 	@Override
@@ -34,11 +40,12 @@ public final class DynamicColorNode extends SimpleStylingNode {
 
 	@Override
 	public ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
-		return new DynamicColorNode(children, parser.parseNode(color));
+		return new DynamicColorNode(children, parser.parseNode(this.color));
 	}
 
 	@Override
 	public String toString() {
-		return "ColorNode{" + "color=" + color + ", children=" + Arrays.toString(children) + '}';
+		String var10000 = String.valueOf(this.color);
+		return "ColorNode{color=" + var10000 + ", children=" + Arrays.toString(this.children) + "}";
 	}
 }
