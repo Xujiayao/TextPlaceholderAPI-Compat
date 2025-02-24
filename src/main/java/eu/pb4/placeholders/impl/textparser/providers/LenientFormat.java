@@ -13,13 +13,12 @@ public record LenientFormat() implements BaseFormat {
 	@Override
 	public int matchEnd(String string, int index) {
 		return string.charAt(index) == '>' ? 1 : 0;
-
 	}
 
 	@Override
 	public int matchArgument(String string, int index) {
-		var c = string.charAt(index);
-		return c == ':' || c == ' ' ? 1 : 0;
+		char c = string.charAt(index);
+		return c != ':' && c != ' ' ? 0 : 1;
 	}
 
 	@Override

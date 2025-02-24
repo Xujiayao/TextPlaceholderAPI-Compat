@@ -17,14 +17,26 @@ import java.util.function.Function;
  * <a href="https://placeholders.pb4.eu/user/text-format/">Format documentation for Simplified Text Format</a>
  */
 public final class TagParser implements NodeParser, TagLikeWrapper {
-	public static final TagParser DEFAULT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
-	public static final TagParser DEFAULT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
-	public static final TagParser QUICK_TEXT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
-	public static final TagParser QUICK_TEXT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
-	public static final TagParser QUICK_TEXT_WITH_STF = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.DEFAULT, LenientProvider::new);
-	public static final TagParser QUICK_TEXT_WITH_STF_SAFE = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.SAFE, LenientProvider::new);
-	public static final TagParser SIMPLIFIED_TEXT_FORMAT = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.DEFAULT, LegacyProvider::new);
-	public static final TagParser SIMPLIFIED_TEXT_FORMAT_SAFE = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.SAFE, LegacyProvider::new);
+	public static final TagParser DEFAULT;
+	public static final TagParser DEFAULT_SAFE;
+	public static final TagParser QUICK_TEXT;
+	public static final TagParser QUICK_TEXT_SAFE;
+	public static final TagParser QUICK_TEXT_WITH_STF;
+	public static final TagParser QUICK_TEXT_WITH_STF_SAFE;
+	public static final TagParser SIMPLIFIED_TEXT_FORMAT;
+	public static final TagParser SIMPLIFIED_TEXT_FORMAT_SAFE;
+
+	static {
+		DEFAULT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
+		DEFAULT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
+		QUICK_TEXT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
+		QUICK_TEXT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
+		QUICK_TEXT_WITH_STF = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.DEFAULT, LenientProvider::new);
+		QUICK_TEXT_WITH_STF_SAFE = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.SAFE, LenientProvider::new);
+		SIMPLIFIED_TEXT_FORMAT = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.DEFAULT, LegacyProvider::new);
+		SIMPLIFIED_TEXT_FORMAT_SAFE = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.SAFE, LegacyProvider::new);
+	}
+
 	private final TagRegistry registry;
 	private final TagLikeParser parser;
 	private final TagLikeParser.Format format;
@@ -79,10 +91,10 @@ public final class TagParser implements NodeParser, TagLikeWrapper {
 	}
 
 	public TagRegistry tagRegistry() {
-		return registry;
+		return this.registry;
 	}
 
 	public Function<TagRegistry, TagLikeParser.Provider> providerCreator() {
-		return providerCreator;
+		return this.providerCreator;
 	}
 }

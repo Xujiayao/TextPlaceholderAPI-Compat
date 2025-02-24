@@ -5,12 +5,12 @@ import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.node.parent.ColorNode;
 import eu.pb4.placeholders.api.parsers.TagLikeParser;
 import eu.pb4.placeholders.api.parsers.tag.TagRegistry;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.TextColor;
 
 public record LenientProvider(TagRegistry registry) implements TagLikeParser.Provider {
 	@Override
 	public boolean isValidTag(String tag, TagLikeParser.Context context) {
-		return tag.equals("/*") || tag.startsWith("#") || tag.equals("r") || tag.equals("reset") || registry.getTag(tag) != null || tag.equals("/") || (tag.length() > 1 && tag.charAt(0) == '/' && context.contains(tag.substring(1))) || (tag.length() > 1 && tag.charAt(0) == ';' && context.contains(tag.substring(1)));
+		return tag.equals("/*") || tag.startsWith("#") || tag.equals("r") || tag.equals("reset") || this.registry.getTag(tag) != null || tag.equals("/") || tag.length() > 1 && tag.charAt(0) == '/' && context.contains(tag.substring(1)) || tag.length() > 1 && tag.charAt(0) == ';' && context.contains(tag.substring(1));
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public record LenientProvider(TagRegistry registry) implements TagLikeParser.Pro
 		}
 
 		if (id.startsWith("#")) {
-			var text = TextColor.parse(id);
+			var text = TextColor.parseColor(id);
 			if (text.result().isPresent()) {
 				context.push(id, x -> new ColorNode(x, text.result().get()));
 			}

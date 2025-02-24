@@ -16,7 +16,7 @@ import eu.pb4.placeholders.impl.placeholder.PlaceholderNode;
 import eu.pb4.placeholders.impl.textparser.MultiTagLikeParser;
 import eu.pb4.placeholders.impl.textparser.SingleTagLikeParser;
 import eu.pb4.placeholders.impl.textparser.providers.LenientFormat;
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,49 +30,47 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
-	public static final Format TAGS = Format.of('<', '>', ' ');
+	public static final Format TAGS = TagLikeParser.Format.of('<', '>', ' ');
 	public static final Format TAGS_LENIENT = new LenientFormat();
 	public static final Format TAGS_LEGACY = new SingleCharacterFormat('<', '>', ':', new char[]{'\''});
-	public static final Format PLACEHOLDER = Format.of('%', '%', ' ');
-	public static final Format PLACEHOLDER_ALTERNATIVE = Format.of('{', '}', ' ');
-	public static final Format PLACEHOLDER_ALTERNATIVE_DOUBLE = Format.of("{{", "}}", " ");
-	public static final Format PLACEHOLDER_USER = Format.of("${", "}", "");
+	public static final Format PLACEHOLDER = TagLikeParser.Format.of('%', '%', ' ');
+	public static final Format PLACEHOLDER_ALTERNATIVE = TagLikeParser.Format.of('{', '}', ' ');
+	public static final Format PLACEHOLDER_ALTERNATIVE_DOUBLE = TagLikeParser.Format.of("{{", "}}", " ");
+	public static final Format PLACEHOLDER_USER = TagLikeParser.Format.of("${", "}", "");
 	private static final TextNode[] EMPTY = new TextNode[0];
 
 	public static TagLikeParser placeholder(Format format, ParserContext.Key<PlaceholderContext> contextKey, Placeholders.PlaceholderGetter placeholders) {
-		return new SingleTagLikeParser(format, Provider.placeholder(contextKey, placeholders));
+		return new SingleTagLikeParser(format, TagLikeParser.Provider.placeholder(contextKey, placeholders));
 	}
 
 	public static TagLikeParser placeholder(Format format, Function<String, @Nullable TextNode> placeholders) {
-		return new SingleTagLikeParser(format, Provider.placeholder(placeholders));
+		return new SingleTagLikeParser(format, TagLikeParser.Provider.placeholder(placeholders));
 	}
 
-	public static TagLikeParser placeholderText(Format format, Function<String, @Nullable Text> placeholders) {
-		return new SingleTagLikeParser(format, Provider.placeholderText(placeholders));
+	public static TagLikeParser placeholderText(Format format, Function<String, @Nullable Component> placeholders) {
+		return new SingleTagLikeParser(format, TagLikeParser.Provider.placeholderText(placeholders));
 	}
 
-	public static TagLikeParser placeholderText(Format format, ParserContext.Key<Function<String, @Nullable Text>> key) {
-		return new SingleTagLikeParser(format, Provider.placeholder(key));
+	public static TagLikeParser placeholderText(Format format, ParserContext.Key<Function<String, @Nullable Component>> key) {
+		return new SingleTagLikeParser(format, TagLikeParser.Provider.placeholder(key));
 	}
 
-	public static TagLikeParser placeholderText(Format format, Set<String> validIds, ParserContext.Key<Function<String, @Nullable Text>> key) {
-		return new SingleTagLikeParser(format, Provider.placeholder(validIds, key));
+	public static TagLikeParser placeholderText(Format format, Set<String> validIds, ParserContext.Key<Function<String, @Nullable Component>> key) {
+		return new SingleTagLikeParser(format, TagLikeParser.Provider.placeholder(validIds, key));
 	}
 
 	public static TagLikeParser of(Format format, Provider provider) {
 		return new SingleTagLikeParser(format, provider);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static TagLikeParser of(Pair<Format, Provider>... formatsAndProviders) {
 		return new MultiTagLikeParser(formatsAndProviders);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static TagLikeParser of(Map<Format, Provider> formatsAndProviders) {
-		var list = new ArrayList<>(formatsAndProviders.size());
+		ArrayList<Pair<Format, Provider>> list = new ArrayList<>(formatsAndProviders.size());
 
-		for (var entry : formatsAndProviders.entrySet()) {
+		for (Map.Entry<Format, Provider> entry : formatsAndProviders.entrySet()) {
 			list.add(Pair.of(entry));
 		}
 		return new MultiTagLikeParser(list.toArray(new Pair[0]));
@@ -80,8 +78,8 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 
 	@Override
 	public TextNode[] parseNodes(TextNode input) {
-		var context = new Context(this, "");
-		parse(input, context);
+		Context context = new Context(this, "");
+		this.parse(input, context);
 		return context.toTextNode();
 	}
 
@@ -93,10 +91,10 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 			}
 			case TranslatedNode translatedNode -> context.addNode(translatedNode.transform(this));
 			case ParentTextNode parent -> {
-				var size = context.size();
+				int size = context.size();
 				context.pushWithParser(null, parent::copyWith);
-				for (var x : parent.getChildren()) {
-					parse(x, context);
+				for (TextNode x : parent.getChildren()) {
+					this.parse(x, context);
 				}
 
 				context.pop(context.size() - size);
@@ -117,18 +115,20 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		if (tag == null) {
 			context.addNode(new LiteralNode(value.substring(pos)));
 			return -1;
-		} else if (tag.start() != 0 && tag.start() != pos) {
-			context.addNode(new LiteralNode(value.substring(pos, tag.start())));
-		}
+		} else {
+			if (tag.start() != 0 && tag.start() != pos) {
+				context.addNode(new LiteralNode(value.substring(pos, tag.start())));
+			}
 
-		pos = tag.end();
-		context.currentPos = tag.start;
-		provider.handleTag(tag.id(), tag.argument(), context);
-		return pos;
+			pos = tag.end();
+			context.currentPos = tag.start;
+			provider.handleTag(tag.id(), tag.argument(), context);
+			return pos;
+		}
 	}
 
 	public interface Provider {
-		static Provider placeholder(ParserContext.Key<PlaceholderContext> contextKey, Placeholders.PlaceholderGetter placeholders) {
+		static Provider placeholder(final ParserContext.Key<PlaceholderContext> contextKey, final Placeholders.PlaceholderGetter placeholders) {
 			return new Provider() {
 				@Override
 				public boolean isValidTag(String tag, Context context) {
@@ -142,14 +142,14 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 			};
 		}
 
-		static Provider placeholderText(Function<String, @Nullable Text> function) {
-			return placeholder(x -> {
-				var y = function.apply(x);
+		static Provider placeholderText(Function<String, @Nullable Component> function) {
+			return placeholder((x) -> {
+				Component y = function.apply(x);
 				return y != null ? new DirectTextNode(y) : null;
 			});
 		}
 
-		static Provider placeholder(Function<String, @Nullable TextNode> function) {
+		static Provider placeholder(final Function<String, @Nullable TextNode> function) {
 			return new Provider() {
 				@Override
 				public boolean isValidTag(String tag, Context context) {
@@ -158,7 +158,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 
 				@Override
 				public void handleTag(String id, String argument, Context context) {
-					var x = function.apply(id);
+					TextNode x = function.apply(id);
 					if (x != null) {
 						context.addNode(x);
 					}
@@ -166,7 +166,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 			};
 		}
 
-		static Provider placeholder(Set<String> validTags, ParserContext.Key<Function<String, Text>> key) {
+		static Provider placeholder(final Set<String> validTags, final ParserContext.Key<Function<String, Component>> key) {
 			return new Provider() {
 				@Override
 				public boolean isValidTag(String tag, Context context) {
@@ -180,7 +180,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 			};
 		}
 
-		static Provider placeholder(ParserContext.Key<Function<String, Text>> key) {
+		static Provider placeholder(final ParserContext.Key<Function<String, Component>> key) {
 			return new Provider() {
 				@Override
 				public boolean isValidTag(String tag, Context context) {
@@ -218,8 +218,8 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 
 		default @Nullable Tag findFirst(String string, int start, Provider provider, Context context) {
 			int maxLength = string.length();
-			for (int i = start; i < maxLength; i++) {
-				var x = findAt(string, i, provider, context);
+			for (int i = start; i < maxLength; ++i) {
+				Tag x = this.findAt(string, i, provider, context);
 				if (x != null) {
 					return x;
 				}
@@ -249,7 +249,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		Context(TagLikeParser parser, String input) {
 			this.parser = parser;
 			this.input = input;
-			this.stack.push(Scope.parent());
+			this.stack.push(TagLikeParser.Scope.parent());
 		}
 
 		public String input() {
@@ -257,8 +257,8 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		}
 
 		public boolean contains(String id) {
-			for (int i = 0; i < stack.size(); i++) {
-				if (id.equals(stack.get(stack.size() - i - 1).id)) {
+			for (int i = 0; i < this.stack.size(); ++i) {
+				if (id.equals(this.stack.get(this.stack.size() - i - 1).id)) {
 					return true;
 				}
 			}
@@ -268,49 +268,47 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 
 		public void pop() {
 			if (this.stack.size() > 1) {
-				var x = this.stack.pop();
+				Scope x = this.stack.pop();
 				this.stack.peek().nodes.add(x.collapse(this.parser));
 			}
 		}
 
 		public void pop(int count) {
 			count = Math.min(count, this.stack.size() - 1);
-			for (int i = 0; i < count; i++) {
-				var x = this.stack.pop();
+			for (int i = 0; i < count; ++i) {
+				Scope x = this.stack.pop();
 				this.stack.peek().nodes.add(x.collapse(this.parser));
 			}
 		}
 
 		public void pop(String id) {
-			if (!contains(id)) {
-				return;
-			}
+			if (this.contains(id)) {
+				Scope x;
+				do {
+					if (this.stack.size() <= 1) {
+						return;
+					}
 
-			while (this.stack.size() > 1) {
-				var x = this.stack.pop();
-				this.stack.peek().nodes.add(x.collapse(this.parser));
-				if (id.equals(x.id)) {
-					return;
-				}
+					x = this.stack.pop();
+					this.stack.peek().nodes.add(x.collapse(this.parser));
+				} while (!id.equals(x.id));
+
 			}
 		}
 
 		public void popOnly(String id) {
-			if (!contains(id)) {
-				return;
-			}
+			if (this.contains(id)) {
+				Stack<Scope> list = new Stack<>();
 
-			var list = new Stack<Scope>();
-
-			while (this.stack.size() > 1) {
-				var x = this.stack.pop();
-				this.stack.peek().nodes.add(x.collapse(this.parser));
-				if (id.equals(x.id)) {
-					while (!list.isEmpty()) {
-						this.stack.push(list.pop());
+				while (this.stack.size() > 1) {
+					Scope x = this.stack.pop();
+					this.stack.peek().nodes.add(x.collapse(this.parser));
+					if (id.equals(x.id)) {
+						while (!list.isEmpty()) {
+							this.stack.push(list.pop());
+						}
+						return;
 					}
-					return;
-				} else {
 					list.add(new Scope(x.id, new ArrayList<>(), x.merger));
 				}
 			}
@@ -321,14 +319,14 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 				if (stopPredicate.test(this.stack.peek().id)) {
 					return;
 				}
-				var x = this.stack.pop();
+				Scope x = this.stack.pop();
 				this.stack.peek().nodes.add(x.collapse(this.parser));
 			}
 		}
 
 		public void popInclusive(Predicate<String> stopPredicate) {
 			while (this.stack.size() > 1) {
-				var x = this.stack.pop();
+				Scope x = this.stack.pop();
 				this.stack.peek().nodes.add(x.collapse(this.parser));
 				if (stopPredicate.test(x.id)) {
 					return;
@@ -342,15 +340,15 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		}
 
 		public void pushParent() {
-			this.stack.push(Scope.parent());
+			this.stack.push(TagLikeParser.Scope.parent());
 		}
 
 		public void push(String id, Function<TextNode[], TextNode> merge) {
-			this.stack.push(Scope.enclosing(id, merge));
+			this.stack.push(TagLikeParser.Scope.enclosing(id, merge));
 		}
 
 		public void pushWithParser(String id, BiFunction<TextNode[], NodeParser, TextNode> merge) {
-			this.stack.push(Scope.enclosingParsed(id, merge));
+			this.stack.push(TagLikeParser.Scope.enclosingParsed(id, merge));
 		}
 
 		public void addNode(TextNode node) {
@@ -358,14 +356,14 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		}
 
 		public TextNode[] toTextNode() {
-			while (!stack.isEmpty()) {
-				var box = stack.pop();
+			while (!this.stack.isEmpty()) {
+				Scope box = this.stack.pop();
 
-				if (stack.isEmpty()) {
-					return box.nodes().toArray(EMPTY);
+				if (this.stack.isEmpty()) {
+					return box.nodes().toArray(TagLikeParser.EMPTY);
 				}
 
-				stack.peek().nodes.add(box.collapse(this.parser));
+				this.stack.peek().nodes.add(box.collapse(this.parser));
 			}
 
 			return null;
@@ -407,7 +405,7 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		}
 
 		public TextNode collapse(NodeParser parser) {
-			return merger.apply(this.nodes().toArray(EMPTY), parser);
+			return this.merger.apply(this.nodes().toArray(TagLikeParser.EMPTY), parser);
 		}
 	}
 }

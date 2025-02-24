@@ -5,13 +5,13 @@ import eu.pb4.placeholders.api.node.TextNode;
 import eu.pb4.placeholders.api.node.parent.ColorNode;
 import eu.pb4.placeholders.api.parsers.TagLikeParser;
 import eu.pb4.placeholders.api.parsers.tag.TagRegistry;
-import net.minecraft.text.TextColor;
+import net.minecraft.network.chat.TextColor;
 
 public record LegacyProvider(TagRegistry registry) implements TagLikeParser.Provider {
 	@Override
 	public boolean isValidTag(String tag, TagLikeParser.Context context) {
-		var peek = context.peekId();
-		return tag.equals("r") || tag.equals("reset") || tag.startsWith("#") || registry.getTag(tag) != null || tag.equals("/") || (peek != null && tag.equals("/" + peek));
+		String peek = context.peekId();
+		return tag.equals("r") || tag.equals("reset") || tag.startsWith("#") || this.registry.getTag(tag) != null || tag.equals("/") || peek != null && tag.equals("/" + peek);
 	}
 
 	@Override
@@ -27,7 +27,7 @@ public record LegacyProvider(TagRegistry registry) implements TagLikeParser.Prov
 		}
 
 		if (id.startsWith("#")) {
-			var text = TextColor.parse(id);
+			var text = TextColor.parseColor(id);
 			if (text.result().isPresent()) {
 				context.push("c", x -> new ColorNode(x, text.result().get()));
 			}
