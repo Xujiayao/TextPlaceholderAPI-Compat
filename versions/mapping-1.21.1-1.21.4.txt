@@ -1,5 +1,0 @@
-net.minecraft.text.ScoreTextContent getName() name()
-net.minecraft.text.ScoreTextContent getObjective() objective()
-net.minecraft.text.SelectorTextContent getPattern() selector()
-net.minecraft.text.SelectorTextContent getSeparator() separator()
-net.minecraft.util.math.ColorHelper.Argb net.minecraft.util.math.ColorHelper

@@ -1,13 +1,12 @@
 plugins {
-	id "fabric-loom" version "1.8-SNAPSHOT" apply false // 1.9 is not working (2024/12/05)
-	id "com.replaymod.preprocess" version "88169fcb"
+	id "fabric-loom" version "1.10-SNAPSHOT" apply false
+	id "com.replaymod.preprocess" version "9d21b334"
 }
 
 preprocess {
-	def mc1211 = createNode("1.21.1", 1_21_01, "yarn")
-	def mc1214 = createNode("1.21.4", 1_21_04, "yarn")
+	preprocess.strictExtraMappings.set(false)
 
-	mc1211.link(mc1214, file("versions/mapping-1.21.1-1.21.4.txt"))
+	def mc1214 = createNode("1.21.4", 1_21_04, "mojang")
 }
 
 project.afterEvaluate {
