@@ -1,6 +1,8 @@
 package eu.pb4.placeholders.impl.textparser;
 
 import com.mojang.datafixers.util.Either;
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.DataResult;
 import eu.pb4.placeholders.api.arguments.SimpleArguments;
 import eu.pb4.placeholders.api.arguments.StringArgs;
 import eu.pb4.placeholders.api.node.KeybindNode;
@@ -29,24 +31,25 @@ import eu.pb4.placeholders.api.parsers.tag.TagRegistry;
 import eu.pb4.placeholders.api.parsers.tag.TextTag;
 import eu.pb4.placeholders.impl.GeneralUtils;
 import eu.pb4.placeholders.impl.StringArgOps;
-import net.minecraft.entity.EntityType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
+import net.minecraft.commands.arguments.selector.SelectorPattern;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.StringNbtReader;
-import net.minecraft.text.BlockNbtDataSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.EntityNbtDataSource;
-import net.minecraft.text.MutableText;
-//#if MC > 12101
-import net.minecraft.text.ParsedSelector;
-//#endif
-import net.minecraft.text.StorageNbtDataSource;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.text.TextColor;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
-import org.jetbrains.annotations.ApiStatus;
+import net.minecraft.nbt.TagParser;
+import net.minecraft.network.chat.ClickEvent.Action;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.chat.Style.Serializer;
+import net.minecraft.network.chat.TextColor;
+import net.minecraft.network.chat.contents.BlockDataSource;
+import net.minecraft.network.chat.contents.DataSource;
+import net.minecraft.network.chat.contents.EntityDataSource;
+import net.minecraft.network.chat.contents.StorageDataSource;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,22 +60,25 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
-@ApiStatus.Internal
+@Internal
 public final class BuiltinTags {
-	public static final TextColor DEFAULT_COLOR = TextColor.fromFormatting(Formatting.WHITE);
+	public static final TextColor DEFAULT_COLOR;
 
-	@SuppressWarnings("deprecation")
+	static {
+		DEFAULT_COLOR = TextColor.fromLegacyFormat(ChatFormatting.WHITE);
+	}
+
 	public static void register() {
 		{
-			Map<Formatting, List<String>> aliases = new HashMap<>();
-			aliases.put(Formatting.GOLD, List.of("orange"));
-			aliases.put(Formatting.GRAY, List.of("grey", "light_gray", "light_grey"));
-			aliases.put(Formatting.LIGHT_PURPLE, List.of("pink"));
-			aliases.put(Formatting.DARK_PURPLE, List.of("purple"));
-			aliases.put(Formatting.DARK_GRAY, List.of("dark_grey"));
+			Map<ChatFormatting, List<String>> aliases = new HashMap<>();
+			aliases.put(ChatFormatting.GOLD, List.of("orange"));
+			aliases.put(ChatFormatting.GRAY, List.of("grey", "light_gray", "light_grey"));
+			aliases.put(ChatFormatting.LIGHT_PURPLE, List.of("pink"));
+			aliases.put(ChatFormatting.DARK_PURPLE, List.of("purple"));
+			aliases.put(ChatFormatting.DARK_GRAY, List.of("dark_grey"));
 
-			for (Formatting formatting : Formatting.values()) {
-				if (formatting.isModifier()) {
+			for (ChatFormatting formatting : ChatFormatting.values()) {
+				if (formatting.isFormat()) {
 					continue;
 				}
 
@@ -96,49 +102,47 @@ public final class BuiltinTags {
 			TagRegistry.registerDefault(TextTag.enclosing("color", List.of("colour", "c"), "color", true, (nodes, data, parser) -> new DynamicColorNode(nodes, parser.parseNode(data.get("value", 0, "white")))));
 		}
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("font", "other_formatting", false, (nodes, data, parser) -> new FontNode(nodes, Identifier.tryParse(data.get("value", 0, "")))));
+			TagRegistry.registerDefault(TextTag.enclosing("font", "other_formatting", false, (nodes, data, parser) -> new FontNode(nodes, ResourceLocation.tryParse(data.get("value", 0, "")))));
 		}
 		{
 			TagRegistry.registerDefault(TextTag.self("lang", List.of("translate"), "special", false, (nodes, data, parser) -> {
-				if (!data.isEmpty()) {
-					var key = data.getNext("key");
-					var fallback = data.get("fallback");
+				if (data.isEmpty()) {
+					return TextNode.empty();
+				} else {
+					String key = data.getNext("key");
+					String fallback = data.get("fallback");
 
 					List<TextNode> textList = new ArrayList<>();
 					int i = 0;
 					while (true) {
-						var part = data.getNext("" + (i++));
+						String part = data.getNext("" + (i++));
 						if (part == null) {
-							break;
+							return TranslatedNode.ofFallback(key, fallback, (Object[]) textList.toArray(TextParserImpl.CASTER));
 						}
 						textList.add(parser.parseNode(part));
 					}
-
-					return TranslatedNode.ofFallback(key, fallback, (Object) textList.toArray(TextParserImpl.CASTER));
 				}
-				return TextNode.empty();
 			}));
 		}
 
 		{
 			TagRegistry.registerDefault(TextTag.self("lang_fallback", List.of("translatef", "langf", "translate_fallback"), "special", false, (nodes, data, parser) -> {
-				if (!data.isEmpty()) {
-					var key = data.getNext("key");
-					var fallback = data.getNext("fallback");
+				if (data.isEmpty()) {
+					return TextNode.empty();
+				} else {
+					String key = data.getNext("key");
+					String fallback = data.getNext("fallback");
 
 					List<TextNode> textList = new ArrayList<>();
 					int i = 0;
 					while (true) {
-						var part = data.getNext("" + (i++));
+						String part = data.getNext("" + (i++));
 						if (part == null) {
-							break;
+							return TranslatedNode.ofFallback(key, fallback, (Object[]) textList.toArray(TextParserImpl.CASTER));
 						}
 						textList.add(parser.parseNode(part));
 					}
-
-					return TranslatedNode.ofFallback(key, fallback, (Object) textList.toArray(TextParserImpl.CASTER));
 				}
-				return TextNode.empty();
 			}));
 		}
 
@@ -149,10 +153,10 @@ public final class BuiltinTags {
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("click", "click_action", false, (nodes, data, parser) -> {
 				if (!data.isEmpty()) {
-					var type = data.getNext("type");
-					var value = data.getNext("value", "");
-					for (ClickEvent.Action action : ClickEvent.Action.values()) {
-						if (action.asString().equals(type)) {
+					String type = data.getNext("type");
+					String value = data.getNext("value", "");
+					for (Action action : Action.values()) {
+						if (action.getSerializedName().equals(type)) {
 							return new ClickActionNode(nodes, action, parser.parseNode(value));
 						}
 					}
@@ -162,57 +166,29 @@ public final class BuiltinTags {
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("run_command", List.of("run_cmd"), "click_action", false, (nodes, data, parser) -> {
-				if (!data.isEmpty()) {
-					return new ClickActionNode(nodes, ClickEvent.Action.RUN_COMMAND, parser.parseNode(data.get("value", 0)));
-				}
-				return new ParentNode(nodes);
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("run_command", List.of("run_cmd"), "click_action", false, (nodes, data, parser) -> !data.isEmpty() ? new ClickActionNode(nodes, Action.RUN_COMMAND, parser.parseNode(data.get("value", 0))) : new ParentNode(nodes)));
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("suggest_command", List.of("cmd"), "click_action", false, (nodes, data, parser) -> {
-
-				if (!data.isEmpty()) {
-					return new ClickActionNode(nodes, ClickEvent.Action.SUGGEST_COMMAND, parser.parseNode(data.getNext("value", "")));
-				}
-				return new ParentNode(nodes);
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("suggest_command", List.of("cmd"), "click_action", false, (nodes, data, parser) -> !data.isEmpty() ? new ClickActionNode(nodes, Action.SUGGEST_COMMAND, parser.parseNode(data.getNext("value", ""))) : new ParentNode(nodes)));
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("open_url", List.of("url"), "click_action", false, (nodes, data, parser) -> {
-
-				if (!data.isEmpty()) {
-					return new ClickActionNode(nodes, ClickEvent.Action.OPEN_URL, parser.parseNode(data.get("value", 0)));
-				}
-				return new ParentNode(nodes);
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("open_url", List.of("url"), "click_action", false, (nodes, data, parser) -> !data.isEmpty() ? new ClickActionNode(nodes, Action.OPEN_URL, parser.parseNode(data.get("value", 0))) : new ParentNode(nodes)));
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("copy_to_clipboard", List.of("copy"), "click_action", false, (nodes, data, parser) -> {
-
-				if (!data.isEmpty()) {
-					return new ClickActionNode(nodes, ClickEvent.Action.COPY_TO_CLIPBOARD, parser.parseNode(data.get("value", 0)));
-				}
-				return new ParentNode(nodes);
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("copy_to_clipboard", List.of("copy"), "click_action", false, (nodes, data, parser) -> !data.isEmpty() ? new ClickActionNode(nodes, Action.COPY_TO_CLIPBOARD, parser.parseNode(data.get("value", 0))) : new ParentNode(nodes)));
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("change_page", List.of("page"), "click_action", true, (nodes, data, parser) -> {
-				if (!data.isEmpty()) {
-					return new ClickActionNode(nodes, ClickEvent.Action.CHANGE_PAGE, parser.parseNode(data.get("value", 0)));
-				}
-				return new ParentNode(nodes);
-			}));
+			TagRegistry.registerDefault(TextTag.enclosing("change_page", List.of("page"), "click_action", true, (nodes, data, parser) -> !data.isEmpty() ? new ClickActionNode(nodes, Action.CHANGE_PAGE, parser.parseNode(data.get("value", 0))) : new ParentNode(nodes)));
 		}
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("hover", "hover_event", true, (nodes, data, parser) -> {
 				try {
-					var type = data.get("type");
+					String type = data.get("type");
 
 					if (type != null || data.size() > 1) {
 						if (type == null) {
@@ -224,23 +200,23 @@ public final class BuiltinTags {
 								return new HoverNode<>(nodes, HoverNode.Action.TEXT, parser.parseNode(data.getNext("value", "")));
 							}
 							case "show_entity", "entity" -> {
-								return new HoverNode<>(nodes, HoverNode.Action.ENTITY, new HoverNode.EntityNodeContent(EntityType.get(data.getNext("entity", "")).orElse(EntityType.PIG), UUID.fromString(data.getNext("uuid", Util.NIL_UUID.toString())), new ParentNode(parser.parseNode(data.get("name", 3, "")))));
+								return new HoverNode<>(nodes, HoverNode.Action.ENTITY, new HoverNode.EntityNodeContent(EntityType.byString(data.getNext("entity", "")).orElse(EntityType.PIG), UUID.fromString(data.getNext("uuid", Util.NIL_UUID.toString())), new ParentNode(parser.parseNode(data.get("name", 3, "")))));
 							}
 							case "show_item", "item" -> {
-								var value = data.getNext("value", "");
+								String value = data.getNext("value", "");
 								try {
-									var nbt = StringNbtReader.parse(value);
-									var id = Identifier.of(nbt.getString("id"));
-									var count = nbt.contains("count") ? nbt.getInt("count") : 1;
+									CompoundTag nbt = TagParser.parseTag(value);
+									ResourceLocation id = ResourceLocation.parse(nbt.getString("id"));
+									int count = nbt.contains("count") ? nbt.getInt("count") : 1;
 
-									var comps = nbt.getCompound("components");
+									CompoundTag comps = nbt.getCompound("components");
 									return new HoverNode<>(nodes, HoverNode.Action.LAZY_ITEM_STACK, new HoverNode.LazyItemStackNodeContent<>(id, count, NbtOps.INSTANCE, comps));
 								} catch (Throwable ignored) {
 								}
 								try {
-									var item = Identifier.of(data.get("item", value));
-									var count = 1;
-									var countTxt = data.getNext("count");
+									ResourceLocation item = ResourceLocation.parse(data.get("item", value));
+									int count = 1;
+									String countTxt = data.getNext("count");
 									if (countTxt != null) {
 										count = Integer.parseInt(countTxt);
 									}
@@ -268,76 +244,65 @@ public final class BuiltinTags {
 		}
 
 		{
-			TagRegistry.registerDefault(TextTag.enclosing("clear_color", List.of("uncolor", "colorless"), "special", false,
-
-					(nodes, data, parser) -> GeneralUtils.removeColors(TextNode.asSingle(nodes))));
+			TagRegistry.registerDefault(TextTag.enclosing("clear_color", List.of("uncolor", "colorless"), "special", false, (nodes, data, parser) -> GeneralUtils.removeColors(TextNode.asSingle(nodes))));
 		}
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("rainbow", List.of("rb"), "gradient", true, (nodes, data, parser) -> {
-				var type = data.get("type", "");
+				String type = data.get("type", "");
 
-				float freq = SimpleArguments.floatNumber(data.getNext("frequency", data.get("freq", data.get("f"))), 1);
-				float saturation = SimpleArguments.floatNumber(data.getNext("saturation", data.get("sat", data.get("s"))), 1);
-				float offset = SimpleArguments.floatNumber(data.getNext("offset", data.get("off", data.get("o"))), 0);
+				float freq = SimpleArguments.floatNumber(data.getNext("frequency", data.get("freq", data.get("f"))), 1.0F);
+				float saturation = SimpleArguments.floatNumber(data.getNext("saturation", data.get("sat", data.get("s"))), 1.0F);
+				float offset = SimpleArguments.floatNumber(data.getNext("offset", data.get("off", data.get("o"))), 0.0F);
 				int overriddenLength = SimpleArguments.intNumber(data.getNext("length", data.get("len", data.get("l"))), -1);
 				int value = SimpleArguments.intNumber(data.get("value", data.get("val", data.get("v"))), 1);
 
 				return new GradientNode(nodes, switch (type) {
 					case "oklab", "okhcl" ->
-							overriddenLength < 0 ? GradientNode.GradientProvider.rainbowOkLch(saturation, value, freq, offset) : GradientNode.GradientProvider.rainbowOkLch(saturation, value, freq, offset, overriddenLength);
+							overriddenLength < 0 ? GradientNode.GradientProvider.rainbowOkLch(saturation, (float) value, freq, offset) : GradientNode.GradientProvider.rainbowOkLch(saturation, (float) value, freq, offset, overriddenLength);
 					case "hvs" ->
-							overriddenLength < 0 ? GradientNode.GradientProvider.rainbowHvs(saturation, value, freq, offset) : GradientNode.GradientProvider.rainbowHvs(saturation, value, freq, offset, overriddenLength);
+							overriddenLength < 0 ? GradientNode.GradientProvider.rainbowHvs(saturation, (float) value, freq, offset) : GradientNode.GradientProvider.rainbowHvs(saturation, (float) value, freq, offset, overriddenLength);
 					default ->
-							overriddenLength < 0 ? GradientNode.GradientProvider.rainbow(saturation, value, freq, offset) : GradientNode.GradientProvider.rainbow(saturation, value, freq, offset, overriddenLength);
+							overriddenLength < 0 ? GradientNode.GradientProvider.rainbow(saturation, (float) value, freq, offset) : GradientNode.GradientProvider.rainbow(saturation, (float) value, freq, offset, overriddenLength);
 				});
 			}));
 		}
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("gradient", List.of("gr"), "gradient", true, (nodes, data, parser) -> {
-				var textColors = new ArrayList<TextColor>();
+				ArrayList<TextColor> textColors = new ArrayList<>();
 				int i = 0;
-				var type = data.get("type", "");
+				String type = data.get("type", "");
 
 				while (true) {
-					var part = data.getNext("" + i);
+					String part = data.getNext("" + i);
 					if (part == null) {
-						break;
+						return new GradientNode(nodes, switch (type) {
+							case "oklab" -> GradientNode.GradientProvider.colorsOkLab(textColors);
+							case "hvs" -> GradientNode.GradientProvider.colorsHvs(textColors);
+							case "hard" -> GradientNode.GradientProvider.colorsHard(textColors);
+							default -> GradientNode.GradientProvider.colors(textColors);
+						});
 					}
 
-					TextColor.parse(part).result().ifPresent(textColors::add);
+					TextColor.parseColor(part).result().ifPresent(textColors::add);
 				}
-				return new GradientNode(nodes, switch (type) {
-					case "oklab" -> GradientNode.GradientProvider.colorsOkLab(textColors);
-					case "hvs" -> GradientNode.GradientProvider.colorsHvs(textColors);
-					case "hard" -> GradientNode.GradientProvider.colorsHard(textColors);
-					default -> GradientNode.GradientProvider.colors(textColors);
-				});
 			}));
 		}
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("hard_gradient", List.of("hgr"), "gradient", true, (nodes, data, parser) -> {
-
-				var textColors = new ArrayList<TextColor>();
+				ArrayList<TextColor> textColors = new ArrayList<>();
 
 				int i = 0;
 				while (true) {
-					var part = data.getNext("" + i);
+					String part = data.getNext("" + i);
 					if (part == null) {
-						break;
+						return textColors.isEmpty() ? new ParentNode(nodes) : GradientNode.colorsHard(textColors, nodes);
 					}
 
-					TextColor.parse(part).result().ifPresent(textColors::add);
+					TextColor.parseColor(part).result().ifPresent(textColors::add);
 				}
-				// We cannot have an empty list!
-				if (textColors.isEmpty()) {
-					return new ParentNode(nodes);
-				}
-
-				return GradientNode.colorsHard(textColors, nodes);
-
 			}));
 		}
 
@@ -347,12 +312,13 @@ public final class BuiltinTags {
 
 		{
 			TagRegistry.registerDefault(TextTag.enclosing("rawstyle", "special", false, (nodes, data, parser) -> {
-				var x = Style.Codecs.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
+				DataResult<Pair<Style, Either<String, StringArgs>>> x = Serializer.CODEC.decode(StringArgOps.INSTANCE, Either.right(data));
 				if (x.error().isPresent()) {
 					System.out.println(x.error().get().message());
 					return TextNode.asSingle(nodes);
+				} else {
+					return new StyledNode(nodes, x.result().get().getFirst(), null, null, null);
 				}
-				return new StyledNode(nodes, x.result().get().getFirst(), null, null, null);
 			}));
 		}
 
@@ -362,71 +328,64 @@ public final class BuiltinTags {
 
 		{
 			TagRegistry.registerDefault(TextTag.self("selector", "special", false, (nodes, data, parser) -> {
-				var sel = data.getNext("pattern", "@p");
-				var arg = data.getNext("separator");
+				String sel = data.getNext("pattern", "@p");
+				String arg = data.getNext("separator");
 
-				//#if MC > 12101
-				Optional<ParsedSelector> selector = ParsedSelector.parse(sel).result();
-				if (selector.isEmpty()) {
-					return TextNode.empty();
-				}
-				return new SelectorNode(selector.get(), arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
-				//#else
-				//$$ return new SelectorNode(sel, arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
-				//#endif
+				Optional<SelectorPattern> selector = SelectorPattern.parse(sel).result();
+				return selector.isEmpty() ? TextNode.empty() : new SelectorNode(selector.get(), arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
 			}));
 		}
 
 		{
 			TagRegistry.registerDefault(TextTag.self("nbt", "special", false, (nodes, data, parser) -> {
 				String source = data.getNext("source", "");
-				var cleanLine1 = data.getNext("path", "");
+				String cleanLine1 = data.getNext("path", "");
 
-				var type = switch (source) {
-					case "block" -> new BlockNbtDataSource(cleanLine1);
-					case "entity" -> new EntityNbtDataSource(cleanLine1);
-					case "storage" -> new StorageNbtDataSource(Identifier.tryParse(cleanLine1));
+				Record type = switch (source) {
+					case "block" -> new BlockDataSource(cleanLine1);
+					case "entity" -> new EntityDataSource(cleanLine1);
+					case "storage" -> new StorageDataSource(ResourceLocation.tryParse(cleanLine1));
 					default -> null;
 				};
 
 				if (type == null) {
 					return TextNode.empty();
+				} else {
+					String separ = data.getNext("separator");
+
+					Optional<TextNode> separator = separ != null ? Optional.of(TextNode.asSingle(parser.parseNode(separ))) : Optional.empty();
+					boolean shouldInterpret = SimpleArguments.bool(data.getNext("interpret"), false);
+
+					return new NbtNode(cleanLine1, shouldInterpret, separator, (DataSource) type);
 				}
-
-				var separ = data.getNext("separator");
-
-				Optional<TextNode> separator = separ != null ? Optional.of(TextNode.asSingle(parser.parseNode(separ))) : Optional.empty();
-				var shouldInterpret = SimpleArguments.bool(data.getNext("interpret"), false);
-
-				return new NbtNode(cleanLine1, shouldInterpret, separator, type);
 			}));
 		}
 	}
 
-	private static Function<MutableText, Text> getTransform(StringArgs val) {
+	private static Function<MutableComponent, Component> getTransform(StringArgs val) {
 		if (val.isEmpty()) {
 			return GeneralUtils.MutableTransformer.CLEAR;
+		} else {
+			Function<Style, Style> func = (x) -> x;
+
+			for (String arg : val.ordered()) {
+				func = func.andThen(switch (arg) {
+					case "hover" -> x -> x.withHoverEvent(null);
+					case "click" -> x -> x.withClickEvent(null);
+					case "color" -> x -> x.withColor((TextColor) null);
+					case "insertion" -> x -> x.withInsertion(null);
+					case "font" -> x -> x.withFont(null);
+					case "bold" -> x -> x.withBold(null);
+					case "italic" -> x -> x.withItalic(null);
+					case "underline" -> x -> x.withUnderlined(null);
+					case "strikethrough" -> x -> x.withStrikethrough(null);
+					case "all" -> x -> Style.EMPTY;
+					default -> x -> x;
+				});
+			}
+
+			return new GeneralUtils.MutableTransformer(func);
 		}
-
-		Function<Style, Style> func = (x) -> x;
-
-		for (var arg : val.ordered()) {
-			func = func.andThen(switch (arg) {
-				case "hover" -> x -> x.withHoverEvent(null);
-				case "click" -> x -> x.withClickEvent(null);
-				case "color" -> x -> x.withColor((TextColor) null);
-				case "insertion" -> x -> x.withInsertion(null);
-				case "font" -> x -> x.withFont(null);
-				case "bold" -> x -> x.withBold(null);
-				case "italic" -> x -> x.withItalic(null);
-				case "underline" -> x -> x.withUnderline(null);
-				case "strikethrough" -> x -> x.withStrikethrough(null);
-				case "all" -> x -> Style.EMPTY;
-				default -> x -> x;
-			});
-		}
-
-		return new GeneralUtils.MutableTransformer(func);
 	}
 
 	private static boolean isntFalse(String arg) {
