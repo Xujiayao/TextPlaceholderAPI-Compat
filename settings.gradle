@@ -23,16 +23,25 @@ pluginManagement {
 	}
 }
 
-def versions = Arrays.asList(
-		"1.21.1",
-		"1.21.4"
-)
-for (String version : versions) {
-	include(":$version")
+def mainVersion = "1.21.4"
 
-	def proj = project(":$version")
-	proj.projectDir = file("versions/$version")
-	proj.buildFileName = "../../common.gradle"
+include(":$mainVersion")
+
+def mainProj = project(":$mainVersion")
+mainProj.projectDir = file("versions/$mainVersion")
+mainProj.buildFileName = "../../common.gradle"
+
+if (!System.env.JITPACK) {
+	def versions = Arrays.asList(
+			"1.21.1"
+	)
+	for (String version : versions) {
+		include(":$version")
+
+		def proj = project(":$version")
+		proj.projectDir = file("versions/$version")
+		proj.buildFileName = "../../common.gradle"
+	}
+
+	include(":wrapper")
 }
-
-include(":wrapper")
