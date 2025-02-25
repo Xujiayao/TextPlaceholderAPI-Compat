@@ -21,13 +21,13 @@ Only edit the `common.gradle` file. There is no need to add the following to the
 ```groovy
 repositories {
 	maven {
-		name = "Nucleoid"
-		url = "https://maven.nucleoid.xyz/"
+		name = "Jitpack"
+		url = "https://jitpack.io"
 	}
 }
 
 dependencies {
-	modCompileOnly("eu.pb4:placeholder-api:2.5.1+1.21.3")
+	modCompileOnly("com.github.Xujiayao:TextPlaceholderAPI-Compat:2.5.2-compat.1")
 }
 ```
 
@@ -36,7 +36,7 @@ Also edit all existing `fabric.mod.json` files.
 ```json
 {
 	"depends": {
-		"fabricloader": ">=0.15.10",
+		"fabricloader": ">=0.16.10",
 		"java": ">=21",
 		"placeholder-api-compat": "*"
 	}
