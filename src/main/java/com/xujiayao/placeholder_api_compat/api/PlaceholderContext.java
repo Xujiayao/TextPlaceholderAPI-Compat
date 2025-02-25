@@ -71,7 +71,11 @@ public record PlaceholderContext(MinecraftServer server, Supplier<CommandSourceS
 			return of(player, view);
 		} else {
 			ServerLevel world = (ServerLevel) entity.level();
+			//#if MC > 12101
 			return new PlaceholderContext(entity.getServer(), () -> entity.createCommandSourceStackForNameResolution(world), world, null, entity, null, view);
+			//#else
+			//$$ return new PlaceholderContext(entity.getServer(), () -> entity.createCommandSourceStack(), world, null, entity, null, view);
+			//#endif
 		}
 	}
 

@@ -27,7 +27,9 @@ import com.xujiayao.placeholder_api_compat.api.node.parent.UnderlinedNode;
 import com.xujiayao.placeholder_api_compat.api.parsers.TextParserV1;
 import com.xujiayao.placeholder_api_compat.impl.GeneralUtils;
 import net.minecraft.ChatFormatting;
+//#if MC > 12101
 import net.minecraft.commands.arguments.selector.SelectorPattern;
+//#endif
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.TagParser;
@@ -347,6 +349,7 @@ public final class TextTagsV1 {
 			TextParserV1.registerDefault(TextParserV1.TextTag.of("selector", "special", false, (tag, data, input, handlers, endAt) -> {
 				String[] lines = data.split(":");
 				String pattern = TextParserImpl.restoreOriginalEscaping(TextParserImpl.cleanArgument(lines[0]));
+				//#if MC > 12101
 				Optional<SelectorPattern> optional = SelectorPattern.parse(pattern).result();
 				if (optional.isEmpty()) {
 					return TextParserV1.TagNodeValue.EMPTY;
@@ -355,6 +358,13 @@ public final class TextTagsV1 {
 				} else {
 					return lines.length == 1 ? new TextParserV1.TagNodeValue(new SelectorNode(optional.get(), Optional.empty()), 0) : TextParserV1.TagNodeValue.EMPTY;
 				}
+				//#else
+				//$$ if (lines.length == 2) {
+				//$$ 	return new TextParserV1.TagNodeValue(new SelectorNode(pattern, Optional.of(TextNode.asSingle(TextParserImpl.recursiveParsing(TextParserImpl.restoreOriginalEscaping(TextParserImpl.cleanArgument(lines[1])), handlers, null).nodes()))), 0);
+				//$$ } else {
+				//$$ 	return lines.length == 1 ? new TextParserV1.TagNodeValue(new SelectorNode(pattern, Optional.empty()), 0) : TextParserV1.TagNodeValue.EMPTY;
+				//$$ }
+				//#endif
 			}));
 		}
 

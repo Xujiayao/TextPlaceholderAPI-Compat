@@ -33,7 +33,9 @@ import com.xujiayao.placeholder_api_compat.impl.GeneralUtils;
 import com.xujiayao.placeholder_api_compat.impl.StringArgOps;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
+//#if MC > 12101
 import net.minecraft.commands.arguments.selector.SelectorPattern;
+//#endif
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.TagParser;
@@ -332,8 +334,12 @@ public final class BuiltinTags {
 				String sel = data.getNext("pattern", "@p");
 				String arg = data.getNext("separator");
 
+				//#if MC > 12101
 				Optional<SelectorPattern> selector = SelectorPattern.parse(sel).result();
 				return selector.isEmpty() ? TextNode.empty() : new SelectorNode(selector.get(), arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
+				//#else
+				//$$ return new SelectorNode(sel, arg != null ? Optional.of(TextNode.of(arg)) : Optional.empty());
+				//#endif
 			}));
 		}
 

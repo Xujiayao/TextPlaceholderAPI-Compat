@@ -1,0 +1,6 @@
+net.minecraft.util.FastColor.ARGB32 net.minecraft.util.ARGB
+net.minecraft.network.chat.contents.ScoreContents getName() name()
+net.minecraft.network.chat.contents.ScoreContents getObjective() objective()
+net.minecraft.network.chat.contents.SelectorContents getPattern() selector()
+net.minecraft.network.chat.contents.SelectorContents getSeparator() separator()
+net.minecraft.core.Registry get() getValue()

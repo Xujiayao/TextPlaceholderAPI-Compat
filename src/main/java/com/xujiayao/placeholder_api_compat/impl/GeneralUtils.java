@@ -1,6 +1,5 @@
 package com.xujiayao.placeholder_api_compat.impl;
 
-import com.mojang.datafixers.util.Either;
 import com.xujiayao.placeholder_api_compat.api.node.KeybindNode;
 import com.xujiayao.placeholder_api_compat.api.node.LiteralNode;
 import com.xujiayao.placeholder_api_compat.api.node.NbtNode;
@@ -16,7 +15,6 @@ import com.xujiayao.placeholder_api_compat.api.node.parent.ParentTextNode;
 import com.xujiayao.placeholder_api_compat.api.node.parent.StyledNode;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
-import net.minecraft.commands.arguments.selector.SelectorPattern;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -37,7 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 
 @Internal
@@ -242,16 +239,12 @@ public class GeneralUtils {
 			}
 
 			list.add(TranslatedNode.ofFallback(content.getKey(), content.getFallback(), args.toArray()));
-		} else if (input.getContents() instanceof ScoreContents(
-				Either<SelectorPattern, String> name, String objective
-		)) {
-			list.add(new ScoreNode(name, objective));
+		} else if (input.getContents() instanceof ScoreContents content) {
+			list.add(new ScoreNode(content.name(), content.objective()));
 		} else if (input.getContents() instanceof KeybindContents content) {
 			list.add(new KeybindNode(content.getName()));
-		} else if (input.getContents() instanceof SelectorContents(
-				SelectorPattern selector, Optional<Component> separator
-		)) {
-			list.add(new SelectorNode(selector, separator.map(GeneralUtils::convertToNodes)));
+		} else if (input.getContents() instanceof SelectorContents content) {
+			list.add(new SelectorNode(content.selector(), content.separator().map(GeneralUtils::convertToNodes)));
 		} else if (input.getContents() instanceof NbtContents content) {
 			list.add(new NbtNode(content.getNbtPath(), content.isInterpreting(), content.getSeparator().map(GeneralUtils::convertToNodes), content.getDataSource()));
 		}
