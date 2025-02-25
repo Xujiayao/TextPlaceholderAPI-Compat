@@ -21,7 +21,11 @@ Notes:
 
 ### For Developers
 
-Only edit the `common.gradle` file. There is no need to add the following to the wrapper's `build.gradle`.
+Ensure that your `mainProject` is set to the latest release version of Minecraft.
+
+Only edit the `common.gradle` file. Remove `eu.pb4:placeholder-api` from the dependencies section.
+
+Do NOT add the following to the wrapper's `build.gradle`, as it will break the library if used with versions other than the version specified in `mainProject`.
 
 ```groovy
 repositories {
@@ -47,6 +51,8 @@ Also edit all existing `fabric.mod.json` files.
 	}
 }
 ```
+
+Finally, change the package name in your code from `eu.pb4.placeholders` to `com.xujiayao.placeholder_api_compat`.
 
 ## Support
 
