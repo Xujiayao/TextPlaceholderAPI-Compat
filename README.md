@@ -14,6 +14,11 @@ This fork is primarily created for my multi-version mod, [Discord-MC-Chat](https
 
 Put the downloaded JAR file in the `mods` folder.
 
+Notes:
+
+- This mod functions as a library and will only operate when called by another mod.
+- This mod can coexist with Patbox's official Placeholder API mod without conflicts, as each mod will call its respective library.
+
 ### For Developers
 
 Only edit the `common.gradle` file. There is no need to add the following to the wrapper's `build.gradle`.
