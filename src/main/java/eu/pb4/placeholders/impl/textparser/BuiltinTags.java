@@ -61,6 +61,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 @Internal
+@SuppressWarnings("deprecation")
 public final class BuiltinTags {
 	public static final TextColor DEFAULT_COLOR;
 

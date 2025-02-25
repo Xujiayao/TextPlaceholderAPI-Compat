@@ -24,6 +24,7 @@ import java.util.function.Function;
 /**
  * Basic markdown parser supporting only single-line vanilla text compatible formatting.
  */
+@SuppressWarnings("deprecation")
 public final class MarkdownLiteParserV1 implements NodeParser {
 	public static NodeParser ALL = new MarkdownLiteParserV1(MarkdownFormat.values());
 	private final EnumSet<MarkdownFormat> allowedFormatting = EnumSet.noneOf(MarkdownFormat.class);

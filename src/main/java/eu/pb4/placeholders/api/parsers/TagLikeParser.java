@@ -63,10 +63,12 @@ public abstract class TagLikeParser implements NodeParser, TagLikeWrapper {
 		return new SingleTagLikeParser(format, provider);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static TagLikeParser of(Pair<Format, Provider>... formatsAndProviders) {
 		return new MultiTagLikeParser(formatsAndProviders);
 	}
 
+	@SuppressWarnings("unchecked")
 	public static TagLikeParser of(Map<Format, Provider> formatsAndProviders) {
 		ArrayList<Pair<Format, Provider>> list = new ArrayList<>(formatsAndProviders.size());
 

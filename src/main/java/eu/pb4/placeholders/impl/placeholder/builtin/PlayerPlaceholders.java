@@ -24,6 +24,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import java.util.Locale;
 
 public class PlayerPlaceholders {
+	@SuppressWarnings("unchecked")
 	public static void register() {
 		Placeholders.register(ResourceLocation.fromNamespaceAndPath("player", "name"), (ctx, arg) -> {
 			if (ctx.hasPlayer()) {

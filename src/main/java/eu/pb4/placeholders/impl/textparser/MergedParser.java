@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public record MergedParser(NodeParser[] parsers) implements NodeParser {
+	@SuppressWarnings("unchecked")
 	public MergedParser(NodeParser[] parsers) {
 		ArrayList<NodeParser> list = new ArrayList<>(parsers.length);
 		ArrayList<Pair<TagLikeParser.Format, TagLikeParser.Provider>> combiner = new ArrayList<>(4);

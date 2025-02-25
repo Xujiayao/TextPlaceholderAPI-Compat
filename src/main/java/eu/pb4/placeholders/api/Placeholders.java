@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("deprecation")
 public final class Placeholders {
 	@Deprecated
 	public static final Pattern PLACEHOLDER_PATTERN;
