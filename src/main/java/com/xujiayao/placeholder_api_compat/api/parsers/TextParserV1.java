@@ -30,212 +30,211 @@ import java.util.function.Function;
 @Deprecated
 public class TextParserV1 implements NodeParser {
 
-    public static final TextParserV1 DEFAULT = new TextParserV1();
-    public static final TextParserV1 SAFE = new TextParserV1();
+	public static final TextParserV1 DEFAULT = new TextParserV1();
+	public static final TextParserV1 SAFE = new TextParserV1();
 
-    private boolean allowOverrides = false;
+	static {
+		TextTagsV1.register();
+	}
 
-    private final List<TextTag> tags = new ArrayList<>();
-    private final Map<String, TextTag> byName = new HashMap<>();
-    private final Map<String, TextTag> byNameAlias = new HashMap<>();
+	private final List<TextTag> tags = new ArrayList<>();
+	private final Map<String, TextTag> byName = new HashMap<>();
+	private final Map<String, TextTag> byNameAlias = new HashMap<>();
+	private final boolean allowOverrides = false;
 
-    public static TextParserV1 createDefault() {
-        return DEFAULT.copy();
-    }
+	public static TextParserV1 createDefault() {
+		return DEFAULT.copy();
+	}
 
-    public static TextParserV1 createSafe() {
-        return SAFE.copy();
-    }
+	public static TextParserV1 createSafe() {
+		return SAFE.copy();
+	}
 
-    public static void registerDefault(TextTag tag) {
-        DEFAULT.register(tag);
+	public static void registerDefault(TextTag tag) {
+		DEFAULT.register(tag);
 
-        if (tag.userSafe()) {
-            SAFE.register(tag);
-        }
-    }
+		if (tag.userSafe()) {
+			SAFE.register(tag);
+		}
+	}
 
-    public void register(TextTag tag) {
-        if (this.byName.containsKey(tag.name())) {
-            if (allowOverrides) {
-                this.tags.removeIf((t) -> t.name().equals(tag.name()));
-            } else {
-                throw new RuntimeException("Duplicate tag identifier!");
-            }
-        }
+	public static TextNode[] parseNodesWith(TextNode input, TagParserGetter getter) {
+		if (input instanceof LiteralNode(String value)) {
+			return TextParserImpl.parse(value, getter);
+		} else if (input instanceof ParentTextNode parentTextNode) {
+			var list = new ArrayList<TextNode>();
 
-        this.byName.put(tag.name(), tag);
-        this.tags.add(tag);
+			for (var child : parentTextNode.getChildren()) {
+				list.add(new ParentNode(parseNodesWith(child, getter)));
+			}
 
-        this.byNameAlias.put(tag.name(), tag);
+			return list.toArray(new TextNode[0]);
+		}
 
-        if (tag.aliases() != null) {
-            for (int i = 0; i < tag.aliases().length; i++) {
-                var alias = tag.aliases()[i];
-                var old = this.byNameAlias.get(alias);
-                if (old == null || !old.name().equals(alias)) {
-                    this.byNameAlias.put(alias, tag);
-                }
-            }
-        }
-    }
+		return new TextNode[]{input};
+	}
 
-    public List<TextTag> getTags() {
-        return ImmutableList.copyOf(tags);
-    }
+	public static NodeList parseNodesWith(String input, TagParserGetter handlers, @Nullable String endingTag) {
+		return TextParserImpl.recursiveParsing(input, handlers, endingTag);
+	}
 
-    @Override
-    public TextNode[] parseNodes(TextNode input) {
-        return parseNodesWith(input, this::getTagParser);
-    }
+	public void register(TextTag tag) {
+		if (this.byName.containsKey(tag.name())) {
+			if (allowOverrides) {
+				this.tags.removeIf((t) -> t.name().equals(tag.name()));
+			} else {
+				throw new RuntimeException("Duplicate tag identifier!");
+			}
+		}
 
-    public TextParserV1 copy() {
-        var parser = new TextParserV1();
-        for (var tag : this.tags) {
-            parser.register(tag);
-        }
-        return parser;
-    }
+		this.byName.put(tag.name(), tag);
+		this.tags.add(tag);
 
-    public static TextNode[] parseNodesWith(TextNode input, TagParserGetter getter) {
-        if (input instanceof LiteralNode literalNode) {
-            return TextParserImpl.parse(literalNode.value(), getter);
-        } else if (input instanceof ParentTextNode parentTextNode) {
-            var list = new ArrayList<TextNode>();
+		this.byNameAlias.put(tag.name(), tag);
 
-            for (var child : parentTextNode.getChildren()) {
-                list.add(new ParentNode(parseNodesWith(child, getter)));
-            }
+		if (tag.aliases() != null) {
+			for (int i = 0; i < tag.aliases().length; i++) {
+				var alias = tag.aliases()[i];
+				var old = this.byNameAlias.get(alias);
+				if (old == null || !old.name().equals(alias)) {
+					this.byNameAlias.put(alias, tag);
+				}
+			}
+		}
+	}
 
-            return list.toArray(new TextNode[0]);
-        }
+	public List<TextTag> getTags() {
+		return ImmutableList.copyOf(tags);
+	}
 
-        return new TextNode[]{input};
-    }
+	@Override
+	public TextNode[] parseNodes(TextNode input) {
+		return parseNodesWith(input, this::getTagParser);
+	}
 
-    public static NodeList parseNodesWith(String input, TagParserGetter handlers, @Nullable String endingTag) {
-        return TextParserImpl.recursiveParsing(input, handlers, endingTag);
-    }
+	public TextParserV1 copy() {
+		var parser = new TextParserV1();
+		for (var tag : this.tags) {
+			parser.register(tag);
+		}
+		return parser;
+	}
 
-    public @Nullable TagNodeBuilder getTagParser(String name) {
-        var o = this.byNameAlias.get(name);
-        return o != null ? o.parser() : null;
-    }
+	public @Nullable TagNodeBuilder getTagParser(String name) {
+		var o = this.byNameAlias.get(name);
+		return o != null ? o.parser() : null;
+	}
 
-    public @Nullable TextTag getTag(String name) {
-        var o = this.byNameAlias.get(name);
-        return o;
-    }
+	public @Nullable TextTag getTag(String name) {
+		var o = this.byNameAlias.get(name);
+		return o;
+	}
 
-    public record TextTag(String name, String[] aliases, String type, boolean userSafe, TagNodeBuilder parser) {
-        public static TextTag of(String name, String type, TagNodeBuilder parser) {
-            return of(name, type, true, parser);
-        }
+	@FunctionalInterface
+	public interface TagNodeBuilder {
+		static TagNodeBuilder selfClosing(SelfTagParsedCreator selfTagCreator) {
+			return (tag, data, input, handlers, endAt) -> {
+				return new TextParserV1.TagNodeValue(selfTagCreator.createTextNode(data, new TagParserGetterParser(handlers)), 0);
+			};
+		}
 
-        public static TextTag of(String name, String type, boolean userSafe, TagNodeBuilder parser) {
-            return of(name, List.of(), type, userSafe, parser);
-        }
+		static TagNodeBuilder wrapping(FormattingTagParsedCreator formattingTagCreator) {
+			return (tag, data, input, handlers, endAt) -> {
+				var out = parseNodesWith(input, handlers, endAt);
+				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data, new TagParserGetterParser(handlers)), out.length());
+			};
+		}
 
-        public static TextTag of(String name, List<String> aliases, String type, boolean userSafe, TagNodeBuilder parser) {
-            return new TextTag(name, aliases.toArray(new String[0]), type, userSafe, parser);
-        }
+		static TagNodeBuilder selfClosing(SelfTagCreator selfTagCreator) {
+			return (tag, data, input, handlers, endAt) -> {
+				return new TextParserV1.TagNodeValue(selfTagCreator.createTextNode(data), 0);
+			};
+		}
+
+		static TagNodeBuilder wrapping(FormattingTagCreator formattingTagCreator) {
+			return (tag, data, input, handlers, endAt) -> {
+				var out = parseNodesWith(input, handlers, endAt);
+				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data), out.length());
+			};
+		}
+
+		static TagNodeBuilder wrappingBoolean(BooleanFormattingTagCreator formattingTagCreator) {
+			return (tag, data, input, handlers, endAt) -> {
+				var out = parseNodesWith(input, handlers, endAt);
+				return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data == null || data.isEmpty() || !data.equals("false")), out.length());
+			};
+		}
+
+		TagNodeValue parseString(String tag, String data, String input, TagParserGetter tags, String endAt);
+
+		interface SelfTagCreator {
+			TextNode createTextNode(String arg);
+		}
+
+		interface FormattingTagCreator {
+			TextNode createTextNode(TextNode[] nodes, String arg);
+		}
+
+		interface SelfTagParsedCreator {
+			TextNode createTextNode(String arg, NodeParser parser);
+		}
+
+		interface FormattingTagParsedCreator {
+			TextNode createTextNode(TextNode[] nodes, String arg, NodeParser parser);
+		}
+
+		interface BooleanFormattingTagCreator {
+			TextNode createTextNode(TextNode[] nodes, boolean arg);
+		}
+	}
+
+	@FunctionalInterface
+	public interface TagParserGetter {
+		@Nullable
+		TagNodeBuilder getTagParser(String name);
+	}
+
+	public record TextTag(String name, String[] aliases, String type, boolean userSafe, TagNodeBuilder parser) {
+		public static TextTag of(String name, String type, TagNodeBuilder parser) {
+			return of(name, type, true, parser);
+		}
+
+		public static TextTag of(String name, String type, boolean userSafe, TagNodeBuilder parser) {
+			return of(name, List.of(), type, userSafe, parser);
+		}
+
+		public static TextTag of(String name, List<String> aliases, String type, boolean userSafe, TagNodeBuilder parser) {
+			return new TextTag(name, aliases.toArray(new String[0]), type, userSafe, parser);
+		}
 
 
-        public static TextTag from(com.xujiayao.placeholder_api_compat.api.parsers.tag.TextTag tag) {
-            return new TextTag(tag.name(), tag.aliases(), tag.type(), tag.userSafe(), tag.selfContained()
-                    ? TagNodeBuilder.selfClosing((a, b) -> tag.nodeCreator().createTextNode(GeneralUtils.CASTER, StringArgs.ordered(a, ':'), b))
-                    : TagNodeBuilder.wrapping((a, b, c) -> tag.nodeCreator().createTextNode(a, StringArgs.ordered(b, ':'), c)));
-        }
-    }
+		public static TextTag from(com.xujiayao.placeholder_api_compat.api.parsers.tag.TextTag tag) {
+			return new TextTag(tag.name(), tag.aliases(), tag.type(), tag.userSafe(), tag.selfContained()
+					? TagNodeBuilder.selfClosing((a, b) -> tag.nodeCreator().createTextNode(GeneralUtils.CASTER, StringArgs.ordered(a, ':'), b))
+					: TagNodeBuilder.wrapping((a, b, c) -> tag.nodeCreator().createTextNode(a, StringArgs.ordered(b, ':'), c)));
+		}
+	}
 
-    public record TagNodeValue(TextNode node, int length) {
-        public static final TagNodeValue EMPTY = new TagNodeValue(EmptyNode.INSTANCE, 0);
-    }
+	public record TagNodeValue(TextNode node, int length) {
+		public static final TagNodeValue EMPTY = new TagNodeValue(EmptyNode.INSTANCE, 0);
+	}
 
-    public record NodeList(TextNode[] nodes, int length) {
-        public static final NodeList EMPTY = new NodeList(new TextNode[0], 0);
+	public record NodeList(TextNode[] nodes, int length) {
+		public static final NodeList EMPTY = new NodeList(new TextNode[0], 0);
 
-        public TagNodeValue value(TextNode node) {
-            return new TagNodeValue(node, this.length);
-        }
+		public TagNodeValue value(TextNode node) {
+			return new TagNodeValue(node, this.length);
+		}
 
-        public TagNodeValue value(Function<TextNode[], TextNode> function) {
-            return new TagNodeValue(function.apply(this.nodes), this.length);
-        }
-    }
+		public TagNodeValue value(Function<TextNode[], TextNode> function) {
+			return new TagNodeValue(function.apply(this.nodes), this.length);
+		}
+	}
 
-    private record TagParserGetterParser(TagParserGetter getter) implements NodeParser {
-        @Override
-        public TextNode[] parseNodes(TextNode input) {
-            return parseNodesWith(input, getter);
-        }
-    }
-
-    @FunctionalInterface
-    public interface TagNodeBuilder {
-        TagNodeValue parseString(String tag, String data, String input, TagParserGetter tags, String endAt);
-
-        static TagNodeBuilder selfClosing(SelfTagParsedCreator selfTagCreator) {
-            return (tag, data, input, handlers, endAt) -> {
-                return new TextParserV1.TagNodeValue(selfTagCreator.createTextNode(data, new TagParserGetterParser(handlers)), 0);
-            };
-        }
-
-        static TagNodeBuilder wrapping(FormattingTagParsedCreator formattingTagCreator) {
-            return (tag, data, input, handlers, endAt) -> {
-                var out = parseNodesWith(input, handlers, endAt);
-                return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data, new TagParserGetterParser(handlers)), out.length());
-            };
-        }
-
-        static TagNodeBuilder selfClosing(SelfTagCreator selfTagCreator) {
-            return (tag, data, input, handlers, endAt) -> {
-                return new TextParserV1.TagNodeValue(selfTagCreator.createTextNode(data), 0);
-            };
-        }
-
-        static TagNodeBuilder wrapping(FormattingTagCreator formattingTagCreator) {
-            return (tag, data, input, handlers, endAt) -> {
-                var out = parseNodesWith(input, handlers, endAt);
-                return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data), out.length());
-            };
-        }
-
-        static TagNodeBuilder wrappingBoolean(BooleanFormattingTagCreator formattingTagCreator) {
-            return (tag, data, input, handlers, endAt) -> {
-                var out = parseNodesWith(input, handlers, endAt);
-                return new TextParserV1.TagNodeValue(formattingTagCreator.createTextNode(out.nodes(), data == null || data.isEmpty() || !data.equals("false")), out.length());
-            };
-        }
-
-        interface SelfTagCreator {
-            TextNode createTextNode(String arg);
-        }
-        
-        interface FormattingTagCreator {
-            TextNode createTextNode(TextNode[] nodes, String arg);
-        }
-
-        interface SelfTagParsedCreator {
-            TextNode createTextNode(String arg, NodeParser parser);
-        }
-
-        interface FormattingTagParsedCreator {
-            TextNode createTextNode(TextNode[] nodes, String arg, NodeParser parser);
-        }
-
-        interface BooleanFormattingTagCreator {
-            TextNode createTextNode(TextNode[] nodes, boolean arg);
-        }
-    }
-
-    @FunctionalInterface
-    public interface TagParserGetter {
-        @Nullable
-        TagNodeBuilder getTagParser(String name);
-    }
-
-    static {
-        TextTagsV1.register();
-    }
+	private record TagParserGetterParser(TagParserGetter getter) implements NodeParser {
+		@Override
+		public TextNode[] parseNodes(TextNode input) {
+			return parseNodesWith(input, getter);
+		}
+	}
 }

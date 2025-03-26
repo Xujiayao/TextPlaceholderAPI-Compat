@@ -9,47 +9,47 @@ import net.minecraft.text.Text;
 import java.util.List;
 
 public interface NodeParser {
-    NodeParser NOOP = i -> new TextNode[] { i };
+	NodeParser NOOP = i -> new TextNode[]{i};
 
-    TextNode[] parseNodes(TextNode input);
+	static NodeParser merge(NodeParser... parsers) {
+		return switch (parsers.length) {
+			case 0 -> NOOP;
+			case 1 -> parsers[0];
+			default -> new MergedParser(parsers);
+		};
+	}
 
-    default TextNode parseNode(TextNode input) {
-        return TextNode.asSingle(this.parseNodes(input));
-    }
+	static NodeParser merge(List<NodeParser> parsers) {
+		return switch (parsers.size()) {
+			case 0 -> NOOP;
+			case 1 -> parsers.get(0);
+			default -> new MergedParser(parsers.toArray(new NodeParser[0]));
+		};
+	}
 
-    default TextNode parseNode(String input) {
-        return this.parseNode(TextNode.of(input));
-    }
+	static ParserBuilder builder() {
+		return new ParserBuilder();
+	}
 
-    default Text parseText(TextNode input, ParserContext context) {
-        return TextNode.asSingle(this.parseNodes(input)).toText(context, true);
-    }
+	TextNode[] parseNodes(TextNode input);
 
-    default Text parseText(String input, ParserContext context) {
-        return parseText(TextNode.of(input), context);
-    }
+	default TextNode parseNode(TextNode input) {
+		return TextNode.asSingle(this.parseNodes(input));
+	}
 
-    default Codec<WrappedText> codec() {
-        return Codec.STRING.xmap(x -> WrappedText.from(this, x), WrappedText::input);
-    }
+	default TextNode parseNode(String input) {
+		return this.parseNode(TextNode.of(input));
+	}
 
-    static NodeParser merge(NodeParser... parsers) {
-        return switch (parsers.length) {
-            case 0 -> NOOP;
-            case 1 -> parsers[0];
-            default -> new MergedParser(parsers);
-        };
-    }
+	default Text parseText(TextNode input, ParserContext context) {
+		return TextNode.asSingle(this.parseNodes(input)).toText(context, true);
+	}
 
-    static NodeParser merge(List<NodeParser> parsers) {
-        return switch (parsers.size()) {
-            case 0 -> NOOP;
-            case 1 -> parsers.get(0);
-            default -> new MergedParser(parsers.toArray(new NodeParser[0]));
-        };
-    }
+	default Text parseText(String input, ParserContext context) {
+		return parseText(TextNode.of(input), context);
+	}
 
-    static ParserBuilder builder() {
-        return new ParserBuilder();
-    }
+	default Codec<WrappedText> codec() {
+		return Codec.STRING.xmap(x -> WrappedText.from(this, x), WrappedText::input);
+	}
 }

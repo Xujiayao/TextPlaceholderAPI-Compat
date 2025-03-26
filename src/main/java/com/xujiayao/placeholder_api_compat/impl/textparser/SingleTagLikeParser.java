@@ -4,28 +4,28 @@ import com.xujiayao.placeholder_api_compat.api.parsers.TagLikeParser;
 
 public class SingleTagLikeParser extends TagLikeParser {
 
-    private final Format format;
-    private final Provider provider;
+	private final Format format;
+	private final Provider provider;
 
-    public SingleTagLikeParser(Format format, Provider provider) {
-        this.format = format;
-        this.provider = provider;
-    }
+	public SingleTagLikeParser(Format format, Provider provider) {
+		this.format = format;
+		this.provider = provider;
+	}
 
-    @Override
-    protected void handleLiteral(String value, Context context) {
-        int pos = 0;
+	@Override
+	protected void handleLiteral(String value, Context context) {
+		int pos = 0;
 
-        while (pos != -1) {
-            pos = this.handleTag(value, pos, this.format.findFirst(value, pos, provider, context), provider, context);
-        }
-    }
+		while (pos != -1) {
+			pos = this.handleTag(value, pos, this.format.findFirst(value, pos, provider, context), provider, context);
+		}
+	}
 
-    public Format format() {
-        return this.format;
-    }
+	public Format format() {
+		return this.format;
+	}
 
-    public Provider provider() {
-        return provider;
-    }
+	public Provider provider() {
+		return provider;
+	}
 }
