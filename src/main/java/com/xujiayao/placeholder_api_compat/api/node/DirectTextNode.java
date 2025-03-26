@@ -1,11 +1,11 @@
 package com.xujiayao.placeholder_api_compat.api.node;
 
 import com.xujiayao.placeholder_api_compat.api.ParserContext;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 
-public record DirectTextNode(Component text) implements TextNode {
-	@Override
-	public Component toText(ParserContext context, boolean removeBackslashes) {
-		return this.text;
-	}
+public record DirectTextNode(Text text) implements TextNode {
+    @Override
+    public Text toText(ParserContext context, boolean removeBackslashes) {
+        return this.text;
+    }
 }

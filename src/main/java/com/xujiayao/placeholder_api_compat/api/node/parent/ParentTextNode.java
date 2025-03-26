@@ -7,41 +7,38 @@ import com.xujiayao.placeholder_api_compat.impl.textparser.TextParserImpl;
 import java.util.Collection;
 
 public interface ParentTextNode extends TextNode {
-	TextNode[] getChildren();
+    TextNode[] getChildren();
 
-	ParentTextNode copyWith(TextNode[] var1);
+    ParentTextNode copyWith(TextNode[] children);
 
-	@SuppressWarnings("deprecation")
-	default ParentTextNode copyWith(Collection<TextNode> children) {
-		return this.copyWith(children.toArray(TextParserImpl.CASTER));
-	}
+    default ParentTextNode copyWith(Collection<TextNode> children) {
+        return this.copyWith(children.toArray(TextParserImpl.CASTER));
+    }
 
-	default boolean isDynamicNoChildren() {
-		return false;
-	}
+    default boolean isDynamicNoChildren() {
+        return false;
+    }
 
-	default boolean isDynamic() {
-		for (TextNode x : this.getChildren()) {
-			if (x.isDynamic()) {
-				return true;
-			}
-		}
+    default boolean isDynamic() {
+        for (var x : getChildren()) {
+            if (x.isDynamic()) {
+                return true;
+            }
+        }
+        return this.isDynamicNoChildren();
+    }
 
-		return this.isDynamicNoChildren();
-	}
+    default ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
+        return copyWith(children);
+    }
 
-	default ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
-		return this.copyWith(children);
-	}
+    default ParentTextNode copyWith(Collection<TextNode> children, NodeParser parser) {
+        return this.copyWith(children.toArray(TextParserImpl.CASTER), parser);
+    }
 
-	@SuppressWarnings("deprecation")
-	default ParentTextNode copyWith(Collection<TextNode> children, NodeParser parser) {
-		return this.copyWith(children.toArray(TextParserImpl.CASTER), parser);
-	}
-
-	@Deprecated(forRemoval = true)
-	@FunctionalInterface
-	interface Constructor {
-		ParentTextNode createNode(String var1, Collection<ParentTextNode> var2);
-	}
+    @Deprecated(forRemoval = true)
+    @FunctionalInterface
+    interface Constructor {
+        ParentTextNode createNode(String definition, Collection<ParentTextNode> children);
+    }
 }

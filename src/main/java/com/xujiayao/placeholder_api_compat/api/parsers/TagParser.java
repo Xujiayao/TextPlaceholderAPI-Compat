@@ -3,8 +3,8 @@ package com.xujiayao.placeholder_api_compat.api.parsers;
 import com.xujiayao.placeholder_api_compat.api.node.TextNode;
 import com.xujiayao.placeholder_api_compat.api.parsers.tag.TagRegistry;
 import com.xujiayao.placeholder_api_compat.api.parsers.tag.TextTag;
-import com.xujiayao.placeholder_api_compat.impl.textparser.SingleTagLikeParser;
 import com.xujiayao.placeholder_api_compat.impl.textparser.providers.LegacyProvider;
+import com.xujiayao.placeholder_api_compat.impl.textparser.SingleTagLikeParser;
 import com.xujiayao.placeholder_api_compat.impl.textparser.providers.LenientProvider;
 import com.xujiayao.placeholder_api_compat.impl.textparser.providers.ModernProvider;
 
@@ -17,84 +17,73 @@ import java.util.function.Function;
  * <a href="https://placeholders.pb4.eu/user/text-format/">Format documentation for Simplified Text Format</a>
  */
 public final class TagParser implements NodeParser, TagLikeWrapper {
-	public static final TagParser DEFAULT;
-	public static final TagParser DEFAULT_SAFE;
-	public static final TagParser QUICK_TEXT;
-	public static final TagParser QUICK_TEXT_SAFE;
-	public static final TagParser QUICK_TEXT_WITH_STF;
-	public static final TagParser QUICK_TEXT_WITH_STF_SAFE;
-	public static final TagParser SIMPLIFIED_TEXT_FORMAT;
-	public static final TagParser SIMPLIFIED_TEXT_FORMAT_SAFE;
+    private final TagRegistry registry;
+    private final TagLikeParser parser;
+    public static final TagParser DEFAULT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
+    public static final TagParser DEFAULT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
+    public static final TagParser QUICK_TEXT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
+    public static final TagParser QUICK_TEXT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
+    public static final TagParser QUICK_TEXT_WITH_STF = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.DEFAULT, LenientProvider::new);
+    public static final TagParser QUICK_TEXT_WITH_STF_SAFE = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.SAFE, LenientProvider::new);
+    public static final TagParser SIMPLIFIED_TEXT_FORMAT = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.DEFAULT, LegacyProvider::new);
+    public static final TagParser SIMPLIFIED_TEXT_FORMAT_SAFE = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.SAFE, LegacyProvider::new);
+    private final TagLikeParser.Format format;
+    private final Function<TagRegistry, TagLikeParser.Provider> providerCreator;
 
-	static {
-		DEFAULT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
-		DEFAULT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
-		QUICK_TEXT = new TagParser(TagLikeParser.TAGS, TagRegistry.DEFAULT, ModernProvider::new);
-		QUICK_TEXT_SAFE = new TagParser(TagLikeParser.TAGS, TagRegistry.SAFE, ModernProvider::new);
-		QUICK_TEXT_WITH_STF = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.DEFAULT, LenientProvider::new);
-		QUICK_TEXT_WITH_STF_SAFE = new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.SAFE, LenientProvider::new);
-		SIMPLIFIED_TEXT_FORMAT = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.DEFAULT, LegacyProvider::new);
-		SIMPLIFIED_TEXT_FORMAT_SAFE = new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.SAFE, LegacyProvider::new);
-	}
+    private TagParser(TagLikeParser.Format format, TagRegistry registry, Function<TagRegistry, TagLikeParser.Provider> providerFunction) {
+        this.registry = registry;
+        this.parser = new SingleTagLikeParser(format, providerFunction.apply(registry));
+        this.providerCreator = providerFunction;
+        this.format = format;
+    }
 
-	private final TagRegistry registry;
-	private final TagLikeParser parser;
-	private final TagLikeParser.Format format;
-	private final Function<TagRegistry, TagLikeParser.Provider> providerCreator;
+    public static TagParser createQuickText() {
+        return new TagParser(TagLikeParser.TAGS, TagRegistry.create(), ModernProvider::new);
+    }
 
-	private TagParser(TagLikeParser.Format format, TagRegistry registry, Function<TagRegistry, TagLikeParser.Provider> providerFunction) {
-		this.registry = registry;
-		this.parser = new SingleTagLikeParser(format, providerFunction.apply(registry));
-		this.providerCreator = providerFunction;
-		this.format = format;
-	}
+    public static TagParser createQuickTextWithSTF() {
+        return new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.create(), LenientProvider::new);
+    }
 
-	public static TagParser createQuickText() {
-		return new TagParser(TagLikeParser.TAGS, TagRegistry.create(), ModernProvider::new);
-	}
+    public static TagParser createSimplifiedTextFormat() {
+        return new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.create(), LegacyProvider::new);
+    }
 
-	public static TagParser createQuickTextWithSTF() {
-		return new TagParser(TagLikeParser.TAGS_LENIENT, TagRegistry.create(), LenientProvider::new);
-	}
+    public static TagParser createQuickText(TagRegistry registry) {
+        return new TagParser(TagLikeParser.TAGS, registry, ModernProvider::new);
+    }
 
-	public static TagParser createSimplifiedTextFormat() {
-		return new TagParser(TagLikeParser.TAGS_LEGACY, TagRegistry.create(), LegacyProvider::new);
-	}
+    public static TagParser createQuickTextWithSTF(TagRegistry registry) {
+        return new TagParser(TagLikeParser.TAGS_LENIENT, registry, LenientProvider::new);
+    }
 
-	public static TagParser createQuickText(TagRegistry registry) {
-		return new TagParser(TagLikeParser.TAGS, registry, ModernProvider::new);
-	}
+    public static TagParser createSimplifiedTextFormat(TagRegistry registry) {
+        return new TagParser(TagLikeParser.TAGS_LEGACY, registry, LegacyProvider::new);
+    }
 
-	public static TagParser createQuickTextWithSTF(TagRegistry registry) {
-		return new TagParser(TagLikeParser.TAGS_LENIENT, registry, LenientProvider::new);
-	}
+    public void register(TextTag tag) {
+        this.registry.register(tag);
+    }
 
-	public static TagParser createSimplifiedTextFormat(TagRegistry registry) {
-		return new TagParser(TagLikeParser.TAGS_LEGACY, registry, LegacyProvider::new);
-	}
+    public TagLikeParser asTagLikeParser() {
+        return this.parser;
+    }
 
-	public void register(TextTag tag) {
-		this.registry.register(tag);
-	}
+    @Override
+    public TextNode[] parseNodes(TextNode input) {
+        return this.parser.parseNodes(input);
+    }
 
-	public TagLikeParser asTagLikeParser() {
-		return this.parser;
-	}
+    public TagParser copy() {
+        return new TagParser(this.format, this.registry.copy(), this.providerCreator);
+    }
 
-	@Override
-	public TextNode[] parseNodes(TextNode input) {
-		return this.parser.parseNodes(input);
-	}
 
-	public TagParser copy() {
-		return new TagParser(this.format, this.registry.copy(), this.providerCreator);
-	}
+    public TagRegistry tagRegistry() {
+        return registry;
+    }
 
-	public TagRegistry tagRegistry() {
-		return this.registry;
-	}
-
-	public Function<TagRegistry, TagLikeParser.Provider> providerCreator() {
-		return this.providerCreator;
-	}
+    public Function<TagRegistry, TagLikeParser.Provider> providerCreator() {
+        return providerCreator;
+    }
 }

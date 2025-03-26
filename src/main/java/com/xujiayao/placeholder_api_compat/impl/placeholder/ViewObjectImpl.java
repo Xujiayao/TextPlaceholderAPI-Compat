@@ -1,7 +1,7 @@
 package com.xujiayao.placeholder_api_compat.impl.placeholder;
 
 import com.xujiayao.placeholder_api_compat.api.PlaceholderContext;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Identifier;
 
-public record ViewObjectImpl(ResourceLocation identifier) implements PlaceholderContext.ViewObject {
+public record ViewObjectImpl(Identifier identifier) implements PlaceholderContext.ViewObject {
 }

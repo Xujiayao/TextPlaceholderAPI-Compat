@@ -3,28 +3,29 @@ package com.xujiayao.placeholder_api_compat.impl.textparser;
 import com.xujiayao.placeholder_api_compat.api.parsers.TagLikeParser;
 
 public class SingleTagLikeParser extends TagLikeParser {
-	private final TagLikeParser.Format format;
-	private final TagLikeParser.Provider provider;
 
-	public SingleTagLikeParser(TagLikeParser.Format format, TagLikeParser.Provider provider) {
-		this.format = format;
-		this.provider = provider;
-	}
+    private final Format format;
+    private final Provider provider;
 
-	@Override
-	protected void handleLiteral(String value, TagLikeParser.Context context) {
-		int pos = 0;
+    public SingleTagLikeParser(Format format, Provider provider) {
+        this.format = format;
+        this.provider = provider;
+    }
 
-		while (pos != -1) {
-			pos = this.handleTag(value, pos, this.format.findFirst(value, pos, provider, context), provider, context);
-		}
-	}
+    @Override
+    protected void handleLiteral(String value, Context context) {
+        int pos = 0;
 
-	public TagLikeParser.Format format() {
-		return this.format;
-	}
+        while (pos != -1) {
+            pos = this.handleTag(value, pos, this.format.findFirst(value, pos, provider, context), provider, context);
+        }
+    }
 
-	public TagLikeParser.Provider provider() {
-		return this.provider;
-	}
+    public Format format() {
+        return this.format;
+    }
+
+    public Provider provider() {
+        return provider;
+    }
 }

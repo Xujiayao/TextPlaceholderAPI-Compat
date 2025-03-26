@@ -1,39 +1,42 @@
 package com.xujiayao.placeholder_api_compat.api.node;
 
 import com.xujiayao.placeholder_api_compat.api.ParserContext;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 
 public record LiteralNode(String value) implements TextNode {
-	public LiteralNode(StringBuilder builder) {
-		this(builder.toString());
-	}
 
-	@Override
-	public Component toText(ParserContext context, boolean removeBackslashes) {
-		if (this.value.isEmpty()) {
-			return Component.empty();
-		} else if (!removeBackslashes) {
-			return Component.literal(this.value());
-		} else {
-			StringBuilder builder = new StringBuilder();
-			int length = this.value.length();
+    public LiteralNode(StringBuilder builder) {
+        this(builder.toString());
+    }
+    @Override
+    public Text toText(ParserContext context, boolean removeBackslashes) {
+        if (this.value.isEmpty()) {
+            return Text.empty();
+        }
 
-			for (int i = 0; i < length; ++i) {
-				char c = this.value.charAt(i);
-				if (c == '\\' && i + 1 < length) {
-					char n = this.value.charAt(i + 1);
-					if (!Character.isWhitespace(n) && !Character.isLetterOrDigit(n)) {
-						builder.append(n);
-						++i;
-					} else {
-						builder.append(c);
-					}
-				} else {
-					builder.append(c);
-				}
-			}
+        if (removeBackslashes) {
+            var builder = new StringBuilder();
 
-			return Component.literal(builder.toString());
-		}
-	}
+            var length = this.value.length();
+            for (var i = 0; i < length; i++) {
+                var c = this.value.charAt(i);
+
+                if (c == '\\' && i + 1 < length) {
+                    var n = this.value.charAt(i + 1);
+                    if (Character.isWhitespace(n) || Character.isLetterOrDigit(n)) {
+                        builder.append(c);
+                    } else {
+                        builder.append(n);
+                        i++;
+                    }
+                } else {
+                    builder.append(c);
+                }
+            }
+
+            return Text.literal(builder.toString());
+        } else {
+            return Text.literal(this.value());
+        }
+    }
 }

@@ -1,30 +1,30 @@
 package com.xujiayao.placeholder_api_compat.impl.color;
 
-import net.minecraft.util.Mth;
+import net.minecraft.util.math.MathHelper;
 
 // https://bottosson.github.io/posts/oklab/
 public record OkLch(float l, float c, float h) {
-	public static OkLch fromRgb(int rgb) {
-		OkLab lab = OkLab.fromRgb(rgb);
-		float c = Mth.sqrt(lab.a() * lab.a() + lab.b() + lab.b());
-		float h = (float) Mth.atan2(lab.b(), lab.a());
+    public static OkLch fromRgb(int rgb) {
+        var lab = OkLab.fromRgb(rgb);
+        var c = MathHelper.sqrt(lab.a() * lab.a() + lab.b() + lab.b());
+        var h = (float) MathHelper.atan2(lab.b(), lab.a());
 
-		return new OkLch(lab.l(), c, h);
-	}
+        return new OkLch(lab.l(), c, h);
+    }
 
-	public static int toRgb(float l, float c, float h) {
-		return OkLab.toRgb(l, (float) ((double) c * Math.cos(h)), (float) ((double) c * Math.sin(h)));
-	}
+    public float a() {
+        return c * MathHelper.cos(h);
+    }
 
-	public float a() {
-		return this.c * Mth.cos(this.h);
-	}
+    public float b() {
+        return c * MathHelper.sin(h);
+    }
 
-	public float b() {
-		return this.c * Mth.sin(this.h);
-	}
+    public int toRgb() {
+        return OkLab.toRgb(l, this.a(), this.b());
+    }
 
-	public int toRgb() {
-		return OkLab.toRgb(this.l, this.a(), this.b());
-	}
+    public static int toRgb(float l, float c, float h) {
+        return OkLab.toRgb(l, (float) (c * Math.cos(h)), (float) (c * Math.sin(h)));
+    }
 }

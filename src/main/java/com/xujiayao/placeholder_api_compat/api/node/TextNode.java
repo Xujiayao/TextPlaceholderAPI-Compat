@@ -4,66 +4,66 @@ import com.xujiayao.placeholder_api_compat.api.ParserContext;
 import com.xujiayao.placeholder_api_compat.api.PlaceholderContext;
 import com.xujiayao.placeholder_api_compat.api.node.parent.ParentNode;
 import com.xujiayao.placeholder_api_compat.impl.GeneralUtils;
-import net.minecraft.network.chat.Component;
+import net.minecraft.text.Text;
 
 import java.util.List;
 
 public interface TextNode {
-	static TextNode convert(Component input) {
-		return GeneralUtils.convertToNodes(input);
-	}
+    Text toText(ParserContext context, boolean removeBackslashes);
 
-	static TextNode of(String input) {
-		return new LiteralNode(input);
-	}
+    default Text toText(ParserContext context) {
+        return toText(context, true);
+    }
 
-	static TextNode wrap(TextNode... nodes) {
-		return new ParentNode(nodes);
-	}
+    default Text toText(PlaceholderContext context) {
+        return toText(context.asParserContext(), true);
+    }
 
-	static TextNode wrap(List<TextNode> nodes) {
-		return new ParentNode(nodes.toArray(GeneralUtils.CASTER));
-	}
+    default Text toText() {
+        return toText(ParserContext.of(), true);
+    }
 
-	static TextNode asSingle(TextNode... nodes) {
-		return switch (nodes.length) {
-			case 0 -> EmptyNode.INSTANCE;
-			case 1 -> nodes[0];
-			default -> wrap(nodes);
-		};
-	}
+    default boolean isDynamic() {
+        return false;
+    }
 
-	static TextNode asSingle(List<TextNode> nodes) {
-		return switch (nodes.size()) {
-			case 0 -> EmptyNode.INSTANCE;
-			case 1 -> nodes.getFirst();
-			default -> wrap(nodes);
-		};
-	}
+    static TextNode convert(Text input) {
+        return GeneralUtils.convertToNodes(input);
+    }
 
-	static TextNode[] array(TextNode... nodes) {
-		return nodes;
-	}
+    static TextNode of(String input) {
+        return new LiteralNode(input);
+    }
 
-	static TextNode empty() {
-		return EmptyNode.INSTANCE;
-	}
+    static TextNode wrap(TextNode... nodes) {
+        return new ParentNode(nodes);
+    }
 
-	Component toText(ParserContext context, boolean removeBackslashes);
+    static TextNode wrap(List<TextNode> nodes) {
+        return new ParentNode(nodes.toArray(GeneralUtils.CASTER));
+    }
 
-	default Component toText(ParserContext context) {
-		return this.toText(context, true);
-	}
+    static TextNode asSingle(TextNode... nodes) {
+        return switch (nodes.length) {
+            case 0 -> EmptyNode.INSTANCE;
+            case 1 -> nodes[0];
+            default -> wrap(nodes);
+        };
+    }
 
-	default Component toText(PlaceholderContext context) {
-		return this.toText(context.asParserContext(), true);
-	}
+    static TextNode asSingle(List<TextNode> nodes) {
+        return switch (nodes.size()) {
+            case 0 -> EmptyNode.INSTANCE;
+            case 1 -> nodes.get(0);
+            default -> wrap(nodes);
+        };
+    }
 
-	default Component toText() {
-		return this.toText(ParserContext.of(), true);
-	}
+    static TextNode[] array(TextNode... nodes) {
+        return nodes;
+    }
 
-	default boolean isDynamic() {
-		return false;
-	}
+    static TextNode empty() {
+        return EmptyNode.INSTANCE;
+    }
 }

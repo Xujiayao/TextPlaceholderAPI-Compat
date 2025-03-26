@@ -2,194 +2,194 @@ package com.xujiayao.placeholder_api_compat.impl.placeholder.builtin;
 
 import com.xujiayao.placeholder_api_compat.api.PlaceholderResult;
 import com.xujiayao.placeholder_api_compat.api.Placeholders;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.entity.SpawnGroup;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.SpawnHelper;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 public class WorldPlaceholders {
-	static final int CHUNK_AREA = (int) Math.pow(17.0, 2.0);
+    static final int CHUNK_AREA = (int)Math.pow(17.0D, 2.0D);
 
-	public static void register() {
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "time"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+    public static void register() {
+        Placeholders.register(Identifier.of("world", "time"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			long dayTime = (long) ((double) world.getDayTime() * 3.6 / 60.0);
+            long dayTime = (long) (world.getTimeOfDay() * 3.6 / 60);
 
-			return PlaceholderResult.value(String.format("%02d:%02d", (dayTime / 60L + 6L) % 24L, dayTime % 60L));
-		});
+            return PlaceholderResult.value(String.format("%02d:%02d", (dayTime / 60 + 6) % 24, dayTime % 60));
+        });
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "time_alt"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+        Placeholders.register(Identifier.of("world", "time_alt"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			long dayTime = (long) ((double) world.getDayTime() * 3.6 / 60.0);
-			long x = (dayTime / 60L + 6L) % 24L;
-			long y = x % 12L;
-			if (y == 0L) {
-				y = 12L;
-			}
-			return PlaceholderResult.value(String.format("%02d:%02d %s", y, dayTime % 60L, x > 11L ? "PM" : "AM"));
-		});
+            long dayTime = (long) (world.getTimeOfDay() * 3.6 / 60);
+            long x = (dayTime / 60 + 6) % 24;
+            long y = x % 12;
+            if (y == 0) {
+                y = 12;
+            }
+            return PlaceholderResult.value(String.format("%02d:%02d %s", y, dayTime % 60, x > 11 ? "PM" : "AM" ));
+        });
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "day"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+        Placeholders.register(Identifier.of("world", "day"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			return PlaceholderResult.value("" + world.getDayTime() / 24000L);
-		});
+            return PlaceholderResult.value("" + world.getTimeOfDay() / 24000);
+        });
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "id"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+        Placeholders.register(Identifier.of("world", "id"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			return PlaceholderResult.value(world.dimension().location().toString());
-		});
+            return PlaceholderResult.value(world.getRegistryKey().getValue().toString());
+        });
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "name"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
-			List<String> parts = new ArrayList<>();
-			{
-				String[] words = world.dimension().location().getPath().split("_");
-				for (String word : words) {
-					String[] s = word.split("", 2);
-					s[0] = s[0].toUpperCase(Locale.ROOT);
-					parts.add(String.join("", s));
-				}
-			}
-			return PlaceholderResult.value(String.join(" ", parts));
-		});
+        Placeholders.register(Identifier.of("world", "name"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
+            List<String> parts = new ArrayList<>();
+            {
+                String[] words = world.getRegistryKey().getValue().getPath().split("_");
+                for (String word : words) {
+                    String[] s = word.split("", 2);
+                    s[0] = s[0].toUpperCase(Locale.ROOT);
+                    parts.add(String.join("", s));
+                }
+            }
+            return PlaceholderResult.value(String.join(" ", parts));
+        });
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "player_count"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
 
-			return PlaceholderResult.value("" + world.players().size());
-		});
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "mob_count_colored"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+        Placeholders.register(Identifier.of("world", "player_count"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			NaturalSpawner.SpawnState info = world.getChunkSource().getLastSpawnState();
+            return PlaceholderResult.value("" + world.getPlayers().size());
+        });
 
-			MobCategory spawnGroup = null;
-			if (arg != null) {
-				spawnGroup = MobCategory.valueOf(arg.toUpperCase(Locale.ROOT));
-			}
+        Placeholders.register(Identifier.of("world", "mob_count_colored"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			int cap;
-			int count;
-			if (spawnGroup != null) {
-				cap = info.getMobCategoryCounts().getInt(spawnGroup);
-				count = spawnGroup.getMaxInstancesPerChunk() * info.getSpawnableChunkCount() / CHUNK_AREA;
+            SpawnHelper.Info info = world.getChunkManager().getSpawnInfo();
 
-				return PlaceholderResult.value(cap > 0 ? Component.literal("" + cap).withStyle(cap > count ? ChatFormatting.LIGHT_PURPLE : ((double) cap > 0.8 * (double) count ? ChatFormatting.RED : ((double) cap > 0.5 * (double) count ? ChatFormatting.GOLD : ChatFormatting.GREEN))) : Component.literal("-").withStyle(ChatFormatting.GRAY));
-			} else {
-				cap = 0;
+            SpawnGroup spawnGroup = null;
+            if (arg != null) {
+                spawnGroup = SpawnGroup.valueOf(arg.toUpperCase(Locale.ROOT));
+            }
 
-				for (MobCategory group : MobCategory.values()) {
-					cap += group.getMaxInstancesPerChunk();
-				}
-				cap = cap * info.getSpawnableChunkCount() / CHUNK_AREA;
+            if (spawnGroup != null) {
+                int count = info.getGroupToCount().getInt(spawnGroup);
+                int cap = spawnGroup.getCapacity() * info.getSpawningChunkCount() / CHUNK_AREA;
 
-				count = 0;
+                return PlaceholderResult.value(count > 0 ? Text.literal("" + count).formatted(count > cap ? Formatting.LIGHT_PURPLE : count > 0.8 * cap ? Formatting.RED : count > 0.5 * cap ? Formatting.GOLD : Formatting.GREEN) : Text.literal("-").formatted(Formatting.GRAY));
+            } else {
+                int cap = 0;
 
-				for (int value : info.getMobCategoryCounts().values()) {
-					count += value;
-				}
-				return PlaceholderResult.value(count > 0 ? Component.literal("" + count).withStyle(count > cap ? ChatFormatting.LIGHT_PURPLE : ((double) count > 0.8 * (double) cap ? ChatFormatting.RED : ((double) count > 0.5 * (double) cap ? ChatFormatting.GOLD : ChatFormatting.GREEN))) : Component.literal("-").withStyle(ChatFormatting.GRAY));
-			}
-		});
+                for (SpawnGroup group : SpawnGroup.values()) {
+                    cap += group.getCapacity();
+                }
+                cap = cap * info.getSpawningChunkCount() / CHUNK_AREA;
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "mob_count"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+                int count = 0;
 
-			NaturalSpawner.SpawnState info = world.getChunkSource().getLastSpawnState();
+                for (int value : info.getGroupToCount().values()) {
+                    count += value;
+                }
+                return PlaceholderResult.value(count > 0 ? Text.literal("" + count).formatted(count > cap ? Formatting.LIGHT_PURPLE : count > 0.8 * cap ? Formatting.RED : count > 0.5 * cap ? Formatting.GOLD : Formatting.GREEN) : Text.literal("-").formatted(Formatting.GRAY));
+            }
+        });
 
-			MobCategory spawnGroup = null;
-			if (arg != null) {
-				spawnGroup = MobCategory.valueOf(arg.toUpperCase(Locale.ROOT));
-			}
+        Placeholders.register(Identifier.of("world", "mob_count"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			if (spawnGroup != null) {
-				return PlaceholderResult.value("" + info.getMobCategoryCounts().getInt(spawnGroup));
-			} else {
-				int x = 0;
+            SpawnHelper.Info info = world.getChunkManager().getSpawnInfo();
 
-				for (int value : info.getMobCategoryCounts().values()) {
-					x += value;
-				}
-				return PlaceholderResult.value("" + x);
-			}
-		});
+            SpawnGroup spawnGroup = null;
+            if (arg != null) {
+                spawnGroup = SpawnGroup.valueOf(arg.toUpperCase(Locale.ROOT));
+            }
 
-		Placeholders.register(ResourceLocation.fromNamespaceAndPath("world", "mob_cap"), (ctx, arg) -> {
-			ServerLevel world;
-			if (ctx.player() != null) {
-				world = ctx.player().serverLevel();
-			} else {
-				world = ctx.server().overworld();
-			}
+            if (spawnGroup != null) {
+                return PlaceholderResult.value("" + info.getGroupToCount().getInt(spawnGroup));
+            } else {
+                int x = 0;
 
-			NaturalSpawner.SpawnState info = world.getChunkSource().getLastSpawnState();
+                for (int value : info.getGroupToCount().values()) {
+                    x += value;
+                }
+                return PlaceholderResult.value("" + x);
+            }
+        });
 
-			MobCategory spawnGroup = null;
-			if (arg != null) {
-				spawnGroup = MobCategory.valueOf(arg.toUpperCase(Locale.ROOT));
-			}
+        Placeholders.register(Identifier.of("world", "mob_cap"), (ctx, arg) -> {
+            ServerWorld world;
+            if (ctx.player() != null) {
+                world = ctx.player().getServerWorld();
+            } else {
+                world = ctx.server().getOverworld();
+            }
 
-			if (spawnGroup != null) {
-				return PlaceholderResult.value("" + spawnGroup.getMaxInstancesPerChunk() * info.getSpawnableChunkCount() / CHUNK_AREA);
-			} else {
-				int x = 0;
+            SpawnHelper.Info info = world.getChunkManager().getSpawnInfo();
 
-				for (MobCategory group : MobCategory.values()) {
-					x += group.getMaxInstancesPerChunk();
-				}
-				return PlaceholderResult.value("" + x * info.getSpawnableChunkCount() / CHUNK_AREA);
-			}
-		});
-	}
+            SpawnGroup spawnGroup = null;
+            if (arg != null) {
+                spawnGroup = SpawnGroup.valueOf(arg.toUpperCase(Locale.ROOT));
+            }
+
+            if (spawnGroup != null) {
+                return PlaceholderResult.value("" + spawnGroup.getCapacity() * info.getSpawningChunkCount() / CHUNK_AREA);
+            } else {
+                int x = 0;
+
+                for (SpawnGroup group : SpawnGroup.values()) {
+                    x += group.getCapacity();
+                }
+                return PlaceholderResult.value("" + x * info.getSpawningChunkCount() / CHUNK_AREA);
+            }
+        });
+    }
 }

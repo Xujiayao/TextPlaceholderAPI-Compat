@@ -1,93 +1,93 @@
 package com.xujiayao.placeholder_api_compat.api;
 
 import com.xujiayao.placeholder_api_compat.api.parsers.TextParserV1;
-import net.minecraft.ChatFormatting;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.Style;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 public final class PlaceholderResult {
-	private final Component text;
-	private final boolean valid;
-	private String string;
+    private final Text text;
+    private String string;
+    private final boolean valid;
 
-	private PlaceholderResult(Component text, String reason) {
-		if (text != null) {
-			this.text = text;
-			this.valid = true;
-		} else {
-			this.text = Component.literal("[" + (reason != null ? reason : "Invalid placeholder!") + "]").setStyle(Style.EMPTY.withColor(ChatFormatting.GRAY).withItalic(true));
-			this.valid = false;
-		}
-	}
+    private PlaceholderResult(Text text, String reason) {
+        if (text != null) {
+            this.text = text;
+            this.valid = true;
+        } else {
+            this.text = Text.literal("[" + (reason != null ? reason : "Invalid placeholder!") + "]").setStyle(Style.EMPTY.withColor(Formatting.GRAY).withItalic(true));
+            this.valid = false;
+        }
+    }
 
-	/**
-	 * Create result for invalid placeholder
-	 *
-	 * @return PlaceholderResult
-	 */
-	public static PlaceholderResult invalid(String reason) {
-		return new PlaceholderResult(null, reason);
-	}
+    /**
+     * Returns text component from placeholder
+     *
+     * @return Text
+     */
+    public Text text() {
+        return this.text;
+    }
 
-	/**
-	 * Create result for invalid placeholder
-	 *
-	 * @return PlaceholderResult
-	 */
-	public static PlaceholderResult invalid() {
-		return new PlaceholderResult(null, null);
-	}
+    /**
+     * Returns text component as String (without formatting) from placeholder
+     * It's not recommended for general usage, as it makes it text static/unable to change depending on player's language or other settings
+     * and removes all styling.
+     *
+     * @return String
+     */
+    @Deprecated
+    public String string() {
+        if (this.string == null) {
+            this.string = this.text.getString();
+        }
+        return this.string;
+    }
 
-	/**
-	 * Create result for placeholder with formatting
-	 *
-	 * @return PlaceholderResult
-	 */
-	public static PlaceholderResult value(Component text) {
-		return new PlaceholderResult(text, null);
-	}
+    /**
+     * Checks if placeholder was valid
+     *
+     * @return boolean
+     */
+    public boolean isValid() {
+        return this.valid;
+    }
 
-	/**
-	 * Create result for placeholder
-	 *
-	 * @return PlaceholderResult
-	 */
-	@SuppressWarnings("deprecation")
-	public static PlaceholderResult value(String text) {
-		return new PlaceholderResult(TextParserV1.DEFAULT.parseText(text, null), null);
-	}
+    /**
+     * Create result for invalid placeholder
+     *
+     * @return PlaceholderResult
+     */
+    public static PlaceholderResult invalid(String reason) {
+        return new PlaceholderResult(null, reason);
+    }
 
-	/**
-	 * Returns text component from placeholder
-	 *
-	 * @return Text
-	 */
-	public Component text() {
-		return this.text;
-	}
+    /**
+     * Create result for invalid placeholder
+     *
+     * @return PlaceholderResult
+     */
+    public static PlaceholderResult invalid() {
+        return new PlaceholderResult(null, null);
+    }
 
-	/**
-	 * Returns text component as String (without formatting) from placeholder
-	 * It's not recommended for general usage, as it makes it text static/unable to change depending on player's language or other settings
-	 * and removes all styling.
-	 *
-	 * @return String
-	 */
-	@Deprecated
-	public String string() {
-		if (this.string == null) {
-			this.string = this.text.getString();
-		}
+    /**
+     * Create result for placeholder with formatting
+     *
+     * @return PlaceholderResult
+     */
+    public static PlaceholderResult value(Text text) {
+        return new PlaceholderResult(text, null);
+    }
 
-		return this.string;
-	}
-
-	/**
-	 * Checks if placeholder was valid
-	 *
-	 * @return boolean
-	 */
-	public boolean isValid() {
-		return this.valid;
-	}
+    /**
+     * Create result for placeholder
+     *
+     * @return PlaceholderResult
+     */
+    public static PlaceholderResult value(String text) {
+        return new PlaceholderResult(TextParserV1.DEFAULT.parseText(text, null), null);
+    }
 }
+
+

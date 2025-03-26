@@ -6,30 +6,28 @@ import net.minecraft.text.Style;
 
 import java.util.Arrays;
 
-public final class ObfuscatedNode extends SimpleStylingNode {
-    private static final Style TRUE = Style.EMPTY.withObfuscated(true);
-    private static final Style FALSE = Style.EMPTY.withObfuscated(false);
-    private final boolean value;
+public final class ShadowNode extends SimpleStylingNode {
+    private final int color;
 
-    public ObfuscatedNode(TextNode[] nodes, boolean value) {
-        super(nodes);
-        this.value = value;
+    public ShadowNode(TextNode[] children, int color) {
+        super(children);
+        this.color = color;
     }
 
     @Override
     protected Style style(ParserContext context) {
-        return this.value ? TRUE : FALSE;
+        return Style.EMPTY.withShadowColor(this.color);
     }
 
     @Override
     public ParentTextNode copyWith(TextNode[] children) {
-        return new ObfuscatedNode(children, this.value);
+        return new ShadowNode(children, this.color);
     }
 
     @Override
     public String toString() {
-        return "ObfuscatedNode{" +
-                "value=" + value +
+        return "ShadowNode{" +
+                "color=" + color +
                 ", children=" + Arrays.toString(children) +
                 '}';
     }

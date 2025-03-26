@@ -11,28 +11,28 @@ import java.util.ArrayList;
  * If you want to use this, it should be a last step of parsing into a "template" ((dynamic) placeholders should also be parsed before this).
  */
 public record StaticPreParser() implements NodeParser {
-	public static final NodeParser INSTANCE = new StaticPreParser();
+    public static final NodeParser INSTANCE = new StaticPreParser();
 
-	public static TextNode parse(TextNode node) {
-		if (!node.isDynamic()) {
-			return new DirectTextNode(node.toText());
-		}
+    @Override
+    public TextNode[] parseNodes(TextNode input) {
+        return new TextNode[] { parse(input) };
+    }
 
-		if (node instanceof ParentNode parentNode) {
-			ArrayList<TextNode> c = new ArrayList<>();
+    public static TextNode parse(TextNode node) {
+        if (!node.isDynamic()) {
+            return new DirectTextNode(node.toText());
+        }
 
-			for (TextNode child : parentNode.getChildren()) {
-				c.add(parse(child));
-			}
+        if (node instanceof ParentNode parentNode) {
+            var c = new ArrayList<TextNode>();
 
-			return parentNode.copyWith(c.toArray(new TextNode[0]));
-		}
+            for (var child : parentNode.getChildren()) {
+                c.add(parse(child));
+            }
 
-		return node;
-	}
+            return parentNode.copyWith(c.toArray(new TextNode[0]));
+        }
 
-	@Override
-	public TextNode[] parseNodes(TextNode input) {
-		return new TextNode[]{parse(input)};
-	}
+        return node;
+    }
 }

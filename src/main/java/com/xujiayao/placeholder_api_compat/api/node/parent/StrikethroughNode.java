@@ -2,39 +2,35 @@ package com.xujiayao.placeholder_api_compat.api.node.parent;
 
 import com.xujiayao.placeholder_api_compat.api.ParserContext;
 import com.xujiayao.placeholder_api_compat.api.node.TextNode;
-import net.minecraft.network.chat.Style;
+import net.minecraft.text.Style;
 
 import java.util.Arrays;
 
 public final class StrikethroughNode extends SimpleStylingNode {
-	private static final Style TRUE;
-	private static final Style FALSE;
+    private static final Style TRUE = Style.EMPTY.withStrikethrough(true);
+    private static final Style FALSE = Style.EMPTY.withStrikethrough(false);
+    private final boolean value;
 
-	static {
-		TRUE = Style.EMPTY.withStrikethrough(true);
-		FALSE = Style.EMPTY.withStrikethrough(false);
-	}
+    public StrikethroughNode(TextNode[] nodes, boolean value) {
+        super(nodes);
+        this.value = value;
+    }
 
-	private final boolean value;
+    @Override
+    protected Style style(ParserContext context) {
+        return this.value ? TRUE : FALSE;
+    }
 
-	public StrikethroughNode(TextNode[] nodes, boolean value) {
-		super(nodes);
-		this.value = value;
-	}
+    @Override
+    public ParentTextNode copyWith(TextNode[] children) {
+        return new StrikethroughNode(children, this.value);
+    }
 
-	@Override
-	protected Style style(ParserContext context) {
-		return this.value ? TRUE : FALSE;
-	}
-
-	@Override
-	public ParentTextNode copyWith(TextNode[] children) {
-		return new StrikethroughNode(children, this.value);
-	}
-
-	@Override
-	public String toString() {
-		String var10000 = Arrays.toString(this.children);
-		return "StrikethroughNode{children=" + var10000 + ", value=" + this.value + "}";
-	}
+    @Override
+    public String toString() {
+        return "StrikethroughNode{" +
+                "children=" + Arrays.toString(children) +
+                ", value=" + value +
+                '}';
+    }
 }
