@@ -23,7 +23,7 @@ pluginManagement {
 	}
 }
 
-def mainVersion = "1.21.4"
+def mainVersion = "1.21.5"
 
 include(":$mainVersion")
 
@@ -33,7 +33,8 @@ mainProj.buildFileName = "../../common.gradle"
 
 if (!System.env.JITPACK) {
 	def versions = Arrays.asList(
-			"1.21.1"
+			"1.21.1",
+			"1.21.4"
 	)
 	for (String version : versions) {
 		include(":$version")
