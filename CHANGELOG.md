@@ -1,22 +1,16 @@
 # Changelog 更新日志
 
-## Placeholder API Compat 2.5.2-compat.1 for Minecraft 1.21+ - 2025/2/26
+## Placeholder API Compat 2.6.1-compat.1 for Minecraft 1.21.4+ - 2025/3/27
 
 ## New Features 新特性
 
-- Update to upstream version 2.5.2
-  更新到上游 2.5.2 版本
-
-- Rewrite README
-  重写 README
+- Update to upstream version 2.6.1
+  更新到上游 2.6.1 版本
 
 ## Changes 更改
 
-- Use Mojang Mappings instead of Yarn Mappings
-  从 Yarn 映射更换至 Mojang 映射
-
-- Code optimization
-  优化代码
+- Use Yarn Mappings instead of Mojang Mappings
+  从 Mojang 映射更换至 Yarn 映射
 
 ## Removed 移除
 
@@ -28,4 +22,4 @@ N/A
 
 ## Detailed Information 详细信息
 
-https://github.com/Xujiayao/TextPlaceholderAPI-Compat/compare/2.5.1-compat.2...2.5.2-compat.1
+https://github.com/Xujiayao/TextPlaceholderAPI-Compat/compare/2.5.2-compat.1...2.6.1-compat.1

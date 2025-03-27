@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-	modCompileOnly("com.github.Xujiayao:TextPlaceholderAPI-Compat:2.5.2-compat.1")
+	modCompileOnly("com.github.Xujiayao:TextPlaceholderAPI-Compat:2.6.1-compat.1")
 }
 ```
 
