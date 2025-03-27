@@ -13,16 +13,16 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
-//#if MC < 12105
-//$$ import net.minecraft.text.Text;
-//#endif
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
+
+//#if MC < 12105
+//$$ import net.minecraft.text.Text;
+//#endif
 
 public final class HoverNode<T, H> extends SimpleStylingNode {
 	private final Action<T, H> action;
