@@ -362,10 +362,17 @@ public final class TextTagsV1 {
 												var nbt = StringNbtReader.readCompound(restoreOriginalEscaping(cleanArgument(lines[1])));
 												return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.LAZY_ITEM_STACK,
 														new HoverNode.LazyItemStackNodeContent<>(
+																//#if MC >= 12105
 																Identifier.of(nbt.getString("id", "")),
 																nbt.contains("count") ? nbt.getInt("count", 1) : 1,
 																NbtOps.INSTANCE,
 																nbt.contains("components") ? nbt.getCompound("components").orElse(null) : null
+																//#else
+																//$$ Identifier.of(nbt.getString("id")),
+																//$$ nbt.contains("count") ? nbt.getInt("count") : 1,
+																//$$ NbtOps.INSTANCE,
+																//$$ nbt.contains("components") ? nbt.getCompound("components") : null
+																//#endif
 														)
 												));
 											} catch (Throwable e) {
@@ -378,7 +385,11 @@ public final class TextTagsV1 {
 													}
 
 													return out.value(new HoverNode<>(out.nodes(), HoverNode.Action.VANILLA_ITEM_STACK,
+															//#if MC >= 12105
 															new HoverEvent.ShowItem(stack)
+															//#else
+															//$$ new HoverEvent.ItemStackContent(stack)
+															//#endif
 													));
 												}
 											}

@@ -399,11 +399,19 @@ public final class BuiltinTags {
 													var nbt = StringNbtReader.readCompound(value);
 
 													return new HoverNode<>(nodes, HoverNode.Action.LAZY_ITEM_STACK,
+															//#if MC >= 12105
 															new HoverNode.LazyItemStackNodeContent<>(Identifier.of(nbt.getString("id", "")),
 																	nbt.contains("count") ? nbt.getInt("count", 1) : 1,
 																	NbtOps.INSTANCE,
 																	nbt.contains("components") ? nbt.getCompound("components").orElse(null) : null
 															)
+															//#else
+															//$$ new HoverNode.LazyItemStackNodeContent<>(Identifier.of(nbt.getString("id")),
+															//$$ 		nbt.contains("count") ? nbt.getInt("count") : 1,
+															//$$ 		NbtOps.INSTANCE,
+															//$$ 		nbt.contains("components") ? nbt.getCompound("components") : null
+															//$$ )
+															//#endif
 													);
 												} catch (Throwable ignored) {
 												}

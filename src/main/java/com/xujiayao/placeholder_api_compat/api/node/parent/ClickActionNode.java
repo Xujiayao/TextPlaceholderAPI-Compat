@@ -35,6 +35,7 @@ public final class ClickActionNode extends SimpleStylingNode {
 
 	@Override
 	protected Style style(ParserContext context) {
+		//#if MC >= 12105
 		return switch (this.action) {
 			case OPEN_URL -> {
 				try {
@@ -59,6 +60,9 @@ public final class ClickActionNode extends SimpleStylingNode {
 			case COPY_TO_CLIPBOARD ->
 					Style.EMPTY.withClickEvent(new ClickEvent.CopyToClipboard(this.value.toText(context).getString()));
 		};
+		//#else
+		//$$ return Style.EMPTY.withClickEvent(new ClickEvent(this.action, this.value.toText(context, true).getString()));
+		//#endif
 	}
 
 	@Override

@@ -28,6 +28,7 @@ public final class StyledNode extends SimpleStylingNode {
 	public Style style(ParserContext context) {
 		var style = this.style;
 
+		//#if MC >= 12105
 		if (this.hoverValue != null && style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT) {
 			style = style.withHoverEvent(new HoverEvent.ShowText(this.hoverValue.toText(context, true)));
 		}
@@ -53,6 +54,15 @@ public final class StyledNode extends SimpleStylingNode {
 				case COPY_TO_CLIPBOARD -> style = style.withClickEvent(new ClickEvent.CopyToClipboard(node));
 			}
 		}
+		//#else
+		//$$ if (hoverValue != null && style.getHoverEvent() != null && style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT) {
+		//$$ 	style = style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, this.hoverValue.toText(context, true)));
+		//$$ }
+		//$$
+		//$$ if (clickValue != null && style.getClickEvent() != null) {
+		//$$ 	style = style.withClickEvent(new ClickEvent(style.getClickEvent().getAction(), this.clickValue.toText(context, true).getString()));
+		//$$ }
+		//#endif
 
 		if (this.insertion != null) {
 			style = style.withInsertion(this.insertion.toText(context, true).getString());

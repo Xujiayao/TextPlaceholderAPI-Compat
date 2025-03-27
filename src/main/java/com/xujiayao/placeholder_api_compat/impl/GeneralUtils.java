@@ -247,7 +247,11 @@ public class GeneralUtils {
 			if (rarity) {
 				mutableText.formatted(stack.getRarity().getFormatting());
 			}
+			//#if MC >= 12105
 			mutableText.styled((style) -> style.withHoverEvent(new HoverEvent.ShowItem(stack)));
+			//#else
+			//$$ mutableText.styled((style) -> style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, new HoverEvent.ItemStackContent(stack))));
+			//#endif
 
 			return mutableText;
 		}
@@ -307,6 +311,7 @@ public class GeneralUtils {
 
 	private static Text getHoverValue(Style style) {
 		if (style.getHoverEvent() != null) {
+			//#if MC >= 12105
 			switch (style.getHoverEvent().getAction()) {
 				case SHOW_TEXT -> {
 					return ((HoverEvent.ShowText) style.getHoverEvent()).value();
@@ -325,6 +330,11 @@ public class GeneralUtils {
                 }
                  */
 			}
+			//#else
+			//$$ if (style.getHoverEvent().getAction() == HoverEvent.Action.SHOW_TEXT) {
+			//$$     return style.getHoverEvent().getValue(HoverEvent.Action.SHOW_TEXT);
+			//$$ }
+			//#endif
 		}
 
 		return Text.literal("Missing Hover Value");
@@ -332,6 +342,7 @@ public class GeneralUtils {
 
 	private static Text getClickValue(Style style) {
 		if (style.getClickEvent() != null) {
+			//#if MC >= 12105
 			switch (style.getClickEvent().getAction()) {
 				case CHANGE_PAGE -> {
 					return Text.literal(String.valueOf(((ClickEvent.ChangePage) style.getClickEvent()).page()));
@@ -352,6 +363,9 @@ public class GeneralUtils {
 					return Text.literal(((ClickEvent.SuggestCommand) style.getClickEvent()).command());
 				}
 			}
+			//#else
+			//$$ return Text.literal(style.getClickEvent().getValue());
+			//#endif
 		}
 
 		return Text.literal("Missing Click Value");

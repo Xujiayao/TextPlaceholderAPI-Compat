@@ -13,6 +13,10 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Style;
+//#if MC < 12105
+//$$ import net.minecraft.text.Text;
+//#endif
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,6 +45,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected Style style(ParserContext context) {
+		//#if MC >= 12105
 		if (this.action == Action.TEXT_NODE) {
 			return Style.EMPTY.withHoverEvent(new HoverEvent.ShowText(((TextNode) this.value).toText(context, true)));
 		} else if (this.action == Action.ENTITY_NODE) {
@@ -63,6 +68,26 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 		} else {
 			return Style.EMPTY;
 		}
+		//#else
+		//$$ if (this.action == Action.TEXT_NODE) {
+		//$$ 	return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((TextNode) this.value).toText(context, true)));
+		//$$ } else if (this.action == Action.ENTITY_NODE) {
+		//$$ 	return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), ((EntityNodeContent) this.value).toVanilla(context)));
+		//$$ } else if (this.action == Action.LAZY_ITEM_STACK) {
+		//$$ 	RegistryWrapper.WrapperLookup wrapper;
+		//$$ 	if (context.contains(ParserContext.Key.WRAPPER_LOOKUP)) {
+		//$$ 		wrapper = context.getOrThrow(ParserContext.Key.WRAPPER_LOOKUP);
+		//$$ 	} else if (context.contains(PlaceholderContext.KEY)) {
+		//$$ 		wrapper = context.getOrThrow(PlaceholderContext.KEY).server().getRegistryManager();
+		//$$ 	} else {
+		//$$ 		return Style.EMPTY;
+		//$$ 	}
+		//$$
+		//$$ 	return Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_ITEM, ((LazyItemStackNodeContent) this.value).toVanilla(wrapper)));
+		//$$ } else {
+		//$$ 	return Style.EMPTY.withHoverEvent(new HoverEvent((HoverEvent.Action<Object>) this.action.vanillaType(), this.value));
+		//$$ }
+		//#endif
 	}
 
 	@Override
@@ -73,6 +98,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 	@SuppressWarnings("unchecked")
 	@Override
 	public ParentTextNode copyWith(TextNode[] children, NodeParser parser) {
+		//#if MC >= 12105
 		if (this.value == null) {
 			return this.copyWith(children);
 		} else if (this.action == Action.TEXT_NODE) {
@@ -109,6 +135,14 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 					new HoverEvent.ShowEntity(val)
 			);
 		}
+		//#else
+		//$$ if (this.action == Action.TEXT_NODE) {
+		//$$ 	return new HoverNode(children, Action.TEXT_NODE, parser.parseNode((TextNode) this.value));
+		//$$ } else if (this.action == Action.ENTITY_NODE && ((EntityNodeContent) this.value).name != null) {
+		//$$ 	var val = ((EntityNodeContent) this.value);
+		//$$ 	return new HoverNode(children, Action.ENTITY_NODE, new EntityNodeContent(val.entityType, val.uuid, parser.parseNode(val.name)));
+		//$$ }
+		//#endif
 		return this.copyWith(children);
 	}
 
@@ -126,6 +160,7 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 	}
 
 	public record Action<T, H>(HoverEvent.Action vanillaType) {
+		//#if MC >= 12105
 		public static final Action<TextNode, HoverEvent.ShowText> TEXT_NODE = new Action<>(HoverEvent.Action.SHOW_TEXT);
 		public static final Action<LazyItemStackNodeContent<?>, HoverEvent.ShowItem> LAZY_ITEM_STACK = new Action<>(HoverEvent.Action.SHOW_ITEM);
 		public static final Action<EntityNodeContent, HoverEvent.ShowEntity> ENTITY_NODE = new Action<>(HoverEvent.Action.SHOW_ENTITY);
@@ -137,8 +172,16 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 		public String toString() {
 			return "HoverNode$Action{vanillaType={" + vanillaType.name() + "}}";
 		}
+		//#else
+		//$$ public static final Action<EntityNodeContent, HoverEvent.EntityContent> ENTITY_NODE = new Action<>(HoverEvent.Action.SHOW_ENTITY);
+		//$$ public static final Action<TextNode, Text> TEXT_NODE = new Action<>(HoverEvent.Action.SHOW_TEXT);
+		//$$
+		//$$ public static final Action<HoverEvent.ItemStackContent, HoverEvent.ItemStackContent> VANILLA_ITEM_STACK = new Action<>(HoverEvent.Action.SHOW_ITEM);
+		//$$ public static final Action<LazyItemStackNodeContent, HoverEvent.ItemStackContent> LAZY_ITEM_STACK = new Action<>(HoverEvent.Action.SHOW_ITEM);
+		//#endif
 	}
 
+	//#if MC >= 12105
 	public record EntityNodeContent(EntityType<?> entityType, UUID uuid,
 	                                @Nullable TextNode name) implements HoverEvent {
 		public EntityContent toVanilla(ParserContext context) {
@@ -191,4 +234,20 @@ public final class HoverNode<T, H> extends SimpleStylingNode {
 					+ "}}";
 		}
 	}
+	//#else
+	//$$ public record EntityNodeContent(EntityType<?>entityType, UUID uuid, @Nullable TextNode name) {
+	//$$ 	public HoverEvent.EntityContent toVanilla(ParserContext context) {
+	//$$ 		return new HoverEvent.EntityContent(this.entityType, this.uuid, this.name != null ? this.name.toText(context, true) : null);
+	//$$ 	}
+	//$$ }
+	//$$
+	//$$ public record LazyItemStackNodeContent<T>(Identifier identifier, int count, DynamicOps<T> ops, T componentMap) {
+	//$$ 	public HoverEvent.ItemStackContent toVanilla(RegistryWrapper.WrapperLookup lookup) {
+	//$$ 		var stack = new ItemStack(lookup.getOrThrow(RegistryKeys.ITEM).getOrThrow(RegistryKey.of(RegistryKeys.ITEM, identifier)));
+	//$$ 		stack.setCount(count);
+	//$$ 		stack.applyChanges(ComponentChanges.CODEC.decode(lookup.getOps(ops), componentMap).getOrThrow().getFirst());
+	//$$ 		return new HoverEvent.ItemStackContent(stack);
+	//$$ 	}
+	//$$ }
+	//#endif
 }
